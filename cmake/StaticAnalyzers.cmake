@@ -1,22 +1,26 @@
-macro(Vantablade_enable_cppcheck WARNINGS_AS_ERRORS CPPCHECK_OPTIONS)
-  find_program(CPPCHECK cppcheck)
-  if(CPPCHECK)
+macro(Vantablade_tool_not_found_warning TOOL_NAME)
+    message(${jsav_WARNING_TYPE} "${TOOL_NAME} was requested but executable was not found. Please install ${TOOL_NAME} to enable this feature.")
+endmacro()
 
-        if(CMAKE_GENERATOR MATCHES ".*Visual Studio.*")
+macro(Vantablade_enable_cppcheck WARNINGS_AS_ERRORS CPPCHECK_OPTIONS)
+    find_program(CPPCHECK cppcheck)
+    if (CPPCHECK)
+
+        if (CMAKE_GENERATOR MATCHES ".*Visual Studio.*")
             set(CPPCHECK_TEMPLATE "vs")
             message(STATUS "Using Visual Studio output template")
-        else()
+        else ()
             set(CPPCHECK_TEMPLATE "gcc")
             message(STATUS "Using GCC-style output template")
-        endif()
+        endif ()
 
-        if("${CPPCHECK_OPTIONS}" STREQUAL "")
+        if ("${CPPCHECK_OPTIONS}" STREQUAL "")
             # Enable all warnings that are actionable by the user of this toolset
             # style should enable the other 3, but we'll be explicit just in case
             set(SUPPRESS_DIR "*:${CMAKE_CURRENT_BINARY_DIR}/_deps/*.h")
             message(STATUS "  Suppressing warnings from: ${SUPPRESS_DIR}")
             message(STATUS "  Enabling checks: style, performance, warning, portability")
-            message(STATUS "  Active suppressions: cppcheckError, internalAstError, unmatchedSuppression, passedByValue, syntaxError, preprocessorErrorDirective")
+            message(STATUS "  Active suppressions: cppcheckError, internalAstError, unmatchedSuppression, passedByValue, syntaxError, preprocessorErrorDirective, duplInheritedMember")
             set(CMAKE_CXX_CPPCHECK
                     ${CPPCHECK}
                     --template=${CPPCHECK_TEMPLATE}
@@ -33,28 +37,31 @@ macro(Vantablade_enable_cppcheck WARNINGS_AS_ERRORS CPPCHECK_OPTIONS)
                     --suppress=syntaxError
                     --suppress=preprocessorErrorDirective
                     # ignores static_assert type failures
-          --suppress=knownConditionTrueFalse
-          --inconclusive
+                    --suppress=knownConditionTrueFalse
+                    # LLVM-style RTTI pattern intentionally uses classof in derived classes
+                    --suppress=duplInheritedMember
+                    --inconclusive
+
                     --suppress=${SUPPRESS_DIR}
             )
-        else()
+        else ()
             message(STATUS "Using custom cppcheck options: ${CPPCHECK_OPTIONS}")
             # if the user provides a CPPCHECK_OPTIONS with a template specified, it will override this template
             set(CMAKE_CXX_CPPCHECK ${CPPCHECK} --template=${CPPCHECK_TEMPLATE} ${CPPCHECK_OPTIONS})
-        endif()
+        endif ()
 
-    if(NOT
-       "${CMAKE_CXX_STANDARD}"
-       STREQUAL
-       "")
-      set(CMAKE_CXX_CPPCHECK ${CMAKE_CXX_CPPCHECK} --std=c++${CMAKE_CXX_STANDARD})
-    endif()
-    if(${WARNINGS_AS_ERRORS})
-      list(APPEND CMAKE_CXX_CPPCHECK --error-exitcode=2)
-    endif()
-  else()
-    message(WARNING "cppcheck requested but executable not found")
-  endif()
+        if (NOT
+                "${CMAKE_CXX_STANDARD}"
+                STREQUAL
+                "")
+            set(CMAKE_CXX_CPPCHECK ${CMAKE_CXX_CPPCHECK} --std=c++${CMAKE_CXX_STANDARD})
+        endif ()
+        if (${WARNINGS_AS_ERRORS})
+            list(APPEND CMAKE_CXX_CPPCHECK --error-exitcode=2)
+        endif ()
+    else ()
+        Vantablade_tool_not_found_warning("cppcheck")
+    endif ()
 endmacro()
 
 macro(Vantablade_enable_clang_tidy target WARNINGS_AS_ERRORS)
@@ -88,12 +95,21 @@ macro(Vantablade_enable_clang_tidy target WARNINGS_AS_ERRORS)
 
         # set standard
         if (NOT "${CMAKE_CXX_STANDARD}" STREQUAL "")
-            if ("${CLANG_TIDY_OPTIONS_DRIVER_MODE}" STREQUAL "cl")
-                list(APPEND CLANG_TIDY_OPTIONS -extra-arg=/std:c++${CMAKE_CXX_STANDARD})
-                message(STATUS "Configured C++${CMAKE_CXX_STANDARD} standard for MSVC compatibility")
+            if (MSVC)
+                # clang-cl (--driver-mode=cl) requires MSVC-style standard flags.
+                # C++23 has no /std:c++23 in MSVC; /std:c++latest is the correct equivalent.
+                if ("${CMAKE_CXX_STANDARD}" STREQUAL "23" OR "${CMAKE_CXX_STANDARD}" GREATER_EQUAL 23)
+                    set(_tidy_std_flag "/std:c++latest")
+                else ()
+                    set(_tidy_std_flag "/std:c++${CMAKE_CXX_STANDARD}")
+                endif ()
+                list(APPEND CLANG_TIDY_OPTIONS
+                        --extra-arg-before=--driver-mode=cl
+                        -extra-arg=${_tidy_std_flag})
+                message(STATUS "Configured clang-tidy for MSVC driver mode with ${_tidy_std_flag}")
             else ()
                 list(APPEND CLANG_TIDY_OPTIONS -extra-arg=-std=c++${CMAKE_CXX_STANDARD})
-                message(STATUS "Configured C++${CMAKE_CXX_STANDARD} standard")
+                message(STATUS "Configured C++${CMAKE_CXX_STANDARD} standard for clang-tidy")
             endif ()
         endif ()
 
@@ -103,18 +119,29 @@ macro(Vantablade_enable_clang_tidy target WARNINGS_AS_ERRORS)
             message(STATUS "Treating all clang-tidy warnings as errors")
         endif ()
 
-    message("Also setting clang-tidy globally")
-    set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_OPTIONS})
-  else()
-    message(WARNING "clang-tidy requested but executable not found")
-  endif()
+        message("Also setting clang-tidy globally")
+        set(CMAKE_CXX_CLANG_TIDY ${CLANG_TIDY_OPTIONS})
+    else ()
+        Vantablade_tool_not_found_warning("clang-tidy")
+    endif ()
 endmacro()
 
 macro(Vantablade_enable_include_what_you_use)
-  find_program(INCLUDE_WHAT_YOU_USE include-what-you-use)
-  if(INCLUDE_WHAT_YOU_USE)
-    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${INCLUDE_WHAT_YOU_USE})
-  else()
-    message(WARNING "include-what-you-use requested but executable not found")
-  endif()
+    find_program(INCLUDE_WHAT_YOU_USE include-what-you-use)
+    if (INCLUDE_WHAT_YOU_USE)
+        set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${INCLUDE_WHAT_YOU_USE})
+    else ()
+        Vantablade_tool_not_found_warning("include-what-you-use")
+    endif ()
+endmacro()
+
+macro(Vantablade_enable_lizard WARNINGS_AS_ERRORS)
+    find_program(LIZARD lizard)
+    if(LIZARD)
+        include(cmake/Lizard.cmake)
+        # Function defined in Lizard.cmake
+        Vantablade_setup_lizard(${WARNINGS_AS_ERRORS})
+    else()
+        Vantablade_tool_not_found_warning("lizard")
+    endif()
 endmacro()

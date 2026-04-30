@@ -16,11 +16,3 @@ target_link_libraries(
 Vantablade_configure_linker(intro)
 
 target_include_directories(intro PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
-
-# Apply WASM-specific configuration
-if(EMSCRIPTEN)
-  Vantablade_configure_wasm_target(intro
-    TITLE "Intro - FTXUI Sample"
-    DESCRIPTION "FTXUI-based terminal application"
-  )
-endif()
