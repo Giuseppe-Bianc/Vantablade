@@ -1,6 +1,6 @@
 // NOLINTBEGIN(*-include-cleaner)
 #include <CLI/CLI.hpp>
-#include <VantabladeCore/vantabladeCore.hpp>
+#include <Vantablade/vantablade.hpp>
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
 int main(int argc, const char **argv) {

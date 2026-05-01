@@ -1,2 +1,3 @@
 add_subdirectory(vantablade_Core_lib)
+add_subdirectory(vantablade_lib)
 add_subdirectory(vantablade)

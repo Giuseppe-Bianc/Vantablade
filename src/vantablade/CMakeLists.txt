@@ -9,7 +9,7 @@ target_link_libraries(
   PRIVATE Vantablade::Vantablade_options
           Vantablade::Vantablade_warnings
           CLI11::CLI11
-          Vantablade::vantablade_core_lib
+          Vantablade::vantablade_lib
 )
 
 

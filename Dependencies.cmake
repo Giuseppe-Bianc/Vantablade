@@ -57,7 +57,7 @@ function(Vantablade_setup_dependencies)
       NAME
       Catch2
       VERSION
-      3.12.0
+      3.14.0
       GITHUB_REPOSITORY
       "catchorg/Catch2"
       SYSTEM

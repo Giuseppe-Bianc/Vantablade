@@ -11,9 +11,11 @@ get_target_property(target_name vantablade_core_lib NAME)
 include("${CMAKE_SOURCE_DIR}/cmake/Simd.cmake")
 set_simd_instructions(${target_name})
 
-target_link_libraries(vantablade_core_lib PRIVATE
+target_link_libraries(vantablade_core_lib
+        PRIVATE
         Vantablade_options
         Vantablade_warnings
+        PUBLIC
         fmt::fmt
         spdlog::spdlog)
 
@@ -42,5 +44,5 @@ set_target_properties(
 generate_export_header(vantablade_core_lib EXPORT_FILE_NAME ${PROJECT_BINARY_DIR}/include/VantabladeCore/vantablade_core_export.hpp)
 
 if(NOT BUILD_SHARED_LIBS)
-  target_compile_definitions(vantablade_core_lib PUBLIC SAMPLE_LIBRARY_STATIC_DEFINE)
+  target_compile_definitions(vantablade_core_lib PUBLIC VANTABLADE_CORE_LIB_STATIC_DEFINE)
 endif()
