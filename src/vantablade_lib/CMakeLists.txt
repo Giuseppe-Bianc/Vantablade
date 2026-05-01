@@ -5,6 +5,12 @@ add_library(vantablade_lib
         vantablade.cpp
         ../../include/Vantablade/WindowCallback.hpp
         ../../include/Vantablade/vulkanToString.hpp
+        ../../include/Vantablade/vulkanCheck.hpp
+        ../../include/Vantablade/VulkanLogInfoCallback.hpp
+        Window.cpp
+        ../../include/Vantablade/Window.hpp
+        Monitor.cpp
+        ../../include/Vantablade/Monitor.hpp
 )
 
 
