@@ -4,7 +4,8 @@
  */
 
 #pragma once
-
+// clang-format off
 #include "VantabladeCore/vantabladeCore.hpp"
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
+#include <GLFW/glfw3.h>
+// clang-format on

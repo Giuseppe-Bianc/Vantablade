@@ -3,6 +3,8 @@ include(GenerateExportHeader)
 find_package(Vulkan REQUIRED)
 add_library(vantablade_lib
         vantablade.cpp
+        ../../include/Vantablade/WindowCallback.hpp
+        ../../include/Vantablade/vulkanToString.hpp
 )
 
 
