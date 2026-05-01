@@ -6,10 +6,10 @@ set_simd_instructions(${target_name})
 
 target_link_libraries(
         vantablade
-  PRIVATE Vantablade::Vantablade_options
-          Vantablade::Vantablade_warnings
-          CLI11::CLI11
-          Vantablade::vantablade_lib
+        PRIVATE Vantablade::Vantablade_options
+        Vantablade::Vantablade_warnings
+        CLI11::CLI11
+        Vantablade::vantablade_lib
 )
 
 

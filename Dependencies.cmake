@@ -15,7 +15,6 @@ function(AddSpdlogPackage WcharSupport WcharFilenames)
           "SPDLOG_WCHAR_FILENAMES ${WcharFilenames}"
           "SPDLOG_SANITIZE_ADDRESS OFF"
   )
-
 endfunction()
 
 # Done as a function so that updates to variables like
@@ -76,4 +75,15 @@ function(Vantablade_setup_dependencies)
       YES)
   endif()
 
+  if(NOT TARGET glfw)
+    CPMAddPackage(
+            NAME glfw
+            GIT_REPOSITORY https://github.com/glfw/glfw.git
+            GIT_TAG 3.4
+            OPTIONS
+            "GLFW_BUILD_EXAMPLES OFF"
+            "GLFW_BUILD_TESTS OFF"
+            "GLFW_BUILD_DOCS OFF"
+    )
+  endif()
 endfunction()
