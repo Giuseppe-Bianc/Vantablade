@@ -15,10 +15,11 @@ Checks: "*,
         -misc-non-private-member-variables-in-classes,
         -misc-no-recursion,
         -misc-use-anonymous-namespace,
-        -misc-use-internal-linkage
+        -misc-use-internal-linkage,
+        -clang-analyzer-optin.core.EnumCastOutOfRange
 "
 WarningsAsErrors: ''
-HeaderFilterRegex: ''
+HeaderFilterRegex: '^(?!.*(/|^)(_deps|build|cmake|configured_files)(/|$)).*$'
 FormatStyle:     none
 
 CheckOptions:
@@ -26,8 +27,3 @@ CheckOptions:
     value: 'x|y|z'
   - key: readability-identifier-length.IgnoredParameterNames
     value: 'x|y|z'
-
-
-
-
-

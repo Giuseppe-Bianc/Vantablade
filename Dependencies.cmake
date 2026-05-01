@@ -3,8 +3,10 @@ include(cmake/CPM.cmake)
 function(AddSpdlogPackage WcharSupport WcharFilenames)
   CPMAddPackage(
           NAME spdlog
-          VERSION 1.15.2
+          VERSION 1.17.0
           GITHUB_REPOSITORY "gabime/spdlog"
+          SYSTEM
+          YES
           OPTIONS
           "SPDLOG_FMT_EXTERNAL ON"
           "SPDLOG_ENABLE_PCH ON"
@@ -72,28 +74,6 @@ function(Vantablade_setup_dependencies)
       "CLIUtils/CLI11"
       SYSTEM
       YES)
-  endif()
-
-  if(NOT TARGET ftxui::screen)
-    cpmaddpackage(
-      NAME
-      FTXUI
-      VERSION
-      6.1.9
-      GITHUB_REPOSITORY
-      "ArthurSonzogni/FTXUI"
-      SYSTEM
-      YES)
-  endif()
-
-  if(NOT TARGET tools::tools)
-    cpmaddpackage(
-      NAME
-      tools
-      GITHUB_REPOSITORY
-      "lefticus/tools"
-      GIT_TAG
-      "main")
   endif()
 
 endfunction()
