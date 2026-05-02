@@ -8,6 +8,7 @@
 #include "VantabladeCore/vantabladeCore.hpp"
 #include <vulkan/vulkan.h>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 // clang-format on
 
 [[nodiscard]] static constexpr auto calcolaCentro(const int &width, const int &w) noexcept { return (width - w) / 2; }

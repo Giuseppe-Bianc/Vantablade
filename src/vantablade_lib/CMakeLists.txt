@@ -11,6 +11,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/Window.hpp
         Monitor.cpp
         ../../include/Vantablade/Monitor.hpp
+        Application.cpp
+        ../../include/Vantablade/Application.hpp
 )
 
 

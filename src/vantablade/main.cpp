@@ -39,10 +39,12 @@ int main(int argc, const char **argv) {
         app.set_version_flag("--version, -v", version);
         app.parse(argc, argv);
 
-        Window lveWindow{800, 600, "Vulkan GLFW"};
+        /*Window lveWindow{800, 600, "Vulkan GLFW"};
         while(!lveWindow.shouldClose()) [[likely]] {
             glfwPollEvents();
-        }
+        }*/
+        Application vapp;
+        vapp.run();
     } catch(const CLI::ParseError &e) { return app.exit(e); } catch(const std::exception &e) {
         // Handle any other types of exceptions
         LERROR("Unhandled exception in main: {}", e.what());

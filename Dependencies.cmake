@@ -80,10 +80,26 @@ function(Vantablade_setup_dependencies)
             NAME glfw
             GIT_REPOSITORY https://github.com/glfw/glfw.git
             GIT_TAG 3.4
+            SYSTEM
+            YES
             OPTIONS
             "GLFW_BUILD_EXAMPLES OFF"
             "GLFW_BUILD_TESTS OFF"
             "GLFW_BUILD_DOCS OFF"
     )
   endif()
+    if (NOT TARGET glm::glm)
+    CPMAddPackage(
+            NAME glm
+            GIT_REPOSITORY https://github.com/g-truc/glm.git
+            GIT_TAG master # Use "master" for the latest version
+            SYSTEM
+            YES
+            OPTIONS # Add options if needed
+            "GLM_TEST_ENABLE OFF" # Disable tests if needed
+            "GLM_ENABLE_CXX_20 ON"
+            "GLM_ENABLE_SIMD_AVX2 ON"
+    )
+  endif ()
+
 endfunction()
