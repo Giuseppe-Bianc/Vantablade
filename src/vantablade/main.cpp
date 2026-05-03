@@ -1,4 +1,4 @@
-// NOLINTBEGIN(*-include-cleaner)
+// NOLINTBEGIN(*-include-cleaner, *-env33-c)
 #include <Vantablade/vantablade.hpp>
 #ifdef _WIN32
 #include <windows.h>
@@ -9,7 +9,8 @@ DISABLE_WARNINGS_PUSH(
 DISABLE_WARNINGS_POP()
 
 // NOLINTNEXTLINE(bugprone-exception-escape)
-int main(int argc, const char **argv) {
+auto main(int argc, const char **argv) -> int {
+    // NOLINTNEXTLINE
     INIT_LOG();
     const vnd::AutoTimer compilationTime("Total Execution");
 #ifdef _WIN32
@@ -50,4 +51,4 @@ int main(int argc, const char **argv) {
         LERROR("Unhandled exception in main: {}", e.what());
     }
 }
-// NOLINTEND(*-include-cleaner)
+// NOLINTEND(*-include-cleaner, *-env33-c)

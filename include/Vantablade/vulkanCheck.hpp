@@ -2,7 +2,7 @@
 * Created by gbian on 01/05/2026.
 * Copyright (c) 2026 All rights reserved.
 */
-
+// NOLINTBEGIN
 #pragma once
 
 #include "headers.hpp"
@@ -48,3 +48,5 @@
             throw std::runtime_error(trowable);                                                                                            \
         }                                                                                                                                  \
     } while(0)
+
+// NOLINTEND

@@ -6,6 +6,20 @@
 #pragma once
 
 #include "Window.hpp"
+#include "VulkanLogInfoCallback.hpp"
+
+static inline  constexpr std::array<const char*, 1> validationLayers{{
+    "VK_LAYER_KHRONOS_validation"
+}};
+
+#ifdef NDEBUG
+static inline constexpr bool enableValidationLayers = false;
+#else
+static inline constexpr bool enableValidationLayers = true;
+#endif
+
+VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
 class Application {
 public:
@@ -13,6 +27,7 @@ public:
 private:
     Window window{800, 600, "Vulkan GLFW"};
     VkInstance instance;
+    VkDebugUtilsMessengerEXT debugMessenger;
 
     //void initWindow();
 
@@ -23,4 +38,14 @@ private:
     void mainLoop();
 
     void cleanup();
+
+    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+    void setupDebugMessenger();
+
+    std::vector<const char*> getRequiredExtensions();
+
+    bool checkValidationLayerSupport();
+
+    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,[[maybe_unused]] void* pUserData);
 };

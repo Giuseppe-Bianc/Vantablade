@@ -9,9 +9,9 @@
     Monitor::Monitor(GLFWmonitor *monitorin)
       : monitor(monitorin), monitorWidth(0), monitorHeight(0), physicalWidth(0), physicalHeight(0), scaleX(0.0f), scaleY(0.0f), xPos(0),
         yPos(0) {
-        if(!monitor) { throw std::runtime_error("Failed to get the primary monitor."); }
+        if(monitor == nullptr) { throw std::runtime_error("Failed to get the primary monitor."); }
         mode = glfwGetVideoMode(monitor);
-        if(!mode) { throw std::runtime_error("Failed to get video mode."); }
+        if(mode == nullptr) { throw std::runtime_error("Failed to get video mode."); }
         fetchMonitorInfo();
     }
 

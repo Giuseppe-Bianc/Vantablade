@@ -7,7 +7,6 @@
 
 #include "vulkanCheck.hpp"
 #include <vulkan/vk_enum_string_helper.h>
-#define USE_FALLTHROUGH
 
 DISABLE_WARNINGS_PUSH(26429 26481)
 

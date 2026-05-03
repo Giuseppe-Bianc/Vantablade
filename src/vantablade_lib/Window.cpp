@@ -2,14 +2,14 @@
 * Created by gbian on 01/05/2026.
 * Copyright (c) 2026 All rights reserved.
 */
-
+// NOLINTBEGIN(*-include-cleaner, *-easily-swappable-parameters, *-convert-member-functions-to-static, *-suspicious-stringview-data-usage)
 #include "Vantablade/Window.hpp"
 
 #include "Vantablade/Monitor.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
     DISABLE_WARNINGS_PUSH(26432 26447)
-    Window::Window(const int w, const int h, const std::string_view &window_name) noexcept : width(w), height(h), windowName(window_name) {
+    Window::Window(const int w, const int h, const std::string_view &window_name) : width(w), height(h), windowName(window_name) {
         initWindow();
     }
 
@@ -27,12 +27,12 @@
     }
 
     void Window::createWindow() {
-        vnd::AutoTimer timer("glfw_window creation");
+        const vnd::AutoTimer timer("glfw_window creation");
 
         // Use std::unique_ptr with custom deleter
         window = glfwCreateWindow(width, height, windowName.data(), nullptr, nullptr);
 
-        if(!window) {
+        if(window == nullptr) {
             glfwTerminate();
             throw std::runtime_error("Failed to create GLFW window.");
         }
@@ -40,7 +40,7 @@
     }
 
     void Window::setHints() const noexcept {
-        vnd::AutoTimer timer("set glfw hints");
+        const vnd::AutoTimer timer("set glfw hints");
         // Set GLFW context version and profile
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -50,12 +50,12 @@
     }
 
     void Window::initializeGLFW() {
-        vnd::AutoTimer timer("glfw setup");
-        if(!glfwInit()) {
+        const vnd::AutoTimer timer("glfw setup");
+        if(glfwInit() == GLFW_FALSE) {
             LCRITICAL("Failed to initialize GLFW");
             throw std::runtime_error("Failed to initialize GLFW.");
         }
-        if(!glfwVulkanSupported()) {
+        if(glfwVulkanSupported() == GLFW_FALSE) {
             glfwTerminate();
             LCRITICAL("Failed to initialize GLFW. Vulkan not supported");
             throw std::runtime_error("Failed to initialize GLFW. Vulkan not supported");
@@ -66,7 +66,7 @@
     void Window::centerWindow() {
         vnd::Timer monitort("get primary Monitor");
         GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
-        if(!primaryMonitor) { throw std::runtime_error("Failed to get the primary monitor."); }
+        if(primaryMonitor == nullptr) { throw std::runtime_error("Failed to get the primary monitor."); }
         LINFO("{}", monitort);
 
         vnd::Timer modet("get monitor informatoons");
@@ -74,8 +74,8 @@
         LINFO("{}", modet);
 
         vnd::Timer crepositiont("calculating for reposition");
-        int windowWidth;
-        int windowHeight;
+        int windowWidth=0;
+        int windowHeight=0;
         glfwGetWindowSize(window, &windowWidth, &windowHeight);
         auto centerX = CALC_CENTRO(monitorInfo.getWidth(), windowWidth);
         auto centerY = CALC_CENTRO(monitorInfo.getHeight(), windowHeight);
@@ -106,8 +106,10 @@
     }
 
     void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) noexcept {
-        auto lveWindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
-        lveWindow->framebufferResized = true;
-        lveWindow->width = width;
-        lveWindow->height = height;
+        auto* wwindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
+        wwindow->framebufferResized = true;
+        wwindow->width = width;
+        wwindow->height = height;
     }
+
+// NOLINTEND(*-include-cleaner, *-easily-swappable-parameters, *-convert-member-functions-to-static, *-suspicious-stringview-data-usage)

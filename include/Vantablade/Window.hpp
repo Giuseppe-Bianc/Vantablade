@@ -15,7 +15,7 @@
     // NOLINT(*-special-member-functions)
     class Window {
     public:
-        Window(const int w, const int h, const std::string_view &window_name) noexcept;
+        Window(const int w, const int h, const std::string_view &window_name);
         ~Window();
 
         Window(const Window &) = delete;
