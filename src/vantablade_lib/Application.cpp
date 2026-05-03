@@ -44,19 +44,26 @@ void Application::createInstance() {
           VK_API_VERSION_MAJOR(instanceVersion),
           VK_API_VERSION_MINOR(instanceVersion),
           VK_API_VERSION_PATCH(instanceVersion));
+    if (enableValidationLayers && !checkValidationLayerSupport()) {
+        throw std::runtime_error("validation layers requested, but not available!");
+    }
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = Vantablade::cmake::project_name.data();
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_4;
+    appInfo.apiVersion = VK_API_VERSION_1_3;
 
     LINFO("setting the application info for the vulkan instance: {}", appInfo.pApplicationName);
 
     VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
+
+#ifdef __APPLE__
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
     auto extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = C_UI32T(extensions.size());
@@ -99,6 +106,7 @@ void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateIn
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = static_cast<VkDebugUtilsMessageSeverityFlagsEXT>(
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+        VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
     );
@@ -128,6 +136,9 @@ std::vector<const char*> Application::getRequiredExtensions() {
 
     if(enableValidationLayers) {
         extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#ifdef __APPLE__
+        extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
     }
 
     return extensions;
@@ -149,20 +160,57 @@ bool Application::checkValidationLayerSupport() {
     return true;
 }
 
+/**
+ * @brief Vulkan Debug Messenger Callback.
+ *
+ * This function is the primary feedback mechanism for the Vulkan Validation Layers.
+ * It translates raw Vulkan events into human-readable diagnostic information, adhering
+ * to the official Vulkan specification (VK_EXT_debug_utils).
+ *
+ * ### Technical Aspects of the Callback:
+ *
+ * 1. **Validation Layers (Spec Enforcement):**
+ *    Validation layers act as a runtime interceptor for Vulkan API calls. They verify that
+ *    the application state conforms to the "Valid Usage" (VUID) requirements of the spec.
+ *    Any violation is reported here with a unique identifier (e.g., VUID-vkCreateInstance-ppEnabledExtensionNames-01388).
+ *
+ * 2. **Memory Management & Safety:**
+ *    Vulkan requires explicit memory management. Errors reported under `VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT`
+ *    often relate to:
+ *    - Memory Leaks: Resources not destroyed before `vkDestroyDevice`.
+ *    - Illegal Aliasing: Multiple resources bound to the same memory without proper synchronization.
+ *    - Allocation Flags: Incorrect `VkMemoryPropertyFlags` for the intended usage.
+ *
+ * 3. **Synchronization & Resource Hazards:**
+ *    Messages of type `PERFORMANCE` or `VALIDATION` frequently highlight race conditions:
+ *    - RAW (Read-After-Write): Reading a buffer before a previous write has completed.
+ *    - WAW (Write-After-Write): Multiple writes to the same resource without a barrier.
+ *    - Interpret these using the reported `VkPipelineStageFlags` and `VkAccessFlags`.
+ *
+ * 4. **Pipeline & Shader Integrity:**
+ *    Validates that the `VkGraphicsPipelineCreateInfo` matches the active `VkRenderPass`
+ *    and that shader interface variables (layout locations) are consistent across stages.
+ *
+ * @return VK_FALSE: The application should continue execution after logging.
+ *         (Returning VK_TRUE would cause the API call that triggered this callback to fail with VK_ERROR_VALIDATION_FAILED_EXT).
+ */
 VkBool32 Application::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,[[maybe_unused]] void *pUserData) {
-    // Determine the message type
+                                    const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, [[maybe_unused]] void *pUserData) {
+
     const std::string type = VkDebugUtilsMessageTypeFlagsEXTString(messageType);
 
-    // Format and log the message
+    // Structured Header
+    printMessageWhitSeverity("================================================================================", messageSeverity);
     const auto msg = FORMAT("{}Message ID: {}({}): {}", type, pCallbackData->pMessageIdName ? pCallbackData->pMessageIdName : "Unknown",
                             pCallbackData->messageIdNumber, pCallbackData->pMessage);
-
+    // Primary Message
     printMessageWhitSeverity(msg, messageSeverity);
 
+    // Contextual Technical Details (Objects, Labels)
     logDebugValidationLayerInfo(pCallbackData, messageSeverity);
+
+    printMessageWhitSeverity("================================================================================", messageSeverity);
 
     return VK_FALSE;
 }
-
 // NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise)
