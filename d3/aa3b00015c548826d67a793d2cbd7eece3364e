@@ -1,0 +1,25 @@
+include/Vantablade/VulkanLogInfoCallback.hpp
+  df479eedbc4d56d9 36-42,46-51,54-60,62-63,67-73,76-99
+src/vantablade_lib/Application.cpp
+  df479eedbc4d56d9 163-196,198-199,202-203,206,209,212
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "d3aa3b00015c548826d67a793d2cbd7eece3364e",
+  "prompts": {
+    "df479eedbc4d56d9": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "18a89689-8b79-41cf-9bd1-4a1aeebc99d0",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI",
+      "messages": [],
+      "total_additions": 106,
+      "total_deletions": 48,
+      "accepted_lines": 157,
+      "overriden_lines": 0
+    }
+  }
+}
