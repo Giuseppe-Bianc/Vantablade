@@ -30,15 +30,14 @@ void Application::run() {
     window = vnd_move_always(Window(800, 600, "Vulkan GLFW"));
 }*/
 void Application::initVulkan() {
+    LINFO("initializing vulkan...");
     createInstance();
     setupDebugMessenger();
 }
 
 void Application::createInstance() {
     uint32_t instanceVersion = 0;
-    if (vkEnumerateInstanceVersion(&instanceVersion) != VK_SUCCESS) {
-        throw std::runtime_error("failed to enumerate vulkan instance version");
-    }
+    VK_CHECK(vkEnumerateInstanceVersion(&instanceVersion),"failed to enumerate vulkan instance version");
 
     LINFO("vulkan instance version available: {}.{}.{}",
           VK_API_VERSION_MAJOR(instanceVersion),
@@ -85,28 +84,29 @@ void Application::createInstance() {
 
     LINFO("creating vulkan instance with {} extensions and {} validation layers", createInfo.enabledExtensionCount, createInfo.enabledLayerCount);
 
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create instance!");
-    }
+    VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "failed to create instance!");
+    LINFO("vulkan instance created successfully");
 }
 
 void Application::mainLoop() {
-     while(!window.shouldClose()) [[likely]] {
-         glfwPollEvents();
-     }
+    while(!window.shouldClose()) [[likely]] {
+        glfwPollEvents();
+    }
 }
 void Application::cleanup() {
+    const vnd::AutoTimer cleanupTimer{"application cleanup"};
     if (enableValidationLayers) {
+        LINFO("destroying debug messenger");
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
     vkDestroyInstance(instance, nullptr);
 }
 void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
+    const vnd::AutoTimer timer("populate debug messenger create info");
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = static_cast<VkDebugUtilsMessageSeverityFlagsEXT>(
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-        VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT
     );
@@ -120,14 +120,15 @@ void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateIn
 void Application::setupDebugMessenger() {
     if (!enableValidationLayers) { return; }
 
+    LINFO("setting up vulkan debug messenger...");
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
 
-    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
-        throw std::runtime_error("failed to set up debug messenger!");
-    }
+    VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "failed to set up debug messenger");
+    LINFO("vulkan debug messenger setup successful");
 }
 std::vector<const char*> Application::getRequiredExtensions() {
+    const vnd::AutoTimer timer{"getRequiredExtensions"};
     uint32_t glfwExtensionCount = 0;
     const char** glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
