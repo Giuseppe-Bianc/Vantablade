@@ -72,14 +72,15 @@ static inline const char *VkQueueFlagBitsString(VkQueueFlagBits input_value) noe
 
 static inline std::string VkMemoryPropertyFlagsString(VkMemoryPropertyFlags input_value) {
     std::string ret;
-    int index = 0;
+    ret.reserve(160);
+    uint32_t index = 0;
     while(input_value) {
-        if(input_value & 1) {
-            if(!ret.empty()) ret.append(" |");
+        if(input_value & 1u) {
+            if(!ret.empty()) { ret.append(" |"); }
             ret.append(VkMemoryPropertyFlagBitsString(static_cast<VkMemoryPropertyFlagBits>(1U << index)));
         }
         ++index;
-        input_value >>= 1;
+        input_value >>= 1u;
     }
     // if(ret.empty()) ret.append("VkMemoryPropertyFlags(0)");
     return ret;
@@ -87,14 +88,15 @@ static inline std::string VkMemoryPropertyFlagsString(VkMemoryPropertyFlags inpu
 
 static inline std::string VkQueueFlagsString(VkQueueFlags input_value) {
     std::string ret;
-    int index = 0;
+    ret.reserve(140);
+    uint32_t index = 0;
     while(input_value) {
-        if(input_value & 1) {
-            if(!ret.empty()) ret.append(" |");
+        if(input_value & 1u) {
+            if(!ret.empty()) { ret.append(" |"); }
             ret.append(VkQueueFlagBitsString(static_cast<VkQueueFlagBits>(1U << index)));
         }
         ++index;
-        input_value >>= 1;
+        input_value >>= 1u;
     }
     // if(ret.empty()) ret.append("VkQueueFlags(0)");
     return ret;
@@ -102,14 +104,15 @@ static inline std::string VkQueueFlagsString(VkQueueFlags input_value) {
 
 static inline std::string VkDebugUtilsMessageTypeFlagsEXTString(VkDebugUtilsMessageTypeFlagsEXT input_value) {
     std::string ret;
-    int index = 0;
+    ret.reserve(100);
+    uint32_t index = 0;
     while(input_value) {
-        if(input_value & 1) {
-            if(!ret.empty()) ret.append("|");
+        if(input_value & 1u) {
+            if(!ret.empty()) { ret.append("|"); }
             ret.append(VkDebugUtilsMessageTypeFlagBitsEXTString(static_cast<VkDebugUtilsMessageTypeFlagBitsEXT>(1U << index)));
         }
         ++index;
-        input_value >>= 1;
+        input_value >>= 1u;
     }
     // if (ret.empty()) ret.append("VkDebugUtilsMessageTypeFlagsEXT(0)");
     return ret;
