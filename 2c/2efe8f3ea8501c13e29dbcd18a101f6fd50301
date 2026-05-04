@@ -1,0 +1,14 @@
+include/Vantablade/vulkanToString.hpp
+  h_0b496d7e860864 75-76,78-79,83,91-92,94-95,99,107-108,110-111,115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "2c2efe8f3ea8501c13e29dbcd18a101f6fd50301",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    }
+  }
+}
