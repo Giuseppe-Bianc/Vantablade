@@ -2,7 +2,7 @@
 * Created by gbian on 02/05/2026.
 * Copyright (c) 2026 All rights reserved.
 */
-// NOLINTBEGIN(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise)
+// NOLINTBEGIN(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)
 #include "Vantablade/Application.hpp"
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
@@ -30,9 +30,10 @@ void Application::run() {
     window = vnd_move_always(Window(800, 600, "Vulkan GLFW"));
 }*/
 void Application::initVulkan() {
-    LINFO("initializing vulkan...");
+    const vnd::AutoTimer timer{"init Vulkan"};
     createInstance();
     setupDebugMessenger();
+    pickPhysicalDevice();
 }
 
 void Application::createInstance() {
@@ -120,12 +121,11 @@ void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateIn
 void Application::setupDebugMessenger() {
     if (!enableValidationLayers) { return; }
 
-    LINFO("setting up vulkan debug messenger...");
+    const vnd::AutoTimer timer("setup debug messenger");
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     populateDebugMessengerCreateInfo(createInfo);
 
     VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "failed to set up debug messenger");
-    LINFO("vulkan debug messenger setup successful");
 }
 std::vector<const char*> Application::getRequiredExtensions() {
     const vnd::AutoTimer timer{"getRequiredExtensions"};
@@ -214,4 +214,54 @@ VkBool32 Application::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messa
 
     return VK_FALSE;
 }
-// NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise)
+QueueFamilyIndices Application::findQueueFamilies(VkPhysicalDevice device) {
+    const vnd::AutoTimer timer("find Queue Families");
+    QueueFamilyIndices indices;
+
+    uint32_t queueFamilyCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+    std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+    vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+    for (const auto& [i, queueFamily] : std::views::enumerate(queueFamilies)) {
+        if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) {
+            indices.graphicsFamily = C_UI32T(i);
+        }
+
+        if (indices.isComplete()) {
+            break;
+        }
+    }
+
+    return indices;
+}
+bool Application::isDeviceSuitable(VkPhysicalDevice device) {
+    const QueueFamilyIndices indices = findQueueFamilies(device);
+
+    return indices.isComplete();
+}
+void Application::pickPhysicalDevice() {
+    const vnd::AutoTimer timer("pick physical device");
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+
+    if (deviceCount == 0) {
+        throw std::runtime_error("failed to find GPUs with Vulkan support!");
+    }
+
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
+
+    const auto it = std::ranges::find_if(
+        devices,
+        [this](const VkPhysicalDevice& dev) { return isDeviceSuitable(dev); }
+    );
+
+    if (it == devices.end()) {
+        throw std::runtime_error("failed to find a suitable GPU!");
+    }
+
+    physicalDevice = *it;
+}
+// NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)
