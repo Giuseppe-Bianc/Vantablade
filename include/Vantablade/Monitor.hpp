@@ -1,7 +1,7 @@
 /*
-* Created by gbian on 01/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 01/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 
 #pragma once
 
@@ -11,21 +11,28 @@ class Monitor {
 public:
     explicit Monitor(GLFWmonitor *monitorin);
     void fetchMonitorInfo() noexcept;
-    std::string formatMode() const;
-    int getWidth() const noexcept { return monitorWidth; }
-    int getHeight() const noexcept { return monitorHeight; }
-    int getPhysicalWidth() const noexcept { return physicalWidth; }
-    int getPhysicalHeight() const noexcept { return physicalHeight; }
-    float getScaleX() const noexcept { return scaleX; }
-    float getScaleY() const noexcept { return scaleY; }
-    int getXPos() const noexcept { return xPos; }
-    int getYPos() const noexcept { return yPos; }
+    [[nodiscard]] std::string formatMode() const;
+    [[nodiscard]] int getWidth() const noexcept { return monitorWidth; }
+    [[nodiscard]] int getHeight() const noexcept { return monitorHeight; }
+    [[nodiscard]] int getPhysicalWidth() const noexcept { return physicalWidth; }
+    [[nodiscard]] int getPhysicalHeight() const noexcept { return physicalHeight; }
+    [[nodiscard]] float getScaleX() const noexcept { return scaleX; }
+    [[nodiscard]] float getScaleY() const noexcept { return scaleY; }
+    [[nodiscard]] int getXPos() const noexcept { return xPos; }
+    [[nodiscard]] int getYPos() const noexcept { return yPos; }
 
 private:
-    GLFWmonitor *monitor;
-    const GLFWvidmode *mode;
-    int monitorWidth, monitorHeight;
-    int physicalWidth, physicalHeight;
-    float scaleX, scaleY;
-    int xPos, yPos;
+    GLFWmonitor *monitor{nullptr};     // SAFETY: explicit null — uninitialized raw pointer was indeterminate
+    const GLFWvidmode *mode{nullptr};  // SAFETY: same; set by glfwGetVideoMode in constructor body
+
+    // SAFETY: default member initializers — all integral/float members are zero-initialized
+    // before the constructor body runs, eliminating indeterminate reads if construction throws.
+    int monitorWidth{0};
+    int monitorHeight{0};
+    int physicalWidth{0};
+    int physicalHeight{0};
+    float scaleX{0.0f};
+    float scaleY{0.0f};
+    int xPos{0};
+    int yPos{0};
 };

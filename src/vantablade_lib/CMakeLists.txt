@@ -13,6 +13,7 @@ add_library(vantablade_lib
         ../../include/Vantablade/Monitor.hpp
         Application.cpp
         ../../include/Vantablade/Application.hpp
+        ../../include/Vantablade/VkObjectTypeResolve.hpp
 )
 
 

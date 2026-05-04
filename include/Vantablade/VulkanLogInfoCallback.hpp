@@ -1,7 +1,7 @@
 /*
-* Created by gbian on 01/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 01/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 // NOLINTBEGIN(*-include-cleaner)
 #pragma once
 
@@ -10,8 +10,10 @@
 
 DISABLE_WARNINGS_PUSH(26429 26481)
 
-// const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity
-inline static void printMessageWhitSeverity(const std::string &msg, VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
+// PERF: std::string_view — zero-copy, zero-allocation for string literals and existing std::string.
+// The previous const std::string& forced a heap allocation for every literal call site
+// (e.g., "--- Queue Labels ---", "================================================================================").
+inline static void printMessageWhitSeverity(std::string_view msg, VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
     switch(messageSeverity) {
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
         LTRACE(msg);
@@ -32,11 +34,12 @@ inline static void printMessageWhitSeverity(const std::string &msg, VkDebugUtils
 }
 
 inline static void logQueueLabel(const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                 const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
+                                 VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
     if(pCallbackData->queueLabelCount > 0) {
         printMessageWhitSeverity("--- Queue Labels ---", messageSeverity);
         for(uint32_t i = 0; i < pCallbackData->queueLabelCount; ++i) {
-            std::string_view labelName = pCallbackData->pQueueLabels[i].pLabelName ? pCallbackData->pQueueLabels[i].pLabelName : "Unknown";
+            const std::string_view labelName = pCallbackData->pQueueLabels[i].pLabelName ? pCallbackData->pQueueLabels[i].pLabelName
+                                                                                         : "Unknown";
             const auto msg = FORMAT("  [{}] Label: {}", i, labelName);
             printMessageWhitSeverity(msg, messageSeverity);
         }
@@ -45,20 +48,17 @@ inline static void logQueueLabel(const VkDebugUtilsMessengerCallbackDataEXT *pCa
 
 /**
  * @brief Logs Command Buffer labels associated with the message.
- *
- * Command buffer labels are crucial for identifying which section of a complex command stream
- * triggered a validation error. They provide a "breadcrumbs" trail through the GPU execution.
  */
 inline static void logCmdBuffers(const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                 const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
+                                 VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
     if(pCallbackData->cmdBufLabelCount > 0) {
         printMessageWhitSeverity("--- Command Buffer Labels ---", messageSeverity);
         for(uint32_t i = 0; i < pCallbackData->cmdBufLabelCount; ++i) {
-            std::string_view labelName = pCallbackData->pCmdBufLabels[i].pLabelName ? pCallbackData->pCmdBufLabels[i].pLabelName : "Unknown";
-            const auto msg = FORMAT("  [{}] Label: {} {{ RGBA: {}, {}, {}, {} }}", i, labelName,
-                                    pCallbackData->pCmdBufLabels[i].color[0], pCallbackData->pCmdBufLabels[i].color[1],
-                                    pCallbackData->pCmdBufLabels[i].color[2], pCallbackData->pCmdBufLabels[i].color[3]);
-
+            const std::string_view labelName = pCallbackData->pCmdBufLabels[i].pLabelName ? pCallbackData->pCmdBufLabels[i].pLabelName
+                                                                                          : "Unknown";
+            const auto msg = FORMAT("  [{}] Label: {} {{ RGBA: {}, {}, {}, {} }}", i, labelName, pCallbackData->pCmdBufLabels[i].color[0],
+                                    pCallbackData->pCmdBufLabels[i].color[1], pCallbackData->pCmdBufLabels[i].color[2],
+                                    pCallbackData->pCmdBufLabels[i].color[3]);
             printMessageWhitSeverity(msg, messageSeverity);
         }
     }
@@ -66,17 +66,13 @@ inline static void logCmdBuffers(const VkDebugUtilsMessengerCallbackDataEXT *pCa
 
 /**
  * @brief Logs Vulkan objects related to the debug message.
- *
- * This function iterates through pObjects to identify the specific handles (Images, Buffers,
- * Pipelines, etc.) that are involved in the validation error. This is essential for
- * diagnosing resource-specific issues like synchronization hazards or layout mismatches.
  */
 inline static void logObjects(const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                              const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
+                              VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
     if(pCallbackData->objectCount > 0) {
         printMessageWhitSeverity("--- Related Objects ---", messageSeverity);
         for(uint32_t i = 0; i < pCallbackData->objectCount; ++i) {
-            std::string_view objectName = pCallbackData->pObjects[i].pObjectName ? pCallbackData->pObjects[i].pObjectName : "Unknown";
+            const std::string_view objectName = pCallbackData->pObjects[i].pObjectName ? pCallbackData->pObjects[i].pObjectName : "Unknown";
             const auto objectType = pCallbackData->pObjects[i].objectType;
             const auto objhandle = pCallbackData->pObjects[i].objectHandle;
             const auto objtypestring = string_VkObjectType(objectType);
@@ -102,14 +98,9 @@ inline static void logObjects(const VkDebugUtilsMessengerCallbackDataEXT *pCallb
 }
 
 inline void logDebugValidationLayerInfo(const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                        const VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
-    // Log queue labels if available
+                                        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
     logQueueLabel(pCallbackData, messageSeverity);
-
-    // Log command buffer labels if available
     logCmdBuffers(pCallbackData, messageSeverity);
-
-    // Log objects if available
     logObjects(pCallbackData, messageSeverity);
 }
 

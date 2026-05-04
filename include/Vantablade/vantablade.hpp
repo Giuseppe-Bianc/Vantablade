@@ -1,10 +1,10 @@
 #pragma once
 
-#include "headers.hpp"
-#include "WindowCallback.hpp"
-#include "vulkanToString.hpp"
-#include "vulkanCheck.hpp"
-#include "VulkanLogInfoCallback.hpp"
-#include "Monitor.hpp"
-#include "Window.hpp"
 #include "Application.hpp"
+#include "Monitor.hpp"
+#include "VulkanLogInfoCallback.hpp"
+#include "Window.hpp"
+#include "WindowCallback.hpp"
+#include "headers.hpp"
+#include "vulkanCheck.hpp"
+#include "vulkanToString.hpp"

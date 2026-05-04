@@ -1,7 +1,7 @@
 /*
-* Created by gbian on 01/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 01/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 // NOLINTBEGIN(*-include-cleaner)
 #pragma once
 
@@ -50,7 +50,7 @@ inline static void keyCallback(GLFWwindow *window, int key, [[maybe_unused]] int
             LINFO("Escape key pressed, closing window.");
         }
         break;
-        [[likely]] default:
+    [[likely]] default:
         // Handle other keys here
         break;
     }
