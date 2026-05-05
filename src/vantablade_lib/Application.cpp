@@ -33,6 +33,7 @@ void Application::initVulkan() {
     const vnd::AutoTimer timer{"init Vulkan"};
     createInstance();
     setupDebugMessenger();
+    createSurface();
     pickPhysicalDevice();
     createLogicalDevice();
     loadDebugUtilsFunctions();
@@ -107,6 +108,7 @@ void Application::cleanup() {
     if (enableValidationLayers) {
         DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
     }
+    vkDestroySurfaceKHR(instance, surface, nullptr);
     vkDestroyInstance(instance, nullptr);
 }
 void Application::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
@@ -235,8 +237,17 @@ QueueFamilyIndices Application::findQueueFamilies(VkPhysicalDevice phdevice) {
     vkGetPhysicalDeviceQueueFamilyProperties(phdevice, &queueFamilyCount, queueFamilies.data());
 
     for (const auto& [i, queueFamily] : std::views::enumerate(queueFamilies)) {
+        const auto ci =C_UI32T(i);
         if ((queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) {
-            indices.graphicsFamily = C_UI32T(i);
+            indices.graphicsFamily = ci;
+        }
+
+        VkBool32 presentSupport = false; // NOLINT(*-implicit-bool-conversion)
+        vkGetPhysicalDeviceSurfaceSupportKHR(phdevice, ci, surface, &presentSupport);
+
+        // NOLINTNEXTLINE(*-implicit-bool-conversion)
+        if (presentSupport) {
+            indices.presentFamily = ci;
         }
 
         if (indices.isComplete()) {
@@ -282,22 +293,36 @@ void Application::createLogicalDevice() {
         throw std::runtime_error("No graphics queue family found");
     }
 
-    const uint32_t graphicsFamily = indices.graphicsFamily.value();
+    const auto graphicsFamily = indices.graphicsFamily.value();
 
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-    queueCreateInfo.queueFamilyIndex = graphicsFamily;
-    queueCreateInfo.queueCount = 1;
+    if (!indices.presentFamily.has_value()) {
+        throw std::runtime_error("No present queue family found");
+    }
 
-    queueCreateInfo.pQueuePriorities = &queuePriority;
+    const auto presentFamily = indices.presentFamily.value();
+
+    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+    const std::set<uint32_t> uniqueQueueFamilies = {
+        graphicsFamily,
+        presentFamily
+    };
+
+    for (const uint32_t queueFamily : uniqueQueueFamilies) {
+        VkDeviceQueueCreateInfo queueCreateInfo{};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = queueFamily;
+        queueCreateInfo.queueCount = 1;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+        queueCreateInfos.emplace_back(queueCreateInfo);
+    }
 
     const VkPhysicalDeviceFeatures deviceFeatures{};
 
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-    createInfo.pQueueCreateInfos = &queueCreateInfo;
-    createInfo.queueCreateInfoCount = 1;
+    createInfo.queueCreateInfoCount = C_UI32T(queueCreateInfos.size());
+    createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
     createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -313,6 +338,7 @@ void Application::createLogicalDevice() {
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) ,"failed to create logical device!");
 
     vkGetDeviceQueue(device, graphicsFamily, 0, &graphicsQueue);
+    vkGetDeviceQueue(device, presentFamily, 0, &presentQueue);
 }
 void Application::loadDebugUtilsFunctions() {
     pfnSetDebugUtilsObjectName = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(vkGetDeviceProcAddr(device, "vkSetDebugUtilsObjectNameEXT"));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -320,5 +346,9 @@ void Application::loadDebugUtilsFunctions() {
     if (pfnSetDebugUtilsObjectName == nullptr) [[unlikely]] {
         throw std::runtime_error("vkSetDebugUtilsObjectNameEXT not loaded");
     }
+}
+void Application::createSurface() {
+    const vnd::AutoTimer timer("create surface");
+    window.createWindowSurface(instance, &surface);
 }
 // NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)

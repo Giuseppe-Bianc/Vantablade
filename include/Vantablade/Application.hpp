@@ -25,8 +25,9 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
 
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
 
-    [[nodiscard]] bool isComplete() const noexcept { return graphicsFamily.has_value(); }
+    [[nodiscard]] bool isComplete() const noexcept {  return graphicsFamily.has_value() && presentFamily.has_value(); }
 };
 
 class Application {
@@ -38,8 +39,10 @@ private:
     VkInstance instance{VK_NULL_HANDLE};
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
     VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};
+    VkSurfaceKHR surface;
     VkDevice device;
     VkQueue graphicsQueue;
+    VkQueue presentQueue;
     PFN_vkSetDebugUtilsObjectNameEXT pfnSetDebugUtilsObjectName = nullptr;
 
     // void initWindow();
@@ -74,4 +77,6 @@ private:
     void createLogicalDevice();
 
     void loadDebugUtilsFunctions();
+
+    void createSurface();
 };
