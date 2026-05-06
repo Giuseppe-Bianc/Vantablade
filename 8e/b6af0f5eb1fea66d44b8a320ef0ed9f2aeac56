@@ -1,0 +1,17 @@
+include/Vantablade/headers.hpp
+  h_361662506da91f 7,13-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "8eb6af0f5eb1fea66d44b8a320ef0ed9f2aeac56",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
