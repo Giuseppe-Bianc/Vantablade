@@ -6,7 +6,7 @@
 #include "Vantablade/Application.hpp"
 #include "Vantablade/FPSCounter.hpp"
 
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
+/*VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
     auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
     if (func != nullptr) [[likely]] {
         return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
@@ -20,16 +20,17 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
     if (func != nullptr) [[likely]] {
         func(instance, debugMessenger, pAllocator);
     }
-}
+}*/
 void Application::run() {
     //initWindow();
-    initVulkan();
+    //initVulkan();
     mainLoop();
-    cleanup();
+    //cleanup();
 }
 /*void Application::initWindow() {
     window = vnd_move_always(Window(800, 600, "Vulkan GLFW"));
 }*/
+/*
 void Application::initVulkan() {
     const vnd::AutoTimer timer{"init Vulkan"};
     createInstance();
@@ -97,7 +98,7 @@ void Application::createInstance() {
     VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "failed to create instance!");
     LINFO("vulkan instance created successfully");
 }
-
+*/
 void Application::mainLoop() {
     FPSCounter fps{window.getGLFWWindow(), wtile};
     while(!window.shouldClose()) [[likely]] {
@@ -105,6 +106,7 @@ void Application::mainLoop() {
         fps.frameInTitle(false, false);
     }
 }
+/*
 void Application::cleanup() {
     const vnd::AutoTimer cleanupTimer{"application cleanup"};
     vkDestroyDevice(device, nullptr);
@@ -206,7 +208,7 @@ bool Application::checkValidationLayerSupport() {
  *
  * @return VK_FALSE: The application should continue execution after logging.
  *         (Returning VK_TRUE would cause the API call that triggered this callback to fail with VK_ERROR_VALIDATION_FAILED_EXT).
- */
+ #1#
 VkBool32 Application::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
                                     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, [[maybe_unused]] void *pUserData) {
     if(std::string_view(pCallbackData->pMessageIdName) == "Loader Message") {
@@ -354,4 +356,5 @@ void Application::createSurface() {
     const vnd::AutoTimer timer("create surface");
     window.createWindowSurface(instance, &surface);
 }
+*/
 // NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)

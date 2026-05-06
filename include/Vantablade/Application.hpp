@@ -5,9 +5,10 @@
 
 #pragma once
 
-#include "VkObjectTypeResolve.hpp"
-#include "VulkanLogInfoCallback.hpp"
+/*#include "VkObjectTypeResolve.hpp"
+#include "VulkanLogInfoCallback.hpp"*/
 #include "Window.hpp"
+#include "Pipeline.hpp"
 
 static inline constexpr std::array<const char *, 1> validationLayers{{"VK_LAYER_KHRONOS_validation"}};
 
@@ -19,7 +20,7 @@ static inline constexpr bool enableValidationLayers = true;
 
 static inline constexpr float queuePriority = 1.0f;
 
-VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+/*VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
                                       const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
 void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks *pAllocator);
 
@@ -28,7 +29,7 @@ struct QueueFamilyIndices {
     std::optional<uint32_t> presentFamily;
 
     [[nodiscard]] bool isComplete() const noexcept {  return graphicsFamily.has_value() && presentFamily.has_value(); }
-};
+};*/
 
 class Application {
 public:
@@ -36,23 +37,16 @@ public:
 
 private:
     Window window{wwidth, wheight, wtile};
-    VkInstance instance{VK_NULL_HANDLE};
-    VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
-    VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};
-    VkSurfaceKHR surface{VK_NULL_HANDLE};
-    VkDevice device{VK_NULL_HANDLE};
-    VkQueue graphicsQueue{VK_NULL_HANDLE};
-    VkQueue presentQueue{VK_NULL_HANDLE};
-    PFN_vkSetDebugUtilsObjectNameEXT pfnSetDebugUtilsObjectName = nullptr;
-
+    Pipeline pipeline{"shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv"};
+/*
     // void initWindow();
 
     void initVulkan();
 
     void createInstance();
-
+*/
     void mainLoop();
-
+/*
     void cleanup();
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
@@ -78,5 +72,5 @@ private:
 
     void loadDebugUtilsFunctions();
 
-    void createSurface();
+    void createSurface();*/
 };

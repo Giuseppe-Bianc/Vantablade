@@ -18,6 +18,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/FPSCounter.hpp
         ../../include/Vantablade/glm_matld.hpp
         ../../include/Vantablade/glm_prety_string_cast.hpp
+        Pipeline.cpp
+        ../../include/Vantablade/Pipeline.hpp
 )
 
 
@@ -137,29 +139,32 @@ endif ()
 message(STATUS "Using Vulkan target env: ${VANTABLADE_VULKAN_TARGET}")
 
 foreach (GLSL ${GLSL_SOURCE_FILES})
-    # Get relative path for output messages
     file(RELATIVE_PATH rel_path ${PROJECT_SOURCE_DIR} ${GLSL})
 
-    # Base SPIR-V output
     get_filename_component(FILE_NAME ${GLSL} NAME)
+
     set(SPIRV_OUT "${SHADER_ROOT_DIR}/${FILE_NAME}.spv")
 
-    # Compile command
     add_custom_command(
-            OUTPUT ${SPIRV_OUT}
-            COMMAND ${GLSL_VALIDATOR} -V --target-env ${VANTABLADE_VULKAN_TARGET} --spirv-val ${GLSL} -o ${SPIRV_OUT}
-            DEPENDS ${GLSL}
-            COMMENT "Compiling GLSL: ${rel_path} -> ${FILE_NAME}.spv"
-            VERBATIM
+        OUTPUT ${SPIRV_OUT}
+        COMMAND ${GLSL_VALIDATOR}
+                -V
+                --target-env ${VANTABLADE_VULKAN_TARGET}
+                --spirv-val
+                ${GLSL}
+                -o ${SPIRV_OUT}
+        DEPENDS ${GLSL}
+        COMMENT "Compiling GLSL: ${rel_path} -> ${FILE_NAME}.spv"
+        VERBATIM
     )
+
     list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUT})
 
-    # Optimization stage
     if (SPIRV_OPT)
         set(OPT_OUT "${SHADER_ROOT_DIR}/${FILE_NAME}.opt.spv")
         add_custom_command(
                 OUTPUT ${OPT_OUT}
-                COMMAND ${SPIRV_OPT} ${SPIRV_OUT} -O --canonicalize-ids --strip-debug --freeze-spec-const --eliminate-dead-const --target-env ${VANTABLADE_VULKAN_TARGET} -o ${OPT_OUT}
+                COMMAND ${SPIRV_OPT} ${SPIRV_OUT} -O --canonicalize-ids --strip-debug --freeze-spec-const --eliminate-dead-const -o ${OPT_OUT}
                 DEPENDS ${SPIRV_OUT}
                 COMMENT "Optimizing SPIR-V: ${FILE_NAME}.spv -> ${FILE_NAME}.opt.spv"
                 VERBATIM
