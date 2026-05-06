@@ -11,7 +11,7 @@ DISABLE_WARNINGS_POP()
 // NOLINTNEXTLINE(bugprone-exception-escape)
 auto main(int argc, const char **argv) -> int {
     // NOLINTNEXTLINE
-    INIT_LOG();
+    INIT_LOG_ASYNC();
     const vnd::AutoTimer compilationTime("Total Execution");
 #ifdef _WIN32
     const vnd::Timer winConsoleTimer("Windows console setup");

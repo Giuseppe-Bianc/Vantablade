@@ -59,9 +59,11 @@ DISABLE_WARNINGS_PUSH(
  * It must be defined before including spdlog headers to enable trace-level logging.
  */
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
+
 DISABLE_CLANG_WARNINGS_PUSH("-Wunused-result")
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/async.h>  // async_logger, init_thread_pool, thread_pool
 DISABLE_CLANG_WARNINGS_POP()
 
 DISABLE_WARNINGS_POP()
@@ -75,6 +77,14 @@ DISABLE_GCC_WARNINGS_PUSH("-Wuninitialized")
 DISABLE_GCC_WARNINGS_POP()
 #endif
 /** \endcond */
+
+/// Lock-free queue depth; must be a power of two.
+/// 8192 slots (8192 * ~32 B = 256 KiB) handle any renderer burst comfortably.
+static inline constexpr std::size_t ASYNC_QUEUE_SIZE = 8192u;
+
+/// One background thread keeps sink writes off the main/render thread while
+/// avoiding per-sink mutex contention. Raise to 2 if you add heavy file sinks.
+static inline constexpr std::size_t ASYNC_THREAD_COUNT = 1u;
 
 /**
  * @brief Macro for logging trace messages using SPDLOG_TRACE.
@@ -223,7 +233,7 @@ DISABLE_GCC_WARNINGS_POP()
  * @note The function writes to std::cerr for error output.
  */
 inline void my_error_handler(const std::string& msg) {
-    std::cerr<<
+    std::cerr <<
         FORMAT("Error occurred:\n  Timestamp: {}\n  Thread ID: {}\n  Message:   {}\n  Note: Error originated within spdlog internals.\n",
         get_current_timestamp(),
         std::this_thread::get_id(),
@@ -252,26 +262,70 @@ inline void my_error_handler(const std::string& msg) {
  */
 inline void setup_logger() {
     std::vector<spdlog::sink_ptr> sinks;
-    sinks.reserve(2);  // PERF: 2 sinks are added; avoids reallocation
+    sinks.reserve(2);  // PERF: 2 sinks declared; avoids reallocation
 
-    // Console sink (colored, accepts all log levels starting from trace)
     const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-    stdout_sink->set_level(spdlog::level::trace);  // Log all levels (trace and above)
-    // Stderr sink (colored, for warn to critical levels)
-    const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-    stderr_sink->set_level(spdlog::level::warn);  // Log warn and above (warn, error, critical)
+    stdout_sink->set_level(spdlog::level::trace);
 
-    // Add sinks to the logger, ensuring no duplicate output for same log level
+    const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+    stderr_sink->set_level(spdlog::level::warn);
+
     sinks.push_back(stdout_sink);
     // sinks.push_back(stderr_sink);  // available when stderr output is needed
 
-    // Create logger with the defined sinks
     const auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
-    logger->set_pattern(R"(%^[%T %l] %v%$)");  // Log pattern
-    logger->set_level(spdlog::level::trace);   // Minimum log level (trace)
+    logger->set_pattern(R"(%^[%T %l] %v%$)");
+    logger->set_level(spdlog::level::trace);
 
-    // Set this logger as the default logger
     spdlog::set_default_logger(logger);
+    spdlog::register_logger(logger);  // pins the logger in the registry
+}
+
+/**
+ * @brief (Async mode) Configures the default spdlog logger with a background thread.
+ *
+ * @details Initialises a thread pool (ASYNC_QUEUE_SIZE slots, ASYNC_THREAD_COUNT
+ *          worker threads) and binds an async_logger to it.
+ *
+ *          Overflow policy: async_overflow_policy::block.
+ *          The calling thread parks only when the queue is completely full,
+ *          which acts as backpressure rather than silently discarding messages.
+ *
+ *          spdlog::shutdown() is registered via std::atexit so the queue is
+ *          always drained and the worker joined on program exit, even when the
+ *          application exits via std::exit() or an unhandled exception.
+ *
+ * @throws spdlog::spdlog_ex if thread-pool or logger creation fails.
+ */
+inline void setup_logger_async() {
+    // One thread-pool per process; safe to call once at startup.
+    spdlog::init_thread_pool(ASYNC_QUEUE_SIZE, ASYNC_THREAD_COUNT);
+
+    std::vector<spdlog::sink_ptr> sinks;
+    sinks.reserve(2);
+
+    const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+    stdout_sink->set_level(spdlog::level::trace);
+
+    // const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+    // stderr_sink->set_level(spdlog::level::warn);
+    // sinks.push_back(stderr_sink);
+
+    sinks.push_back(stdout_sink);
+
+    // async_overflow_policy::block: enqueue parks the caller when the queue is
+    // full instead of dropping or overwriting the oldest pending message.
+    const auto logger = std::make_shared<spdlog::async_logger>("main", sinks.begin(), sinks.end(), spdlog::thread_pool(),
+                                                               spdlog::async_overflow_policy::block);
+
+    logger->set_pattern(R"(%^[%T %l] %v%$)");
+    logger->set_level(spdlog::level::trace);
+
+    spdlog::set_default_logger(logger);
+    spdlog::register_logger(logger);  // pins the logger in the registry
+
+    // Drain the queue and join the worker before static destructors run.
+    std::atexit([]() noexcept { spdlog::shutdown(); });
 }
 
 /**
@@ -309,6 +363,18 @@ inline void setup_logger() {
         spdlog::set_error_handler(my_error_handler);                                                                                       \
         try {                                                                                                                              \
             setup_logger();                                                                                                                \
+        } catch(const spdlog::spdlog_ex &ex) {                                                                                             \
+            std::cerr << "Logger initialization failed: " << ex.what() << '\n';                                                            \
+        } catch(const std::exception &e) { std::cerr << "Unhandled exception: " << e.what() << '\n'; } catch(...) {                        \
+            std::cerr << "An unknown error occurred. Logger initialization failed.\n";                                                     \
+        }                                                                                                                                  \
+    } while(0)
+
+#define INIT_LOG_ASYNC()                                                                                                                         \
+    do {                                                                                                                                   \
+        spdlog::set_error_handler(my_error_handler);                                                                                       \
+        try {                                                                                                                              \
+            setup_logger_async();                                                                                                                \
         } catch(const spdlog::spdlog_ex &ex) {                                                                                             \
             std::cerr << "Logger initialization failed: " << ex.what() << '\n';                                                            \
         } catch(const std::exception &e) { std::cerr << "Unhandled exception: " << e.what() << '\n'; } catch(...) {                        \
