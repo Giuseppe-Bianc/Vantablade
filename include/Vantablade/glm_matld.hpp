@@ -1,7 +1,7 @@
 /*
-* Created by gbian on 06/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 06/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 
 #pragma once
 #define GLM_FORCE_RADIANS
@@ -129,4 +129,3 @@ namespace glm {
 DISABLE_GCC_WARNINGS_POP()
 
 // clang-format on
-

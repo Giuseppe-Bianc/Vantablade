@@ -5,10 +5,10 @@
 
 #pragma once
 
-/*#include "VkObjectTypeResolve.hpp"
-#include "VulkanLogInfoCallback.hpp"*/
+// clang-format off
 #include "Window.hpp"
 #include "Pipeline.hpp"
+// clang-format on
 
 static inline constexpr std::array<const char *, 1> validationLayers{{"VK_LAYER_KHRONOS_validation"}};
 
@@ -37,40 +37,43 @@ public:
 
 private:
     Window window{wwidth, wheight, wtile};
-    Pipeline pipeline{"shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv"};
-/*
-    // void initWindow();
+    Device device_m{window};
+    VkPipelineLayout pipelineLayout;
+    Pipeline pipeline{device_m, "shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv",
+                      Pipeline::defaultPipelineConfigInfo(wwidth, wheight)};
+    /*
+        // void initWindow();
 
-    void initVulkan();
+        void initVulkan();
 
-    void createInstance();
-*/
+        void createInstance();
+    */
     void mainLoop();
-/*
-    void cleanup();
+    /*
+        void cleanup();
 
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+        void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-    void setupDebugMessenger();
+        void setupDebugMessenger();
 
-    [[nodiscard]] std::vector<const char *> getRequiredExtensions();
+        [[nodiscard]] std::vector<const char *> getRequiredExtensions();
 
-    [[nodiscard]] bool checkValidationLayerSupport();
+        [[nodiscard]] bool checkValidationLayerSupport();
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-                                                        [[maybe_unused]] void *pUserData);
+        static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
+                                                            const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
+                                                            [[maybe_unused]] void *pUserData);
 
-    [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+        [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
-    [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
+        [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
 
-    void pickPhysicalDevice();
+        void pickPhysicalDevice();
 
-    void createLogicalDevice();
+        void createLogicalDevice();
 
-    void loadDebugUtilsFunctions();
+        void loadDebugUtilsFunctions();
 
-    void createSurface();*/
+        void createSurface();*/
 };

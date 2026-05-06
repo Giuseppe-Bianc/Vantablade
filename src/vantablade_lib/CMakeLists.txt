@@ -20,6 +20,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/glm_prety_string_cast.hpp
         Pipeline.cpp
         ../../include/Vantablade/Pipeline.hpp
+        Device.cpp
+        ../../include/Vantablade/Device.hpp
 )
 
 

@@ -175,7 +175,7 @@ bool Application::checkValidationLayerSupport() {
     return true;
 }
 
-/**
+##
  * @brief Vulkan Debug Messenger Callback.
  *
  * This function is the primary feedback mechanism for the Vulkan Validation Layers.
