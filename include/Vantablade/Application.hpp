@@ -38,7 +38,7 @@ public:
 private:
     Window window{wwidth, wheight, wtile};
     Device device_m{window};
-    VkPipelineLayout pipelineLayout;
+    VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
     Pipeline pipeline{device_m, "shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv",
                       Pipeline::defaultPipelineConfigInfo(wwidth, wheight)};
     /*

@@ -15,19 +15,26 @@ struct SwapChainSupportDetails {
 };
 
 struct QueueFamilyIndices {
-    uint32_t graphicsFamily;
-    uint32_t presentFamily;
-    bool graphicsFamilyHasValue = false;
-    bool presentFamilyHasValue = false;
-    [[nodiscard]] bool isComplete() const { return graphicsFamilyHasValue && presentFamilyHasValue; }
+    uint32_t graphicsFamily{0};
+    uint32_t presentFamily{0};
+    bool graphicsFamilyHasValue{false};
+    bool presentFamilyHasValue{false};
+
+    // CONST: pure predicate — no mutation, noexcept guaranteed.
+    [[nodiscard]] bool isComplete() const noexcept {
+        return graphicsFamilyHasValue && presentFamilyHasValue;
+    }
 };
 
 class Device {
 public:
+    // PERF: compile-time constant promoted from per-instance non-static member.
+    // Original 'const bool' member wasted ≥1 byte per instance for a value that
+    // is identical for every Device and known at compile time.
 #ifdef NDEBUG
-    const bool enableValidationLayers = false;
+    static inline constexpr bool enableValidationLayers = false;
 #else
-    const bool enableValidationLayers = true;
+    static inline constexpr bool enableValidationLayers = true;
 #endif
 
     explicit Device(Window &window);
@@ -35,20 +42,29 @@ public:
 
     // Not copyable or movable
     Device(const Device &) = delete;
-    void operator=(const Device &) = delete;
+    // STYLE: return type corrected from void to Device& — void is non-standard
+    // for a deleted copy-assignment operator and surprises readers.
+    Device &operator=(const Device &) = delete;
     Device(Device &&) = delete;
     Device &operator=(Device &&) = delete;
 
-    VkCommandPool getCommandPool() { return commandPool; }
-    VkDevice device() { return device_; }
-    VkSurfaceKHR surface() { return surface_; }
-    VkQueue graphicsQueue() { return graphicsQueue_; }
-    VkQueue presentQueue() { return presentQueue_; }
+    // CONST: all getters marked const — a const Device& can now be passed to
+    // consumers without forcing the entire call chain to be non-const.
+    [[nodiscard]] VkCommandPool getCommandPool() const noexcept { return commandPool; }
+    [[nodiscard]] VkDevice device() const noexcept { return device_; }
+    [[nodiscard]] VkSurfaceKHR surface() const noexcept { return surface_; }
+    [[nodiscard]] VkQueue graphicsQueue() const noexcept { return graphicsQueue_; }
+    [[nodiscard]] VkQueue presentQueue() const noexcept { return presentQueue_; }
 
-    SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
-    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp);
-    QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
-    VkFormat findSupportedFormat(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    // CONST: query methods do not modify *this.
+    [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
+    [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp);
+    [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
+
+    // SPAN: std::span<const VkFormat> replaces const std::vector<VkFormat>&.
+    // Callers are no longer required to own a vector; a stack array, a span
+    // over a contiguous range, or an initializer_list all work without copying.
+    [[nodiscard]] VkFormat findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
     // Buffer Helper Functions
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
@@ -72,14 +88,14 @@ private:
     void createCommandPool();
 
     // helper functions
-    bool isDeviceSuitable(VkPhysicalDevice device);
-    std::vector<const char *> getRequiredExtensions() const;
-    static bool checkValidationLayerSupport();
-    QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
+    [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
+    [[nodiscard]] static bool checkValidationLayerSupport();
+    [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void hasGflwRequiredInstanceExtensions();
-    static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+    [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
     VkInstance instance{VK_NULL_HANDLE};
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
@@ -94,6 +110,5 @@ private:
 
     static inline constexpr std::array<const char *, 1> validationLayers{"VK_LAYER_KHRONOS_validation"};
     static inline constexpr std::array<const char *, 1> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
     static inline constexpr float queuePriority = 1.0f;
 };

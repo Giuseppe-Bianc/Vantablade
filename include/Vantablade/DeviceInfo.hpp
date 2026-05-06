@@ -79,11 +79,8 @@ static inline std::string getVendorName(uint32_t vendorID) {
     };
 
     auto it = vendorMap.find(vendorID);
-    if(it != vendorMap.end()) {
-        return it->second;
-    } else {
-        return "Unknown Vendor";
-    }
+    if(it != vendorMap.end()) { return it->second; }
+    return "Unknown Vendor";
 }
 
 static inline const char *getDeviceType(VkPhysicalDeviceType input_value) noexcept {
@@ -165,16 +162,15 @@ static inline void printQueueFamilies(VkPhysicalDevice device) {
         LINFO("Family {:2}: {:2} queues | {}", i, q.queueCount, VkQueueFlagsString(q.queueFlags));
     }
 }
-
-static inline std::string uuid_to_string(const uint8_t pipelineCacheUUID[16]) {
-    // Break the 16-byte UUID into segments: 4-2-2-2-6 bytes.
+static inline std::string uuid_to_string(std::span<const uint8_t, 16> uuid) {
     const std::array<std::string, 5> segments = {
-        FORMAT("{:02x}{:02x}{:02x}{:02x}", pipelineCacheUUID[0], pipelineCacheUUID[1], pipelineCacheUUID[2], pipelineCacheUUID[3]),
-        FORMAT("{:02x}{:02x}", pipelineCacheUUID[4], pipelineCacheUUID[5]),
-        FORMAT("{:02x}{:02x}", pipelineCacheUUID[6], pipelineCacheUUID[7]),
-        FORMAT("{:02x}{:02x}", pipelineCacheUUID[8], pipelineCacheUUID[9]),
-        FORMAT("{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}", pipelineCacheUUID[10], pipelineCacheUUID[11], pipelineCacheUUID[12],
-               pipelineCacheUUID[13], pipelineCacheUUID[14], pipelineCacheUUID[15])};
+        FORMAT("{:02x}{:02x}{:02x}{:02x}", uuid[0], uuid[1], uuid[2], uuid[3]),
+        FORMAT("{:02x}{:02x}", uuid[4], uuid[5]),
+        FORMAT("{:02x}{:02x}", uuid[6], uuid[7]),
+        FORMAT("{:02x}{:02x}", uuid[8], uuid[9]),
+        FORMAT("{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
+               uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15])
+    };
     return FFORMAT("{}", FMT_JOIN(segments, "-"));
 }
 

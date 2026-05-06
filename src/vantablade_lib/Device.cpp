@@ -274,6 +274,7 @@ bool Device::checkValidationLayerSupport() {
     return true;
 }
 
+// NOLINTNEXTLINE(*-convert-member-functions-to-static)
 std::vector<const char *> Device::getRequiredExtensions() const {
     const vnd::AutoTimer timer{"get Required Extensions"};
     uint32_t glfwExtensionCount = 0;
@@ -405,8 +406,7 @@ SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device) {
   return details;
 }
 
-VkFormat Device::findSupportedFormat(
-    const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+VkFormat Device::findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
     for(const VkFormat format : candidates) {
         VkFormatProperties props;
         vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);

@@ -27,7 +27,7 @@ static inline constexpr auto fepsilon = std::numeric_limits<long double>::epsilo
 static inline constexpr auto glm2pi = glm::two_pi<long double>();
 static inline const auto curentP = fs::current_path();
 
-[[nodiscard]] static constexpr auto calcolaCentro(const int &width, const int &w) noexcept { return (width - w) / 2; }
+[[nodiscard]] static constexpr auto calcolaCentro(int width, int w) noexcept { return (width - w) / 2; }
 #define CALC_CENTRO(width, w) calcolaCentro(width, w)
 
 inline fs::path calculateRelativePathToSrc(const fs::path &executablePath, const fs::path &targetFile, const std::string &subDir) {
