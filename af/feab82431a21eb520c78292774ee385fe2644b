@@ -1,0 +1,19 @@
+shaders/simple_shader.vert
+  h_361662506da91f 3
+include/Vantablade/Pipeline.hpp
+  h_361662506da91f 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "affeab82431a21eb520c78292774ee385fe2644b",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
