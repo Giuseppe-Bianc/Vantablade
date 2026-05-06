@@ -14,6 +14,10 @@ add_library(vantablade_lib
         Application.cpp
         ../../include/Vantablade/Application.hpp
         ../../include/Vantablade/VkObjectTypeResolve.hpp
+        FPSCounter.cpp
+        ../../include/Vantablade/FPSCounter.hpp
+        ../../include/Vantablade/glm_matld.hpp
+        ../../include/Vantablade/glm_prety_string_cast.hpp
 )
 
 

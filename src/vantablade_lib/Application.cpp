@@ -4,6 +4,7 @@
 */
 // NOLINTBEGIN(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)
 #include "Vantablade/Application.hpp"
+#include "Vantablade/FPSCounter.hpp"
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
     auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));  // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
@@ -61,7 +62,7 @@ void Application::createInstance() {
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_3;
+    appInfo.apiVersion = instanceVersion;
 
     LINFO("setting the application info for the vulkan instance: {}", appInfo.pApplicationName);
 
@@ -98,8 +99,10 @@ void Application::createInstance() {
 }
 
 void Application::mainLoop() {
+    FPSCounter fps{window.getGLFWWindow(), wtile};
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
+        fps.frameInTitle(false, false);
     }
 }
 void Application::cleanup() {
