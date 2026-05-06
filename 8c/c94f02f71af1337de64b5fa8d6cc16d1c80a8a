@@ -1,0 +1,17 @@
+src/vantablade_lib/CMakeLists.txt
+  h_361662506da91f 21-22,145,157-158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "8cc94f02f71af1337de64b5fa8d6cc16d1c80a8a",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
