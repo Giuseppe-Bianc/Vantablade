@@ -204,8 +204,6 @@ constexpr SizeSystem kSI = {.name = "SI", .base = 1000.0L, .prefixes = {"B", "KB
 
 constexpr SizeSystem kIEC = {.name = "IEC", .base = 1024.0L, .prefixes = {"B", "KiB", "MiB", "GiB", "TiB", "PiB"}};
 
-#undef INDEPT
-
 // clang-format off
 // NOLINTEND(*-include-cleaner, hicpp-signed-bitwise, *-diagnostic-double-promotion, *-pro-bounds-constant-array-index, *-identifier-length)
 // clang-format on
