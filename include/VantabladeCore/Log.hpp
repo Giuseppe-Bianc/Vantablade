@@ -1,13 +1,35 @@
 /**
  * @file Log.hpp
- * @brief Header file for logging functionality using the SPDLOG library.
+ * @brief Logging via SPDLOG with selectable sync/async backend.
  *
- * @details This file provides macros and initialization functions for logging
- * using the SPDLOG library. The logging macros cover various logging levels
- * including trace, debug, info, warn, error, and critical.
+ * @details Two setup functions are provided:
  *
- * The initialization macro sets up the logging configuration with default settings,
- * including a console logger with colored output and a custom log pattern.
+ *   setup_logger()        – original synchronous path (default for INIT_LOG).
+ *   setup_logger_async()  – async path: messages are enqueued and written on a
+ *                           dedicated background thread (use INIT_LOG_ASYNC).
+ *
+ *   Both expose the identical macro interface so call sites need zero changes
+ *   when switching between the two backends.
+ *
+ * ### C++23 / spdlog community guidelines applied
+ *
+ *   - my_error_handler is noexcept: spdlog calls it from internal contexts
+ *     that cannot tolerate exceptions.
+ *   - flush_on(spdlog::level::err): both loggers flush immediately on every
+ *     error or critical message, preventing loss on crash.
+ *   - register_logger is called BEFORE set_default_logger: set_default_logger
+ *     inserts the logger into the registry map itself; a subsequent
+ *     register_logger call reaches throw_if_exists_ and throws. The correct
+ *     order is register first, then set as default.
+ *   - atexit handler (async only) calls drop_all() then shutdown(): drop_all
+ *     releases all logger shared_ptrs from the registry so the thread pool is
+ *     idle when shutdown() joins the worker thread.
+ *   - flush_every (async only, commented): spdlog recommends periodic flushing
+ *     for low-severity messages that never reach the flush_on threshold.
+ *   - static inline constexpr: 'static' forces internal linkage and makes
+ *     'inline' a no-op. Kept for consistency with the rest of this codebase;
+ *     pure C++17/23 style would use 'inline constexpr' (external linkage) or
+ *     plain 'constexpr' (internal linkage).
  *
  * @defgroup Logging Macros
  * @brief Macros for logging messages at various levels.
@@ -35,6 +57,8 @@
  * @code{.cpp}
  * INIT_LOG();
  * LINFO("Logging system initialized.");
+ * INIT_LOG_ASYNC();
+ * LINFO("Logging system initialized with async backend.");
  * @endcode
  * }.
  */
@@ -53,20 +77,20 @@ DISABLE_WARNINGS_PUSH(
 /** \endcond */
 
 /**
- * @brief Sets the active logging level to TRACE.
+ * @brief Configures SPDLOG to accept all severity levels from TRACE and above.
  *
- * This define configures SPDLOG to accept all logging levels from TRACE and above.
- * It must be defined before including spdlog headers to enable trace-level logging.
+ * Must be defined before the spdlog headers are included.
  */
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
 DISABLE_CLANG_WARNINGS_PUSH("-Wunused-result")
+#include <spdlog/async.h>  // async_logger, init_thread_pool, thread_pool
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
-#include <spdlog/async.h>  // async_logger, init_thread_pool, thread_pool
 DISABLE_CLANG_WARNINGS_POP()
 
 DISABLE_WARNINGS_POP()
+
 /** \cond */
 #ifndef _MSC_VER
 /**
@@ -78,12 +102,24 @@ DISABLE_GCC_WARNINGS_POP()
 #endif
 /** \endcond */
 
-/// Lock-free queue depth; must be a power of two.
-/// 8192 slots (8192 * ~32 B = 256 KiB) handle any renderer burst comfortably.
+// ---------------------------------------------------------------------------
+// Async configuration constants
+//
+// NOTE: 'static inline constexpr' at namespace scope – 'static' forces
+// internal linkage, which makes 'inline' a no-op.  Pure C++17/23 would use
+// 'inline constexpr' (external linkage, one shared definition) or plain
+// 'constexpr' (internal linkage, fine for compile-time constants).  The
+// 'static inline constexpr' form is kept here for consistency with the rest
+// of this codebase (see headersCore.hpp).
+// ---------------------------------------------------------------------------
+
+/// Lock-free async queue depth.  Must be a power of two.
+/// 8 192 slots × ~32 B each ≈ 256 KiB; handles any renderer burst comfortably.
 static inline constexpr std::size_t ASYNC_QUEUE_SIZE = 8192u;
 
-/// One background thread keeps sink writes off the main/render thread while
-/// avoiding per-sink mutex contention. Raise to 2 if you add heavy file sinks.
+/// Dedicated logging threads.  One thread eliminates sink-mutex contention
+/// while keeping I/O off the render/main thread.  Increase to 2 only if
+/// multiple heavy file sinks are added.
 static inline constexpr std::size_t ASYNC_THREAD_COUNT = 1u;
 
 /**
@@ -194,11 +230,14 @@ static inline constexpr std::size_t ASYNC_THREAD_COUNT = 1u;
  */
 #define LCRITICAL(...) SPDLOG_CRITICAL(__VA_ARGS__)
 
+// ---------------------------------------------------------------------------
+// Timestamp helper
+// ---------------------------------------------------------------------------
+
 /**
- * @brief Gets the current timestamp with millisecond precision.
+ * @brief Returns the current wall-clock time formatted to millisecond precision.
  *
- * @return A std::string containing the current timestamp in the format
- *         "YYYY-MM-DD HH:MM:SS.mmm".
+ * @return std::string "YYYY-MM-DD HH:MM:SS.mmm".
  *
  * @details This function retrieves the current system time and formats it
  *         as a string with millisecond precision. It is used internally
@@ -219,45 +258,57 @@ static inline constexpr std::size_t ASYNC_THREAD_COUNT = 1u;
 
 // clang-format off
 /**
- * @brief Custom error handler for spdlog internal errors.
+ * @brief Custom handler for spdlog-internal errors.
  *
- * @param[in] msg The error message from spdlog.
+ * @param[in] msg The diagnostic message produced by spdlog.
  *
- * @details This function is called when spdlog encounters an internal error.
- *         It outputs detailed error information including:
- *         - Timestamp of the error
- *         - Thread ID where the error occurred
- *         - The error message itself
- *         - A note indicating the error originated from spdlog internals
+ * @details Writes a timestamped, thread-tagged error record to std::cerr.
+ *          The function is declared noexcept because spdlog invokes it from
+ *          internal contexts that cannot tolerate exceptions; a throwing
+ *          handler would cause std::terminate.
  *
- * @note The function writes to std::cerr for error output.
+ * @note Install this handler before any logger is created:
+ *       spdlog::set_error_handler(my_error_handler);
  */
-inline void my_error_handler(const std::string& msg) {
-    std::cerr <<
-        FORMAT("Error occurred:\n  Timestamp: {}\n  Thread ID: {}\n  Message:   {}\n  Note: Error originated within spdlog internals.\n",
-        get_current_timestamp(),
-        std::this_thread::get_id(),
-        msg);
+inline void my_error_handler(const std::string& msg) noexcept {try {
+        std::cerr <<
+            FORMAT("Error occurred:\n  Timestamp: {}\n  Thread ID: {}\n  Message:   {}\n  Note: Error originated within spdlog internals.\n",
+            get_current_timestamp(),
+            std::this_thread::get_id(),
+            msg);
+    } catch (...) {}  // NOLINT(*-empty-catch) — must not propagate out of noexcept boundary
 }
 // clang-format on
 
 /**
- * @brief Sets up the default logger with console sinks.
+ * @brief Configures the default spdlog logger in synchronous mode.
  *
- * @details This function configures the default spdlog logger with:
- *          - A stdout sink for trace, debug, and info level messages (colored output)
- *          - A custom log pattern: "[HH:MM:SS level] message"
- *          - Minimum log level set to trace (all messages are logged)
+ * @details Creates a multi-threaded logger backed by a coloured stdout sink.
+ *          Every log call writes to the sink on the calling thread.  Zero
+ *          queue overhead; suitable for development builds or tools where
+ *          logging latency is not a concern.
  *
- * @note The logger is created as a shared pointer and set as the default logger.
- * @note The stderr sink is commented out but available for future use.
+ *          ### spdlog registry note
+ *          spdlog::set_default_logger internally inserts the logger into the
+ *          registry map (loggers_[name] = logger).  Calling register_logger
+ *          AFTER set_default_logger would reach throw_if_exists_ and throw
+ *          because "main" is already in the map.  This function therefore
+ *          calls register_logger FIRST, then set_default_logger, matching the
+ *          safe order documented in the spdlog source.
  *
- * @throws spdlog::spdlog_ex If logger initialization fails.
+ *          ### Flush policy
+ *          flush_on(spdlog::level::err) ensures the sink is flushed
+ *          immediately on every error or critical message, preventing loss
+ *          if the process terminates abnormally.
+ *
+ * @throws spdlog::spdlog_ex if logger creation fails.
+ *
+ * @see setup_logger_async, INIT_LOG
  *
  * @par Example:
  * @code{.cpp}
  * setup_logger();
- * LINFO("Logger configured");
+ * LINFO("Logger configured (sync)");
  * @endcode
  */
 inline void setup_logger() {
@@ -267,38 +318,71 @@ inline void setup_logger() {
     const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     stdout_sink->set_level(spdlog::level::trace);
 
-    const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-    stderr_sink->set_level(spdlog::level::warn);
+    // Stderr sink available when split output is desired:
+    // const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
+    // stderr_sink->set_level(spdlog::level::warn);
+    // sinks.push_back(stderr_sink);
 
     sinks.push_back(stdout_sink);
-    // sinks.push_back(stderr_sink);  // available when stderr output is needed
 
     const auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
     logger->set_pattern(R"(%^[%T %l] %v%$)");
     logger->set_level(spdlog::level::trace);
 
+    // Flush immediately on error or critical.
+    logger->flush_on(spdlog::level::err);
+
+    spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
-    spdlog::register_logger(logger);  // pins the logger in the registry
 }
 
+// ---------------------------------------------------------------------------
+// setup_logger_async  (async backend)
+// ---------------------------------------------------------------------------
+
 /**
- * @brief (Async mode) Configures the default spdlog logger with a background thread.
+ * @brief Configures the default spdlog logger in asynchronous mode.
  *
- * @details Initialises a thread pool (ASYNC_QUEUE_SIZE slots, ASYNC_THREAD_COUNT
- *          worker threads) and binds an async_logger to it.
+ * @details Initialises a thread pool (ASYNC_QUEUE_SIZE slots,
+ *          ASYNC_THREAD_COUNT worker threads) and binds an async_logger to it.
+ *          The calling thread enqueues log records and returns immediately;
+ *          the worker thread drains the queue and writes to sinks independently.
  *
- *          Overflow policy: async_overflow_policy::block.
- *          The calling thread parks only when the queue is completely full,
- *          which acts as backpressure rather than silently discarding messages.
+ *          ### Overflow policy: block
+ *          async_overflow_policy::block parks the calling thread only when the
+ *          queue is completely full, providing backpressure without silently
+ *          discarding or overwriting messages (overrun_oldest).
  *
- *          spdlog::shutdown() is registered via std::atexit so the queue is
- *          always drained and the worker joined on program exit, even when the
- *          application exits via std::exit() or an unhandled exception.
+ *          ### Flush policy
+ *          flush_on(spdlog::level::err) causes the worker to flush the sink
+ *          immediately after writing any error or critical record.
+ *
+ *          ### Shutdown
+ *          A std::atexit handler calls spdlog::drop_all() then
+ *          spdlog::shutdown().  drop_all releases all logger shared_ptrs from
+ *          the registry so the thread pool is idle (queue empty) when
+ *          shutdown() joins the worker thread.  This sequence prevents races
+ *          between in-flight log records and static-destructor ordering.
+ *
+ *          ### spdlog registry note
+ *          Same ordering constraint as setup_logger: register_logger is called
+ *          before set_default_logger.
+ *
+ * @pre spdlog::set_error_handler must be installed before this call so that
+ *      thread-pool errors are routed to my_error_handler.
  *
  * @throws spdlog::spdlog_ex if thread-pool or logger creation fails.
+ *
+ * @see setup_logger, INIT_LOG_ASYNC
+ *
+ * @par Example:
+ * @code{.cpp}
+ * setup_logger_async();
+ * LINFO("Logger configured (async)");
+ * @endcode
  */
 inline void setup_logger_async() {
-    // One thread-pool per process; safe to call once at startup.
+    // One thread pool per process.  Must be created before the async_logger.
     spdlog::init_thread_pool(ASYNC_QUEUE_SIZE, ASYNC_THREAD_COUNT);
 
     std::vector<spdlog::sink_ptr> sinks;
@@ -313,50 +397,53 @@ inline void setup_logger_async() {
 
     sinks.push_back(stdout_sink);
 
-    // async_overflow_policy::block: enqueue parks the caller when the queue is
-    // full instead of dropping or overwriting the oldest pending message.
-    const auto logger = std::make_shared<spdlog::async_logger>("main", sinks.begin(), sinks.end(), spdlog::thread_pool(),
-                                                               spdlog::async_overflow_policy::block);
+    const auto logger = std::make_shared<spdlog::async_logger>(
+        "main", sinks.begin(), sinks.end(), spdlog::thread_pool(),
+        spdlog::async_overflow_policy::block  // park caller on full queue; never drop
+    );
 
     logger->set_pattern(R"(%^[%T %l] %v%$)");
     logger->set_level(spdlog::level::trace);
 
+    // Flush immediately on error or critical.
+    logger->flush_on(spdlog::level::err);
+
+    // Periodic flush: uncomment to drain low-severity messages that never
+    // reach the flush_on threshold (useful for long-lived renderer sessions).
+    // spdlog::flush_every(ASYNC_FLUSH_INTERVAL);
+
+    // Register before set_default_logger (see setup_logger for the reasoning).
+    spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
-    spdlog::register_logger(logger);  // pins the logger in the registry
 
     // Drain the queue and join the worker before static destructors run.
-    std::atexit([]() noexcept { spdlog::shutdown(); });
+    // drop_all() releases all shared_ptrs from the registry so the thread
+    // pool is idle (no in-flight records) when shutdown() joins the worker.
+    std::atexit([]() noexcept {
+        spdlog::drop_all();  // release logger refs; empties the async queue
+        spdlog::shutdown();  // join the worker thread
+    });
 }
 
 /**
- * @brief Initialize the logging system with default configurations.
+ * @brief Initialises the logging system with the synchronous backend.
  *
- * @details This macro initializes the logging system with a default pattern and
- *         creates a console logger. It performs the following steps:
- *         1. Sets the custom error handler (my_error_handler)
- *         2. Calls setup_logger() to configure the default logger
- *         3. Catches and reports any exceptions during initialization
+ * @details Installs my_error_handler, calls setup_logger(), and catches every
+ *          exception that can emerge from spdlog internals.  On failure an
+ *          error is written to std::cerr and execution continues.
  *
- * If the initialization fails, it outputs an error message to stderr.
- * The default pattern used is "[HH:MM:SS level] message" with colored output.
+ * @pre Call once at program startup before any LTRACE/LINFO/… macro.
+ * @post The default spdlog logger is configured with a coloured stdout sink.
  *
- * @pre The spdlog library must be available.
- * @post The default logger is configured and ready for use.
+ * @see INIT_LOG_ASYNC, setup_logger
  *
  * @par Example:
  * @code{.cpp}
  * int main() {
  *     INIT_LOG();
- *     LINFO("Application starting...");
- *     // ... application logic ...
- *     return 0;
+ *     LINFO("Application starting (sync logging).");
  * }
  * @endcode
- *
- * @see setup_logger
- * @see spdlog::set_pattern
- * @see spdlog::stdout_color_mt
- * @see spdlog::set_default_logger
  */
 #define INIT_LOG()                                                                                                                         \
     do {                                                                                                                                   \
@@ -369,8 +456,34 @@ inline void setup_logger_async() {
             std::cerr << "An unknown error occurred. Logger initialization failed.\n";                                                     \
         }                                                                                                                                  \
     } while(0)
-
-#define INIT_LOG_ASYNC()                                                                                                                         \
+/**
+ * @brief Initialises the logging system with the asynchronous backend.
+ *
+ * @details Installs my_error_handler before setup_logger_async() so that
+ *          thread-pool errors are routed to the handler immediately.  Catches
+ *          every exception that can emerge from spdlog internals.
+ *
+ *          Queue draining and worker-thread shutdown are handled automatically
+ *          by the std::atexit handler registered inside setup_logger_async().
+ *          Call sites do not need any explicit cleanup.
+ *
+ * @pre Call once at program startup before any LTRACE/LINFO/… macro.
+ * @pre Do not mix INIT_LOG and INIT_LOG_ASYNC in the same process.
+ * @post The default spdlog logger is an async_logger writing on a background
+ *       thread; the atexit handler will drain and shut it down on exit.
+ *
+ * @see INIT_LOG, setup_logger_async
+ *
+ * @par Example:
+ * @code{.cpp}
+ * int main() {
+ *     INIT_LOG_ASYNC();
+ *     LINFO("Application starting (async logging).");
+ *     // No explicit shutdown needed; atexit drains and joins the worker.
+ * }
+ * @endcode
+ */
+#define INIT_LOG_ASYNC()                                                                                                                   \
     do {                                                                                                                                   \
         spdlog::set_error_handler(my_error_handler);                                                                                       \
         try {                                                                                                                              \
