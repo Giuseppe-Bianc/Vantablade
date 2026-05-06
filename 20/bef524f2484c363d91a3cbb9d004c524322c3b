@@ -1,0 +1,21 @@
+include/Vantablade/Device.hpp
+  h_361662506da91f 1-98
+include/Vantablade/Application.hpp
+  h_361662506da91f 8,11,40-43
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 1-548
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "20bef524f2484c363d91a3cbb9d004c524322c3b",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
