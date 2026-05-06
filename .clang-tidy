@@ -24,6 +24,6 @@ FormatStyle:     none
 
 CheckOptions:
   - key: readability-identifier-length.IgnoredVariableNames
-    value: 'x|y|z|w|i|j|k|e|f|g|h'
+    value: 'x|y|z|w|i|j|k|e|f|g|h|t'
   - key: readability-identifier-length.IgnoredParameterNames
-    value: 'x|y|z|w|i|j|k|e|f|g|h'
+    value: 'x|y|z|w|i|j|k|e|f|g|h|t'

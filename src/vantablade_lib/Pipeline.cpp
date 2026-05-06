@@ -2,7 +2,7 @@
  * Created by gbian on 06/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-// NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix)
+// NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise)
 #include "Vantablade/Pipeline.hpp"
 
 Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo& configInfo) : device_m{device} {
@@ -31,7 +31,7 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
     LINFO("Vertex Shader code size: {}", vertCode.size());
     LINFO("Fragment Shader code size: {}", fragCode.size());
 
-    VkPipelineShaderStageCreateInfo shaderStages[2];
+    std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages{};
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     shaderStages[0].module = vertShaderModule;
@@ -57,7 +57,7 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
     VkGraphicsPipelineCreateInfo pipelineInfo = {};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
-    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pStages = shaderStages.data();
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
     pipelineInfo.pViewportState = &configInfo.viewportInfo;
@@ -88,7 +88,7 @@ void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule*
   VkShaderModuleCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
   createInfo.codeSize = code.size();
-  createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+  createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data()); // NOLINT(*-pro-type-reinterpret-cast)
 
   if (vkCreateShaderModule(device_m.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
     throw std::runtime_error("failed to create shader module");
@@ -139,9 +139,8 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
   configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE;  // Optional
   configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;       // Optional
 
-  configInfo.colorBlendAttachment.colorWriteMask =
-      VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
-      VK_COLOR_COMPONENT_A_BIT;
+  configInfo.colorBlendAttachment.colorWriteMask = static_cast<VkColorComponentFlags>(VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
+        VK_COLOR_COMPONENT_A_BIT);
   configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
   configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;   // Optional
   configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;  // Optional
@@ -173,4 +172,4 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
 
   return configInfo;
 }
-// NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix)
+// NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise)

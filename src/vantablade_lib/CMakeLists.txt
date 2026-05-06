@@ -22,6 +22,7 @@ add_library(vantablade_lib
         ../../include/Vantablade/Pipeline.hpp
         Device.cpp
         ../../include/Vantablade/Device.hpp
+        ../../include/Vantablade/DeviceInfo.hpp
 )
 
 

@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include "DeviceInfo.hpp"
 #include "Window.hpp"
 
 struct SwapChainSupportDetails {
@@ -72,12 +73,12 @@ private:
 
     // helper functions
     bool isDeviceSuitable(VkPhysicalDevice device);
-    std::vector<const char *> getRequiredExtensions();
-    bool checkValidationLayerSupport();
+    std::vector<const char *> getRequiredExtensions() const;
+    static bool checkValidationLayerSupport();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+    static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void hasGflwRequiredInstanceExtensions();
-    bool checkDeviceExtensionSupport(VkPhysicalDevice device);
+    static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
     VkInstance instance{VK_NULL_HANDLE};
