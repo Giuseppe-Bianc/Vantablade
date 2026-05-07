@@ -184,7 +184,7 @@ static inline void printDeviceInfo([[maybe_unused]] VkPhysicalDevice device, con
     printPhysicalDeviceProperties(properties);
     // string_VkDriverId
     // printExtendedVulkanProperties(device);
-#ifdef DEBUG
+#ifndef NDEBUG
     printDeviceFeatures(device);
     printMemoryInfo(device);
     printQueueFamilies(device);

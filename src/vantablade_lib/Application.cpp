@@ -26,23 +26,24 @@ void Application::mainLoop() {
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
         drawFrame();
+        
         fps.frameInTitle(false, true);
     }
-    vkDeviceWaitIdle(device_m.device());
+    VK_CHECK(vkDeviceWaitIdle(device_m.device()), "failed to wait for device idle!");
 }
 
 void Application::createPipelineLayout() {
     const vnd::AutoTimer timer{"Creating pipeline layout"};
-  VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-  pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-  pipelineLayoutInfo.setLayoutCount = 0;
-  pipelineLayoutInfo.pSetLayouts = nullptr;
-  pipelineLayoutInfo.pushConstantRangeCount = 0;
-  pipelineLayoutInfo.pPushConstantRanges = nullptr;
-  if (vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
-      VK_SUCCESS) {
-    throw std::runtime_error("failed to create pipeline layout!");
-  }
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+    pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+    pipelineLayoutInfo.setLayoutCount = 0;
+    pipelineLayoutInfo.pSetLayouts = nullptr;
+    pipelineLayoutInfo.pushConstantRangeCount = 0;
+    pipelineLayoutInfo.pPushConstantRanges = nullptr;
+    if (vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
+        VK_SUCCESS) {
+        throw std::runtime_error("failed to create pipeline layout!");
+    }
 }
 
 void Application::createPipeline() {
@@ -75,7 +76,7 @@ void Application::createCommandBuffers() {
     throw std::runtime_error("failed to allocate command buffers!");
   }
 
-  for (int i = 0; i < commandBuffers.size(); i++) {
+  for (std::size_t i = 0; i < commandBuffers.size(); i++) {
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -107,9 +108,7 @@ void Application::createCommandBuffers() {
 void Application::drawFrame() {
   uint32_t imageIndex;
   auto result = swapChain.acquireNextImage(&imageIndex);
-  if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
-    throw std::runtime_error("failed to acquire swap chain image!");
-  }
+  VK_CHECK_SWAPCHAIN(result, "failed to acquire swap chain image!");
 
   result = swapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
   VK_CHECK(result, "failed to present swap chain image!");

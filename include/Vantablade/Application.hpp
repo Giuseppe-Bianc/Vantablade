@@ -24,8 +24,6 @@ private:
     Window window{wwidth, wheight, wtile};
     Device device_m{window};
     SwapChain swapChain{device_m, window.getExtent()};
-    /*Pipeline pipeline{device_m, "shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv",
-                      Pipeline::defaultPipelineConfigInfo(wwidth, wheight)};*/
     std::unique_ptr<Pipeline> pipeline;
     VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
     std::vector<VkCommandBuffer> commandBuffers;
@@ -34,6 +32,6 @@ private:
     void createPipeline();
     void createCommandBuffers();
     void drawFrame();
-    
+
     void mainLoop();
 };
