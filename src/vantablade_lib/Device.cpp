@@ -113,6 +113,9 @@ Device::~Device() {
         auto extensions = getRequiredExtensions();
         createInfo.enabledExtensionCount = C_UI32T(extensions.size());
         createInfo.ppEnabledExtensionNames = extensions.data();
+#ifdef __APPLE__
+        createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 #ifdef NDEBUG
@@ -204,9 +207,6 @@ void Device::createLogicalDevice() {
         createInfo.enabledLayerCount = 0;
     }
 
-#ifdef __APPLE__
-    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-#endif
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
 
@@ -274,7 +274,7 @@ void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT
 
 void Device::setupDebugMessenger() {
     if (!enableValidationLayers) {return;}
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
+    VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
     VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "failed to set up debug messenger!");
 }
@@ -481,7 +481,7 @@ void Device::createBuffer(
 
     VK_CHECK(vkAllocateMemory(device_, &allocInfo, nullptr, &bufferMemory), "failed to allocate vertex buffer memory!");
 
-    vkBindBufferMemory(device_, buffer, bufferMemory, 0);
+    VK_CHECK(vkBindBufferMemory(device_, buffer, bufferMemory, 0), "failed to bind buffer memory!");
 }
 
 VkCommandBuffer Device::beginSingleTimeCommands() {
@@ -492,26 +492,26 @@ VkCommandBuffer Device::beginSingleTimeCommands() {
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer{VK_NULL_HANDLE};
-    vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer);
+    VK_CHECK(vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer), "failed to allocate single-time command buffer!");
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin single-time command buffer!");
     return commandBuffer;
 }
 
 void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-    vkEndCommandBuffer(commandBuffer);
+    VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to end single-time command buffer!");
 
     VkSubmitInfo submitInfo{};
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(graphicsQueue_);
+    VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE), "failed to submit single-time command buffer!");
+    VK_CHECK(vkQueueWaitIdle(graphicsQueue_), "failed to wait for queue idle!");
 
     vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
 }
