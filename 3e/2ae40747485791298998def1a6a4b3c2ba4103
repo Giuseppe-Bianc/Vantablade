@@ -1,0 +1,21 @@
+include/Vantablade/Device.hpp
+  h_361662506da91f 67,92,95,99
+include/Vantablade/headers.hpp
+  h_361662506da91f 28
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 172,175,207-211,234,240,279,372,405,431,472,481-482,563,573,575
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "3e2ae40747485791298998def1a6a4b3c2ba4103",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
