@@ -319,14 +319,15 @@ void SwapChain::createSyncObjects() {
   fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
   fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+  auto vkdevice = device.device();
+
   for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-    if (vkCreateSemaphore(device.device(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) !=
-            VK_SUCCESS ||
-        vkCreateSemaphore(device.device(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) !=
-            VK_SUCCESS ||
-        vkCreateFence(device.device(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-      throw std::runtime_error("failed to create synchronization objects for a frame!");
-    }
+    VK_CHECK_SYNC_OBJECTS(
+      vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]),
+      vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]),
+      vkCreateFence(vkdevice, &fenceInfo, nullptr, &inFlightFences[i]),
+      "failed to create synchronization objects for a frame!"
+    );
   }
 }
 
