@@ -1,0 +1,17 @@
+include/Vantablade/DeviceInfo.hpp
+  h_361662506da91f 113-117,119,175-176,190
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "c3646d6627431dce91800b655bfdc7299f7a6297",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
