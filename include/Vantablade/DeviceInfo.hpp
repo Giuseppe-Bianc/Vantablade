@@ -16,10 +16,6 @@
 #include <vulkan/vk_enum_string_helper.h>
 
 DISABLE_WARNINGS_PUSH(26446 26482)
-static inline constexpr VkDeviceSize GB = 1024 * 1024 * 1024;
-static inline constexpr VkDeviceSize MB = 1024 * 1024;
-static inline constexpr std::size_t GBST = C_ST(GB);
-static inline constexpr std::size_t MBST = C_ST(MB);
 
 static inline std::string getVendorName(uint32_t vendorID) {
     static const std::unordered_map<uint32_t, std::string> vendorMap = {
@@ -114,18 +110,13 @@ static inline void printDeviceFeatures(VkPhysicalDevice device) {
 }
 
 static inline std::string formatDeviceSize(VkDeviceSize size) {
-    if(size >= GB) {
-        // Convert size to GB
-        const auto gb = C_D(size) / GBST;
-        auto wholeGB = NC_ST(gb);                                  // Extract the whole GB part
-        const auto remainingMB = (gb - C_D(wholeGB)) * C_D(1024);  // Convert the fractional GB part to MB
-        auto wholeMB = NC_ST(remainingMB);                         // Get whole MB part
+    const FileSizeReport report{
+        .info = {.bytes = size},
+        .si_sys = kSI,
+        .iec_sys = kIEC,
+    };
 
-        // Return the formatted string
-        return FORMAT("{:>12} GB {:>3} MB", wholeGB, wholeMB);
-    }
-
-    return FORMAT("{:>12} MB", size / MB);
+    return FORMAT("Bytes: {:<10} SI({}) IEC({})", report.info.bytes, report.info.format(report.si_sys), report.info.format(report.iec_sys));
 }
 
 static inline void printMemoryInfo(VkPhysicalDevice device) {
@@ -181,8 +172,8 @@ static inline void printPhysicalDeviceProperties(const VkPhysicalDevicePropertie
     LINFO("API Version: {}.{}.{}", VK_API_VERSION_MAJOR(apiVersion), VK_API_VERSION_MINOR(apiVersion), VK_API_VERSION_PATCH(apiVersion));
     LINFO("Driver Version: {}.{}.{}", VK_API_VERSION_MAJOR(driverVersion), VK_API_VERSION_MINOR(driverVersion),
           VK_API_VERSION_PATCH(driverVersion));
-    LINFO("Vendor ID: {}", getVendorName(properties.vendorID));
-    LINFO("Device ID: {0}({0:#x})", properties.deviceID);
+    LINFO("Vendor: {} (ID: {:#010x})", getVendorName(properties.vendorID), properties.vendorID);
+    LINFO("Device ID: {0}({0:#010x})", properties.deviceID);
     LINFO("Device Type: {}", getDeviceType(properties.deviceType));
     LINFO("pipelineCacheUUID: {}", uuid_to_string(properties.pipelineCacheUUID));
 
@@ -196,7 +187,7 @@ static inline void printDeviceInfo(VkPhysicalDevice device, const VkPhysicalDevi
     printDeviceFeatures(device);
     printMemoryInfo(device);
     printQueueFamilies(device);
-    // printDeviceExtensions(device);
+    //printDeviceExtensions(device);
 }
 DISABLE_WARNINGS_POP()
 
