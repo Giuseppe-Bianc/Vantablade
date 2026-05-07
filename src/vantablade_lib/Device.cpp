@@ -11,9 +11,10 @@
 
 template <typename T> void Device::psetObjectName(VkInstance instancein, VkDevice device, T handle, const char *name) noexcept {
     if(!enableValidationLayers) { return; }
-    auto func = std::bit_cast<PFN_vkSetDebugUtilsObjectNameEXT>(vkGetInstanceProcAddr(instancein, "vkSetDebugUtilsObjectNameEXT"));
+    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
+    auto func = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(vkGetInstanceProcAddr(instancein, "vkSetDebugUtilsObjectNameEXT"));
     constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
-    const auto nhandle = reinterpret_cast<std::uint64_t>(handle);
+    const auto nhandle = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
     if(func != nullptr) {
         VkDebugUtilsObjectNameInfoEXT nameInfo{};
         nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
@@ -82,15 +83,16 @@ Device::Device(Window &window) : window{window} {
 }
 
 Device::~Device() {
-  vkDestroyCommandPool(device_, commandPool, nullptr);
-  vkDestroyDevice(device_, nullptr);
+    vkDeviceWaitIdle(device_);
+    vkDestroyCommandPool(device_, commandPool, nullptr);
+    vkDestroyDevice(device_, nullptr);
 
-  if (enableValidationLayers) {
-    DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-  }
+    if (enableValidationLayers) {
+        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
+    }
 
-  vkDestroySurfaceKHR(instance, surface_, nullptr);
-  vkDestroyInstance(instance, nullptr);
+    vkDestroySurfaceKHR(instance, surface_, nullptr);
+    vkDestroyInstance(instance, nullptr);
 }
 
     void Device::createInstance() {
@@ -101,9 +103,9 @@ Device::~Device() {
         VkApplicationInfo appInfo = {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "LittleVulkanEngine App";
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
         appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
         appInfo.apiVersion = VK_API_VERSION_1_3;
 
         VkInstanceCreateInfo createInfo = {};
@@ -322,7 +324,6 @@ void Device::hasGflwRequiredInstanceExtensions() {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
     std::unordered_set<std::string_view> available;
-    available.reserve(extensionCount);  // Riserviamo spazio per migliorare le prestazioni
 
 #if defined(_DEBUG) || defined(DEBUG)
     std::vector<std::string> availableExtensions;
@@ -359,7 +360,7 @@ bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
         &extensionCount,
         availableExtensions.data());
 
-    std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+    std::unordered_set<std::string_view> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 
     for (const auto &extension : availableExtensions) {
         // NOLINTNEXTLINE(*-pro-bounds-array-to-pointer-decay, *-no-array-decay)
