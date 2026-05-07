@@ -1,0 +1,21 @@
+include/Vantablade/VulkanLogInfoCallback.hpp
+  h_361662506da91f 91
+include/Vantablade/Device.hpp
+  h_361662506da91f 89
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 12-26,211-216,219-220,235
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "192dd43101094cbe54f34cbb792ff739346865c2",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
