@@ -1,0 +1,27 @@
+include/Vantablade/Device.hpp
+  h_361662506da91f 60-62
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 15-19,30-32,64,79,84,88,97,101,108,111,117,129,137,147,157
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 90,454
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 20-21,23,29,34,36,39-43,46,54,56-57,61,66,68-69,72,75-79,81-85,88-90,92-94,97,100-106,108-109,115-117,119,121-122,138-142,144,147-148,161,173-174,177,185-186,200-202,212-214,220,231-232,235,241,247-251,255,260-261,266-274,290,292,303,312-319,322,328,338,352-353,357-358,366
+include/Vantablade/SwapChain.hpp
+  h_361662506da91f 13,16,19-33,35,38,46-51,54,57,63,66,68,73
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 17,20,40-49,54,59-60,67-70,72,74-75,77,82,86-87,89,92,94-95,97-98,101,103-107,109-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "7986b8e042159e4d335f09f32d472b766c91feae",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
