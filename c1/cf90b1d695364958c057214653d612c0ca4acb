@@ -1,0 +1,21 @@
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 17
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 17
+include/Vantablade/SwapChain.hpp
+  h_361662506da91f 34-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.1",
+  "base_commit_sha": "c1cf90b1d695364958c057214653d612c0ca4acb",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
