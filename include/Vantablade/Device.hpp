@@ -64,7 +64,7 @@ public:
     // SPAN: std::span<const VkFormat> replaces const std::vector<VkFormat>&.
     // Callers are no longer required to own a vector; a stack array, a span
     // over a contiguous range, or an initializer_list all work without copying.
-    [[nodiscard]] VkFormat findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+    [[nodiscard]] VkFormat findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
 
     // Buffer Helper Functions
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
@@ -89,14 +89,14 @@ private:
     template <typename T> void psetObjectName(VkInstance instancein, VkDevice device, T handle, const char *name) noexcept;
 
     // helper functions
-    [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);
+    [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device) const;
     [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
     [[nodiscard]] static bool checkValidationLayerSupport();
-    [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void hasGflwRequiredInstanceExtensions();
     [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device)const;
 
     VkInstance instance{VK_NULL_HANDLE};
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
