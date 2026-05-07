@@ -86,6 +86,7 @@ private:
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createCommandPool();
+    template <typename T> void psetObjectName(VkInstance instancein, VkDevice device, T handle, const char *name) noexcept;
 
     // helper functions
     [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device);

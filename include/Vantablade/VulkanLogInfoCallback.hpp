@@ -88,7 +88,7 @@ inline static void logObjects(const VkDebugUtilsMessengerCallbackDataEXT *pCallb
                              reinterpret_cast<void *>(static_cast<uintptr_t>(objhandle)), objectName);
                 break;
             default:
-                msg = FORMAT("  [{}] Type: {} | Handle: 0x{:X} | Name: {}", i, objtypestring, objhandle, objectName);
+                msg = FORMAT("  [{}] Type: {} | Handle: {:#018x} | Name: {}", i, objtypestring, objhandle, objectName);
                 break;
             }
             // NOLINTEND(*-pro-type-reinterpret-cast, *-no-int-to-ptr)

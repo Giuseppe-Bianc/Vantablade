@@ -9,6 +9,21 @@
 #include "Vantablade/VulkanLogInfoCallback.hpp"
 #include "Vantablade/Device.hpp"
 
+template <typename T> void Device::psetObjectName(VkInstance instancein, VkDevice device, T handle, const char *name) noexcept {
+    if(!enableValidationLayers) { return; }
+    auto func = std::bit_cast<PFN_vkSetDebugUtilsObjectNameEXT>(vkGetInstanceProcAddr(instancein, "vkSetDebugUtilsObjectNameEXT"));
+    constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
+    const auto nhandle = reinterpret_cast<std::uint64_t>(handle);
+    if(func != nullptr) {
+        VkDebugUtilsObjectNameInfoEXT nameInfo{};
+        nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        nameInfo.objectType = objectType;
+        nameInfo.objectHandle = nhandle;
+        nameInfo.pObjectName = name;
+        func(device, &nameInfo);
+    }
+    LINFO("Assigned debug name \"{}\" to Vulkan object of type {} with handle {:#018x}", name, string_VkObjectType(objectType), nhandle);
+}
 
 // local callback functions
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
@@ -193,8 +208,16 @@ void Device::createLogicalDevice() {
     throw std::runtime_error("failed to create logical device!");
   }
 
+  auto device = device_;
+  auto dinstance = instance;
+  psetObjectName(instance, device_, dinstance, "Main Instance");
+  psetObjectName(instance, device_, device, "Main Device");
+  psetObjectName(instance, device_, physicalDevice, "Main Physical Device");
+
   vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
   vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+  psetObjectName(instance, device_, graphicsQueue_, "Graphics Queue");
+  psetObjectName(instance, device_, presentQueue_, "Present Queue");
 }
 
 void Device::createCommandPool() {
@@ -209,6 +232,7 @@ void Device::createCommandPool() {
   if (vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
     throw std::runtime_error("failed to create command pool!");
   }
+  psetObjectName(instance, device_, commandPool, "Command Pool");
 }
 
 void Device::createSurface() { window.createWindowSurface(instance, &surface_); }
