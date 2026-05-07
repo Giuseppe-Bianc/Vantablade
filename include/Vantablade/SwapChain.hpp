@@ -17,8 +17,6 @@ public:
     SwapChain(const SwapChain &) = delete;
     SwapChain &operator=(const SwapChain &) = delete;
 
-    // CONST: all getters marked const + noexcept — SwapChain can now be
-    // passed as const ref to consumers without breaking the call chain.
     [[nodiscard]] VkFramebuffer getFrameBuffer(std::size_t index) const { return swapChainFramebuffers.at(index); }
     [[nodiscard]] VkRenderPass getRenderPass() const noexcept { return renderPass; }
     [[nodiscard]] VkImageView getImageView(std::size_t index) const { return swapChainImageViews.at(index); }
@@ -33,8 +31,8 @@ public:
 
     [[nodiscard]] VkFormat findDepthFormat() const;
 
-    VkResult acquireNextImage(uint32_t *imageIndex);
-    VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+    [[nodiscard]] VkResult acquireNextImage(uint32_t *imageIndex);
+    [[nodiscard]] VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
 private:
     void createSwapChain();

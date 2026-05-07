@@ -14,9 +14,9 @@ Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::s
 Pipeline::~Pipeline() {
     const vnd::AutoTimer timer("Destroying pipeline");
     auto *vkdevice = device_m.device();
+    vkDestroyPipeline(vkdevice, graphicsPipeline, nullptr);
     vkDestroyShaderModule(vkdevice, fragShaderModule, nullptr);
     vkDestroyShaderModule(vkdevice, vertShaderModule, nullptr);
-    vkDestroyPipeline(vkdevice, graphicsPipeline, nullptr);
 }
 
 std::vector<char> Pipeline::readFile(const std::string &filepath) {

@@ -14,7 +14,7 @@ Application::Application() {
 }
 
 Application::~Application() { 
-    const vnd::AutoTimer timer("Destroying Application");
+    const vnd::AutoTimer timer{"Destroying Application"};
     vkDestroyPipelineLayout(device_m.device(), pipelineLayout, nullptr); 
 }
 
