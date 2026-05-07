@@ -180,13 +180,15 @@ static inline void printPhysicalDeviceProperties(const VkPhysicalDevicePropertie
     // Add more properties as needed
 }
 
-static inline void printDeviceInfo(VkPhysicalDevice device, const VkPhysicalDeviceProperties &properties) {
+static inline void printDeviceInfo([[maybe_unused]] VkPhysicalDevice device, const VkPhysicalDeviceProperties &properties) {
     printPhysicalDeviceProperties(properties);
     // string_VkDriverId
     // printExtendedVulkanProperties(device);
+#ifdef DEBUG
     printDeviceFeatures(device);
     printMemoryInfo(device);
     printQueueFamilies(device);
+#endif
     //printDeviceExtensions(device);
 }
 DISABLE_WARNINGS_POP()

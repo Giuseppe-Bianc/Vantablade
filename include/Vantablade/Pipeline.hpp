@@ -9,6 +9,10 @@
 #include "headers.hpp"
 
 struct PipelineConfigInfo {
+    PipelineConfigInfo() = default;
+    PipelineConfigInfo(const PipelineConfigInfo &) = delete;
+    PipelineConfigInfo &operator=(const PipelineConfigInfo &) = delete;
+
     VkViewport viewport;
     VkRect2D scissor;
     VkPipelineViewportStateCreateInfo viewportInfo;
@@ -31,13 +35,15 @@ public:
     Pipeline(const Pipeline &) = delete;
     void operator=(const Pipeline &) = delete;
 
-    static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+    void bind(VkCommandBuffer commandBuffer);
+
+    static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo, uint32_t width, uint32_t height);
 
 private:
     [[nodiscard]] static std::vector<char> readFile(const std::string &filepath);
 
-    void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
-    void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
+    void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
+    void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
 
     Device &device_m;
     VkPipeline graphicsPipeline{VK_NULL_HANDLE};

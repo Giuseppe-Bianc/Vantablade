@@ -4,6 +4,8 @@
  */
 // NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise)
 #include "Vantablade/Pipeline.hpp"
+#include "Vantablade/vulkanCheck.hpp"
+
 
 Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo& configInfo) : device_m{device} {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
@@ -21,15 +23,16 @@ std::vector<char> Pipeline::readFile(const std::string &filepath) {
     return {std::ranges::begin(sCode), std::ranges::end(sCode)};
 }
 
-void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
-                                      const PipelineConfigInfo &configInfo) {
-    assert(configInfo.pipelineLayout != nullptr && "Cannot create graphics pipeline: no pipelineLayout provided in config info");
-    assert(configInfo.renderPass != nullptr && "Cannot create graphics pipeline: no renderPass provided in config info");
-    auto vertCode = readFile(vertFilepath);
-    auto fragCode = readFile(fragFilepath);
+void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo) {
+  assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
+  assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
+  auto vertCode = readFile(vertFilepath);
+  auto fragCode = readFile(fragFilepath);
     LINFO("Vertex Shader code size: {}", vertCode.size());
     LINFO("Fragment Shader code size: {}", fragCode.size());
+  createShaderModule(vertCode, &vertShaderModule);
+  createShaderModule(fragCode, &fragShaderModule);
 
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages{};
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -47,41 +50,34 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
     shaderStages[1].pNext = nullptr;
     shaderStages[1].pSpecializationInfo = nullptr;
 
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
-    vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    vertexInputInfo.vertexBindingDescriptionCount = 0;
-    vertexInputInfo.pVertexBindingDescriptions = nullptr;  // Optional
-    vertexInputInfo.vertexAttributeDescriptionCount = 0;
-    vertexInputInfo.pVertexAttributeDescriptions = nullptr;  // Optional
+  VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
+  vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+  vertexInputInfo.vertexAttributeDescriptionCount = 0;
+  vertexInputInfo.vertexBindingDescriptionCount = 0;
+  vertexInputInfo.pVertexAttributeDescriptions = nullptr;
+  vertexInputInfo.pVertexBindingDescriptions = nullptr;
 
-    VkGraphicsPipelineCreateInfo pipelineInfo = {};
-    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineInfo.stageCount = 2;
+  VkGraphicsPipelineCreateInfo pipelineInfo{};
+  pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+  pipelineInfo.stageCount = 2;
     pipelineInfo.pStages = shaderStages.data();
-    pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
-    pipelineInfo.pViewportState = &configInfo.viewportInfo;
-    pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
-    pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
-    pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
-    pipelineInfo.pDynamicState = nullptr;  // Optional
-    pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
+  pipelineInfo.pVertexInputState = &vertexInputInfo;
+  pipelineInfo.pInputAssemblyState = &configInfo.inputAssemblyInfo;
+  pipelineInfo.pViewportState = &configInfo.viewportInfo;
+  pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
+  pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
+  pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
+  pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
+  pipelineInfo.pDynamicState = nullptr;
 
-    pipelineInfo.layout = configInfo.pipelineLayout;
-    pipelineInfo.renderPass = configInfo.renderPass;
-    pipelineInfo.subpass = configInfo.subpass;
+  pipelineInfo.layout = configInfo.pipelineLayout;
+  pipelineInfo.renderPass = configInfo.renderPass;
+  pipelineInfo.subpass = configInfo.subpass;
 
-    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;  // Optional
-    pipelineInfo.basePipelineIndex = -1;               // Optional
+  pipelineInfo.basePipelineIndex = -1;
+  pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    auto *device = device_m.device();
-    if(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create graphics pipeline!");
-    }
-    vkDestroyShaderModule(device, fragShaderModule, nullptr);
-    vkDestroyShaderModule(device, vertShaderModule, nullptr);
-    fragShaderModule = VK_NULL_HANDLE;
-    vertShaderModule = VK_NULL_HANDLE;
+  VK_CHECK(vkCreateGraphicsPipelines(device_m.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline), "failed to create graphics pipeline");
 }
 
 void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule) {
@@ -90,14 +86,14 @@ void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule*
   createInfo.codeSize = code.size();
   createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data()); // NOLINT(*-pro-type-reinterpret-cast)
 
-  if (vkCreateShaderModule(device_m.device(), &createInfo, nullptr, shaderModule) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create shader module");
-  }
+  VK_CHECK(vkCreateShaderModule(device_m.device(), &createInfo, nullptr, shaderModule), "failed to create shader module");
 }
 
-PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height) {
-  PipelineConfigInfo configInfo{};
+void Pipeline::bind(VkCommandBuffer commandBuffer) {
+  vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+}
 
+void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo, uint32_t width, uint32_t height) {
   configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
   configInfo.inputAssemblyInfo.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
   configInfo.inputAssemblyInfo.primitiveRestartEnable = VK_FALSE;
@@ -169,7 +165,5 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
   configInfo.depthStencilInfo.stencilTestEnable = VK_FALSE;
   configInfo.depthStencilInfo.front = {};  // Optional
   configInfo.depthStencilInfo.back = {};   // Optional
-
-  return configInfo;
 }
 // NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise)

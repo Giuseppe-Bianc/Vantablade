@@ -23,6 +23,7 @@ template <typename T> void Device::psetObjectName(VkInstance instancein, VkDevic
         nameInfo.pObjectName = name;
         func(device, &nameInfo);
     }
+
     LINFO("Assigned debug name \"{}\" to Vulkan object of type {} with handle {:#018x}", name, string_VkObjectType(objectType), nhandle);
 }
 
@@ -32,6 +33,9 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
     [[maybe_unused]] void *pUserData) {
+    if(std::string_view(pCallbackData->pMessageIdName) == "Loader Message") {
+        return VK_FALSE;  // silently ignore loader messages
+    }
     const std::string type = VkDebugUtilsMessageTypeFlagsEXTString(messageType);
 
     // Structured Header
@@ -83,7 +87,6 @@ Device::Device(Window &window) : window{window} {
 }
 
 Device::~Device() {
-    vkDeviceWaitIdle(device_);
     vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);
 
@@ -106,7 +109,7 @@ Device::~Device() {
         appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
         appInfo.pEngineName = "No Engine";
         appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_3;
+        appInfo.apiVersion = VK_API_VERSION_1_4;
 
         VkInstanceCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
