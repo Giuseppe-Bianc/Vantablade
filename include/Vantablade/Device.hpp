@@ -57,9 +57,9 @@ public:
     [[nodiscard]] VkQueue presentQueue() const noexcept { return presentQueue_; }
 
     // CONST: query methods do not modify *this.
-    [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
-    [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp);
-    [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); }
+    [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
+    [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
+    [[nodiscard]] QueueFamilyIndices findPhysicalQueueFamilies() const { return findQueueFamilies(physicalDevice); }
 
     // SPAN: std::span<const VkFormat> replaces const std::vector<VkFormat>&.
     // Callers are no longer required to own a vector; a stack array, a span

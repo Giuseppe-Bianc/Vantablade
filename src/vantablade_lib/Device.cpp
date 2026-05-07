@@ -87,6 +87,7 @@ Device::Device(Window &window) : window{window} {
 }
 
 Device::~Device() {
+    const vnd::AutoTimer timer("Destroying Device");
     vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);
 
@@ -450,7 +451,7 @@ VkFormat Device::findSupportedFormat(std::span<const VkFormat> candidates, VkIma
   throw std::runtime_error("failed to find supported format!");
 }
 
-uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) {
+uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const {
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
     const std::bitset<32> typeBits(typeFilter);

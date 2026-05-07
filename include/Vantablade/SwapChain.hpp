@@ -1,72 +1,74 @@
 /*
-* Created by gbian on 07/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 07/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 
 #pragma once
 
 #include "Device.hpp"
 
 class SwapChain {
- public:
-     static inline constexpr std::size_t MAX_FRAMES_IN_FLIGHT = 2;
+public:
+    static inline constexpr std::size_t MAX_FRAMES_IN_FLIGHT = 2;
 
-     SwapChain(Device &deviceRef, VkExtent2D windowExtent);
-     ~SwapChain();
+    SwapChain(Device &deviceRef, VkExtent2D windowExtent);
+    ~SwapChain();
 
-     SwapChain(const SwapChain &) = delete;
-     SwapChain &operator=(const SwapChain &) = delete;
+    SwapChain(const SwapChain &) = delete;
+    SwapChain &operator=(const SwapChain &) = delete;
 
-    [[nodiscard]] VkFramebuffer getFrameBuffer(size_t index) const { return swapChainFramebuffers.at(index); }
-    [[nodiscard]] VkRenderPass getRenderPass() const { return renderPass; }
-    [[nodiscard]] VkImageView getImageView(size_t index) const { return swapChainImageViews.at(index); }
-    [[nodiscard]] size_t imageCount() const { return swapChainImages.size(); }
-    [[nodiscard]] VkFormat getSwapChainImageFormat() const { return swapChainImageFormat; }
-    [[nodiscard]] VkExtent2D getSwapChainExtent() const { return swapChainExtent; }
-    [[nodiscard]] uint32_t width() const { return swapChainExtent.width; }
-    [[nodiscard]] uint32_t height() const { return swapChainExtent.height; }
+    // CONST: all getters marked const + noexcept — SwapChain can now be
+    // passed as const ref to consumers without breaking the call chain.
+    [[nodiscard]] VkFramebuffer getFrameBuffer(std::size_t index) const { return swapChainFramebuffers.at(index); }
+    [[nodiscard]] VkRenderPass getRenderPass() const noexcept { return renderPass; }
+    [[nodiscard]] VkImageView getImageView(std::size_t index) const { return swapChainImageViews.at(index); }
+    [[nodiscard]] std::size_t imageCount() const noexcept { return swapChainImages.size(); }
+    [[nodiscard]] VkFormat getSwapChainImageFormat() const noexcept { return swapChainImageFormat; }
+    [[nodiscard]] VkExtent2D getSwapChainExtent() const noexcept { return swapChainExtent; }
+    [[nodiscard]] uint32_t width() const noexcept { return swapChainExtent.width; }
+    [[nodiscard]] uint32_t height() const noexcept { return swapChainExtent.height; }
 
-     float extentAspectRatio() { return C_F(swapChainExtent.width) / C_F(swapChainExtent.height); }
-     [[nodiscard]] VkFormat findDepthFormat() const;
+    // CONST + [[nodiscard]]: pure arithmetic query — was neither const nor nodiscard.
+    [[nodiscard]] float extentAspectRatio() const noexcept { return C_F(swapChainExtent.width) / C_F(swapChainExtent.height); }
 
-     VkResult acquireNextImage(uint32_t *imageIndex);
-     VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+    [[nodiscard]] VkFormat findDepthFormat() const;
 
- private:
-  void createSwapChain();
-  void createImageViews();
-  void createDepthResources();
-  void createRenderPass();
-  void createFramebuffers();
-  void createSyncObjects();
+    VkResult acquireNextImage(uint32_t *imageIndex);
+    VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
-  // Helper functions
-  VkSurfaceFormatKHR chooseSwapSurfaceFormat(
-      const std::vector<VkSurfaceFormatKHR> &availableFormats);
-  VkPresentModeKHR chooseSwapPresentMode(
-      const std::vector<VkPresentModeKHR> &availablePresentModes);
-  VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+private:
+    void createSwapChain();
+    void createImageViews();
+    void createDepthResources();
+    void createRenderPass();
+    void createFramebuffers();
+    void createSyncObjects();
 
-  VkFormat swapChainImageFormat{VK_FORMAT_UNDEFINED};
-  VkExtent2D swapChainExtent{0, 0};
+    // CONST: helper functions do not modify *this.
+    [[nodiscard]] VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) const;
+    [[nodiscard]] VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) const;
+    [[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
 
-  std::vector<VkFramebuffer> swapChainFramebuffers;
-  VkRenderPass renderPass{VK_NULL_HANDLE};
+    VkFormat swapChainImageFormat{VK_FORMAT_UNDEFINED};
+    VkExtent2D swapChainExtent{0, 0};
 
-  std::vector<VkImage> depthImages;
-  std::vector<VkDeviceMemory> depthImageMemorys;
-  std::vector<VkImageView> depthImageViews;
-  std::vector<VkImage> swapChainImages;
-  std::vector<VkImageView> swapChainImageViews;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
+    VkRenderPass renderPass{VK_NULL_HANDLE};
 
-  Device &device;
-  VkExtent2D windowExtent;
+    std::vector<VkImage> depthImages;
+    std::vector<VkDeviceMemory> depthImageMemorys;
+    std::vector<VkImageView> depthImageViews;
+    std::vector<VkImage> swapChainImages;
+    std::vector<VkImageView> swapChainImageViews;
 
-  VkSwapchainKHR swapChain{VK_NULL_HANDLE};
+    Device &device;
+    VkExtent2D windowExtent;
 
-  std::vector<VkSemaphore> imageAvailableSemaphores;
-  std::vector<VkSemaphore> renderFinishedSemaphores;
-  std::vector<VkFence> inFlightFences;
-  std::vector<VkFence> imagesInFlight;
-  size_t currentFrame = 0;
+    VkSwapchainKHR swapChain{VK_NULL_HANDLE};
+
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+    std::vector<VkFence> imagesInFlight;
+    std::size_t currentFrame{0};
 };
