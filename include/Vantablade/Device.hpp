@@ -26,6 +26,29 @@ struct QueueFamilyIndices {
     }
 };
 
+struct DebugUtilsFunctions {
+    PFN_vkSetDebugUtilsObjectNameEXT setObjectName{nullptr};
+    PFN_vkCmdBeginDebugUtilsLabelEXT cmdBeginLabel{nullptr};
+    PFN_vkCmdEndDebugUtilsLabelEXT cmdEndLabel{nullptr};
+    PFN_vkCmdInsertDebugUtilsLabelEXT cmdInsertLabel{nullptr};
+    PFN_vkQueueBeginDebugUtilsLabelEXT queueBeginLabel{nullptr};
+    PFN_vkQueueEndDebugUtilsLabelEXT queueEndLabel{nullptr};
+    PFN_vkQueueInsertDebugUtilsLabelEXT queueInsertLabel{nullptr};
+};
+
+using DebugLabelColor = std::array<float, 4>;
+
+// Colori predefiniti come constexpr: zero overhead, disponibili ovunque.
+namespace DebugColors {
+    inline constexpr DebugLabelColor Red = {1.0f, 0.0f, 0.0f, 1.0f};
+    inline constexpr DebugLabelColor Green = {0.0f, 1.0f, 0.0f, 1.0f};
+    inline constexpr DebugLabelColor Blue = {0.0f, 0.0f, 1.0f, 1.0f};
+    inline constexpr DebugLabelColor Yellow = {1.0f, 1.0f, 0.0f, 1.0f};
+    inline constexpr DebugLabelColor Cyan = {0.0f, 1.0f, 1.0f, 1.0f};
+    inline constexpr DebugLabelColor White = {1.0f, 1.0f, 1.0f, 1.0f};
+    inline constexpr DebugLabelColor None = {0.0f, 0.0f, 0.0f, 0.0f};
+}  // namespace DebugColors
+
 class Device {
 public:
     // PERF: compile-time constant promoted from per-instance non-static member.
@@ -86,7 +109,20 @@ private:
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createCommandPool();
-    template <typename T> void psetObjectName(VkInstance instancein, VkDevice device, T handle, const char *name) noexcept;
+    template <typename Fn> [[nodiscard]] static Fn loadInstanceProc(VkInstance inst, const char *name) noexcept;
+
+    // Carica tutti i function pointer debug_utils dopo la creazione dell'istanza.
+    void loadDebugUtilsFunctions() noexcept;
+    template <typename T> void psetObjectName(T handle, const char *name) noexcept;
+    // Command buffer labels
+    void pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept;
+    void pcmdEndLabel(VkCommandBuffer cb) noexcept;
+    void pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept;
+
+    // Queue labels
+    void pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept;
+    void pqueueEndLabel(VkQueue queue) noexcept;
+    void pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept;
 
     // helper functions
     [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device) const;
@@ -100,6 +136,7 @@ private:
 
     VkInstance instance{VK_NULL_HANDLE};
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
+    DebugUtilsFunctions debugFuncs{};
     VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};
     Window &window;
     VkCommandPool commandPool{VK_NULL_HANDLE};

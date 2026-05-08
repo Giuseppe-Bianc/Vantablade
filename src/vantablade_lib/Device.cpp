@@ -9,22 +9,104 @@
 #include "Vantablade/VulkanLogInfoCallback.hpp"
 #include "Vantablade/Device.hpp"
 
-template <typename T> void Device::psetObjectName(VkInstance instancein, VkDevice device, T handle, const char *name) noexcept {
-    if(!enableValidationLayers) { return; }
+template <typename Fn> Fn Device::loadInstanceProc(VkInstance inst, const char *name) noexcept {
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
-    auto func = reinterpret_cast<PFN_vkSetDebugUtilsObjectNameEXT>(vkGetInstanceProcAddr(instancein, "vkSetDebugUtilsObjectNameEXT"));
+    return reinterpret_cast<Fn>(vkGetInstanceProcAddr(inst, name));
+}
+
+void Device::loadDebugUtilsFunctions() noexcept {
+    if(!enableValidationLayers) { return; }
+    const vnd::AutoTimer t{"load Debug Utils Functions"};
+
+    debugFuncs.setObjectName   = loadInstanceProc<PFN_vkSetDebugUtilsObjectNameEXT> (instance, "vkSetDebugUtilsObjectNameEXT");
+    debugFuncs.cmdBeginLabel   = loadInstanceProc<PFN_vkCmdBeginDebugUtilsLabelEXT> (instance, "vkCmdBeginDebugUtilsLabelEXT");
+    debugFuncs.cmdEndLabel     = loadInstanceProc<PFN_vkCmdEndDebugUtilsLabelEXT>   (instance, "vkCmdEndDebugUtilsLabelEXT");
+    debugFuncs.cmdInsertLabel  = loadInstanceProc<PFN_vkCmdInsertDebugUtilsLabelEXT>(instance, "vkCmdInsertDebugUtilsLabelEXT");
+    debugFuncs.queueBeginLabel = loadInstanceProc<PFN_vkQueueBeginDebugUtilsLabelEXT> (instance, "vkQueueBeginDebugUtilsLabelEXT");
+    debugFuncs.queueEndLabel   = loadInstanceProc<PFN_vkQueueEndDebugUtilsLabelEXT>   (instance, "vkQueueEndDebugUtilsLabelEXT");
+    debugFuncs.queueInsertLabel= loadInstanceProc<PFN_vkQueueInsertDebugUtilsLabelEXT>(instance, "vkQueueInsertDebugUtilsLabelEXT");
+
+    LINFO("setObjectName   : {}", debugFuncs.setObjectName != nullptr);
+    LINFO("cmdBeginLabel   : {}", debugFuncs.cmdBeginLabel != nullptr);
+    LINFO("cmdEndLabel     : {}", debugFuncs.cmdEndLabel != nullptr);
+    LINFO("cmdInsertLabel  : {}", debugFuncs.cmdInsertLabel != nullptr);
+    LINFO("queueBeginLabel : {}", debugFuncs.queueBeginLabel != nullptr);
+    LINFO("queueEndLabel   : {}", debugFuncs.queueEndLabel != nullptr);
+    LINFO("queueInsertLabel: {}", debugFuncs.queueInsertLabel != nullptr);
+}
+
+template <typename T> void Device::psetObjectName(T handle, const char *name) noexcept {
+    if(!enableValidationLayers || debugFuncs.setObjectName == nullptr) { return; }
+    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
     constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
+    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast, *-no-int-to-ptr)
     const auto nhandle = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
-    if(func != nullptr) {
-        VkDebugUtilsObjectNameInfoEXT nameInfo{};
-        nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
-        nameInfo.objectType = objectType;
-        nameInfo.objectHandle = nhandle;
-        nameInfo.pObjectName = name;
-        func(device, &nameInfo);
-    }
+
+    const VkDebugUtilsObjectNameInfoEXT nameInfo{
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+        .pNext = nullptr,
+        .objectType = objectType,
+        .objectHandle = nhandle,
+        .pObjectName = name,
+    };
+    debugFuncs.setObjectName(device_, &nameInfo);
 
     LINFO("Assigned debug name \"{}\" to Vulkan object of type {} with handle {:#018x}", name, string_VkObjectType(objectType), nhandle);
+}
+
+// ---------------------------------------------------------------------------
+// Helper interno: costruisce VkDebugUtilsLabelEXT senza heap allocation.
+// Usato da tutti i wrapper che richiedono un colore.
+// color è std::span<const float, 4>: extent statico garantito a compile time,
+// zero-cost, accetta std::array, C-array e DebugLabelColor senza conversione.
+// ---------------------------------------------------------------------------
+[[nodiscard]] static VkDebugUtilsLabelEXT makeLabel(const char *name, std::span<const float, 4> color) noexcept {
+    return VkDebugUtilsLabelEXT{
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+        .pNext = nullptr,
+        .pLabelName = name,
+        .color = {color[0], color[1], color[2], color[3]},
+    };
+}
+
+void Device::pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
+    if(!enableValidationLayers || debugFuncs.cmdBeginLabel == nullptr) { return; }
+    const auto label = makeLabel(name, color);
+    debugFuncs.cmdBeginLabel(cb, &label);
+    LINFO("Inserted command buffer label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
+}
+
+void Device::pcmdEndLabel(VkCommandBuffer cb) noexcept {
+    if(!enableValidationLayers || debugFuncs.cmdEndLabel == nullptr) { return; }
+    debugFuncs.cmdEndLabel(cb);
+    LINFO("Ended command buffer label");
+}
+
+void Device::pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
+    if(!enableValidationLayers || debugFuncs.cmdInsertLabel == nullptr) { return; }
+    const auto label = makeLabel(name, color);
+    debugFuncs.cmdInsertLabel(cb, &label);
+    LINFO("Inserted command buffer label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
+}
+
+void Device::pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+    if(!enableValidationLayers || debugFuncs.queueBeginLabel == nullptr) { return; }
+    const auto label = makeLabel(name, color);
+    debugFuncs.queueBeginLabel(queue, &label);
+    LINFO("Inserted queue label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
+}
+
+void Device::pqueueEndLabel(VkQueue queue) noexcept {
+    if(!enableValidationLayers || debugFuncs.queueEndLabel == nullptr) { return; }
+    debugFuncs.queueEndLabel(queue);
+    LINFO("Ended queue label");
+}
+
+void Device::pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+    if(!enableValidationLayers || debugFuncs.queueInsertLabel == nullptr) { return; }
+    const auto label = makeLabel(name, color);
+    debugFuncs.queueInsertLabel(queue, &label);
+    LINFO("Inserted queue label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
 }
 
 // local callback functions
@@ -99,59 +181,59 @@ Device::~Device() {
     vkDestroyInstance(instance, nullptr);
 }
 
-    void Device::createInstance() {
-        if(enableValidationLayers && !checkValidationLayerSupport()) {
-            throw std::runtime_error("validation layers requested, but not available!");
-        }
-
-        VkApplicationInfo appInfo = {};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "LittleVulkanEngine App";
-        appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-        appInfo.pEngineName = "No Engine";
-        appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_4;
-
-        VkInstanceCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
-
-        auto extensions = getRequiredExtensions();
-        createInfo.enabledExtensionCount = C_UI32T(extensions.size());
-        createInfo.ppEnabledExtensionNames = extensions.data();
-#ifdef __APPLE__
-        createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-#endif
-
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-#ifdef NDEBUG
-        if(enableValidationLayers) [[unlikely]] {
-            createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
-            createInfo.ppEnabledLayerNames = validationLayers.data();
-
-            populateDebugMessengerCreateInfo(debugCreateInfo);
-            createInfo.pNext = &debugCreateInfo;
-        } else [[likely]] {
-            createInfo.enabledLayerCount = 0;
-            createInfo.pNext = nullptr;
-        }
-#else
-        if(enableValidationLayers) [[likely]] {
-            createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
-            createInfo.ppEnabledLayerNames = validationLayers.data();
-
-            populateDebugMessengerCreateInfo(debugCreateInfo);
-            createInfo.pNext = &debugCreateInfo;
-        } else [[unlikely]] {
-            createInfo.enabledLayerCount = 0;
-            createInfo.pNext = nullptr;
-        }
-#endif
-
-        VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "failed to create instance!");
-
-        hasGflwRequiredInstanceExtensions();
+void Device::createInstance() {
+    if(enableValidationLayers && !checkValidationLayerSupport()) {
+        throw std::runtime_error("validation layers requested, but not available!");
     }
+
+    VkApplicationInfo appInfo = {};
+    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+    appInfo.pApplicationName = "LittleVulkanEngine App";
+    appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
+    appInfo.pEngineName = "No Engine";
+    appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
+    appInfo.apiVersion = VK_API_VERSION_1_4;
+
+    VkInstanceCreateInfo createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+    createInfo.pApplicationInfo = &appInfo;
+
+    auto extensions = getRequiredExtensions();
+    createInfo.enabledExtensionCount = C_UI32T(extensions.size());
+    createInfo.ppEnabledExtensionNames = extensions.data();
+#ifdef __APPLE__
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
+
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+#ifdef NDEBUG
+    if(enableValidationLayers) [[unlikely]] {
+        createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+
+        populateDebugMessengerCreateInfo(debugCreateInfo);
+        createInfo.pNext = &debugCreateInfo;
+    } else [[likely]] {
+        createInfo.enabledLayerCount = 0;
+        createInfo.pNext = nullptr;
+    }
+#else
+    if(enableValidationLayers) [[likely]] {
+        createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
+        createInfo.ppEnabledLayerNames = validationLayers.data();
+
+        populateDebugMessengerCreateInfo(debugCreateInfo);
+        createInfo.pNext = &debugCreateInfo;
+    } else [[unlikely]] {
+        createInfo.enabledLayerCount = 0;
+        createInfo.pNext = nullptr;
+    }
+#endif
+
+    VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "failed to create instance!");
+
+    hasGflwRequiredInstanceExtensions();
+}
 
 void Device::pickPhysicalDevice() {
     const vnd::AutoTimer t{"pick Physical Device"};
@@ -218,14 +300,14 @@ void Device::createLogicalDevice() {
 
     auto device = device_;
     auto dinstance = instance;
-    psetObjectName(instance, device_, dinstance, "Main Instance");
-    psetObjectName(instance, device_, device, "Main Device");
-    psetObjectName(instance, device_, physicalDevice, "Main Physical Device");
+    psetObjectName(dinstance, "Main Instance");
+    psetObjectName(device, "Main Device");
+    psetObjectName(physicalDevice, "Main Physical Device");
 
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
-    psetObjectName(instance, device_, graphicsQueue_, "Graphics Queue");
-    psetObjectName(instance, device_, presentQueue_, "Present Queue");
+    psetObjectName(graphicsQueue_, "Graphics Queue");
+    psetObjectName(presentQueue_, "Present Queue");
 }
 
 void Device::createCommandPool() {
@@ -238,7 +320,7 @@ void Device::createCommandPool() {
         VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     VK_CHECK(vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool), "failed to create command pool!");
-    psetObjectName(instance, device_, commandPool, "Command Pool");
+    psetObjectName(commandPool, "Command Pool");
 }
 
 void Device::createSurface() { window.createWindowSurface(instance, &surface_); }
@@ -283,6 +365,7 @@ void Device::setupDebugMessenger() {
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
     VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "failed to set up debug messenger!");
+    loadDebugUtilsFunctions();
 }
 
 bool Device::checkValidationLayerSupport() {
@@ -504,10 +587,13 @@ VkCommandBuffer Device::beginSingleTimeCommands() {
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
     VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin single-time command buffer!");
+    pcmdBeginLabel(commandBuffer, "Single Time Commands", DebugColors::Cyan);
     return commandBuffer;
 }
 
 void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+    pcmdEndLabel(commandBuffer);
+
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to end single-time command buffer!");
 
     VkSubmitInfo submitInfo{};
@@ -515,7 +601,10 @@ void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
+    pqueueInsertLabel(graphicsQueue_, "Transient Upload Submission", DebugColors::Cyan);
+
     VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE), "failed to submit single-time command buffer!");
+
     VK_CHECK(vkQueueWaitIdle(graphicsQueue_), "failed to wait for queue idle!");
 
     vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
@@ -528,6 +617,7 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
     copyRegion.srcOffset = 0;  // Optional
     copyRegion.dstOffset = 0;  // Optional
     copyRegion.size = size;
+    pcmdInsertLabel(commandBuffer, "Copy Buffer", DebugColors::Green);
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
     endSingleTimeCommands(commandBuffer);
@@ -536,6 +626,8 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 void Device::copyBufferToImage(
     VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+    pcmdInsertLabel(commandBuffer, "Copy Buffer To Image", DebugColors::Yellow);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -550,13 +642,7 @@ void Device::copyBufferToImage(
     region.imageOffset = {.x=0, .y=0, .z=0};
     region.imageExtent = {.width=width, .height=height, .depth=1};
 
-    vkCmdCopyBufferToImage(
-      commandBuffer,
-      buffer,
-      image,
-      VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-      1,
-      &region);
+    vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
     endSingleTimeCommands(commandBuffer);
 }
 
