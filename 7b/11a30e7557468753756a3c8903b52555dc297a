@@ -1,0 +1,23 @@
+shaders/simple_shader.vert
+  h_361662506da91f 3,6
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 579,582
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 11,28-33,90,102-103
+include/Vantablade/Application.hpp
+  h_361662506da91f 13,31,37
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "7b11a30e7557468753756a3c8903b52555dc297a",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
