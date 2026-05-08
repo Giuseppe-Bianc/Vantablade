@@ -1,0 +1,23 @@
+GEMINI.md
+  h_361662506da91f 8,81-96,98-104
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 76,96,301-302
+include/Vantablade/Device.hpp
+  h_361662506da91f 43-49
+src/vantablade_lib/VmaImplementation.cpp
+  h_361662506da91f 1,5,7-21,23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "47f4b69583f03e9c12a6bde795aaf6d943829831",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
