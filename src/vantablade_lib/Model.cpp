@@ -1,16 +1,13 @@
 /*
-* Created by gbian on 08/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 08/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 
 #include "Vantablade/Model.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 #include <vma/vk_mem_alloc.h>
 
-Model::Model(Device &device, const std::vector<Vertex> &vertices)
-    : lveDevice{device} {
-    createVertexBuffers(vertices);
-}
+Model::Model(Device &device, const std::vector<Vertex> &vertices) : lveDevice{device} { createVertexBuffers(vertices); }
 
 Model::~Model() {
     // Single call destroys both the VkBuffer and its VmaAllocation.
@@ -23,12 +20,9 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 
     const VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
 
-    lveDevice.createBuffer(
-        bufferSize,
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        vertexBuffer,
-        vertexBufferAllocation);
+    lveDevice.createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexBuffer,
+                           vertexBufferAllocation);
 
     void *data = nullptr;
     VK_CHECK(vmaMapMemory(lveDevice.getAllocator(), vertexBufferAllocation, &data), "failed to map vertex buffer memory!");
@@ -36,12 +30,10 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
     vmaUnmapMemory(lveDevice.getAllocator(), vertexBufferAllocation);
 }
 
-void Model::draw(VkCommandBuffer commandBuffer) {
-    vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
-}
+void Model::draw(VkCommandBuffer commandBuffer) { vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0); }
 
 void Model::bind(VkCommandBuffer commandBuffer) {
-    const VkBuffer     buffers[] = {vertexBuffer};
+    const VkBuffer buffers[] = {vertexBuffer};
     const VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
 }

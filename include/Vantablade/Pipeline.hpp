@@ -36,13 +36,13 @@ public:
     void operator=(const Pipeline &) = delete;
 
     void bind(VkCommandBuffer commandBuffer) const;
-    static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo, uint32_t width, uint32_t height);
+    static void defaultPipelineConfigInfo(PipelineConfigInfo &configInfo, uint32_t width, uint32_t height);
 
 private:
     [[nodiscard]] static std::vector<char> readFile(const std::string &filepath);
 
-    void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, const PipelineConfigInfo& configInfo);
-    void createShaderModule(const std::vector<char>& code, VkShaderModule* shaderModule);
+    void createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo);
+    void createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule);
 
     Device &device_m;
     VkPipeline graphicsPipeline{VK_NULL_HANDLE};

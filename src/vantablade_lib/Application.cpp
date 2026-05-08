@@ -14,23 +14,22 @@ Application::Application() {
     createCommandBuffers();
 }
 
-Application::~Application() { 
+Application::~Application() {
     const vnd::AutoTimer timer{"Destroying Application"};
-    vkDestroyPipelineLayout(device_m.device(), pipelineLayout, device_m.getVkAllocator()); 
+    vkDestroyPipelineLayout(device_m.device(), pipelineLayout, device_m.getVkAllocator());
 }
 
 void Application::run() {
-    //initWindow();
-    //initVulkan();
+    // initWindow();
+    // initVulkan();
     mainLoop();
-    //cleanup();
+    // cleanup();
 }
 void Application::loadModels() {
     const vnd::AutoTimer timer{"Loading models"};
     std::vector<Model::Vertex> vertices{{{0.0f, -0.5f}}, {{0.5f, 0.5f}}, {{-0.5f, 0.5f}}};
     model = std::make_unique<Model>(device_m, vertices);
 }
-
 
 void Application::mainLoop() {
     FPSCounter fps{window.getGLFWWindow(), wtile};
@@ -53,7 +52,8 @@ void Application::createPipelineLayout() {
 
     // STYLE: VK_CHECK replaces manual if-check for consistency with the rest
     // of the codebase.
-    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, device_m.getVkAllocator(), &pipelineLayout), "failed to create pipeline layout!");
+    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, device_m.getVkAllocator(), &pipelineLayout),
+             "failed to create pipeline layout!");
 }
 
 void Application::createPipeline() {
@@ -64,7 +64,8 @@ void Application::createPipeline() {
     pipelineConfig.renderPass = swapChain.getRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout;
 
-    pipeline = std::make_unique<Pipeline>(device_m, "shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv", pipelineConfig);
+    pipeline = std::make_unique<Pipeline>(device_m, "shaders/simple_shader.vert.opt.spv", "shaders/simple_shader.frag.opt.spv",
+                                          pipelineConfig);
 }
 
 void Application::createCommandBuffers() {
@@ -87,7 +88,7 @@ void Application::createCommandBuffers() {
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = swapChain.getRenderPass();
         renderPassInfo.framebuffer = swapChain.getFrameBuffer(C_ST(i));
-        renderPassInfo.renderArea.offset = {.x=0, .y=0};
+        renderPassInfo.renderArea.offset = {.x = 0, .y = 0};
         renderPassInfo.renderArea.extent = swapChain.getSwapChainExtent();
 
         const std::array<VkClearValue, 2> clearValues{VkClearValue{.color = {.float32 = {0.1f, 0.1f, 0.1f, 1.0f}}},

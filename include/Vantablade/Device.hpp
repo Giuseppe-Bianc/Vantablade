@@ -9,6 +9,7 @@
 #include "Window.hpp"
 #include "VulkanAllocator.hpp"
 
+
 // Forward declaration for VMA
 VK_DEFINE_HANDLE(VmaAllocator)
 VK_DEFINE_HANDLE(VmaAllocation)
@@ -26,9 +27,7 @@ struct QueueFamilyIndices {
     bool presentFamilyHasValue{false};
 
     // CONST: pure predicate — no mutation, noexcept guaranteed.
-    [[nodiscard]] bool isComplete() const noexcept {
-        return graphicsFamilyHasValue && presentFamilyHasValue;
-    }
+    [[nodiscard]] bool isComplete() const noexcept { return graphicsFamilyHasValue && presentFamilyHasValue; }
 };
 
 struct DebugUtilsFunctions {
@@ -84,7 +83,7 @@ public:
     [[nodiscard]] VkQueue graphicsQueue() const noexcept { return graphicsQueue_; }
     [[nodiscard]] VkQueue presentQueue() const noexcept { return presentQueue_; }
     [[nodiscard]] VmaAllocator getAllocator() const noexcept { return allocator; }
-    [[nodiscard]] VkAllocationCallbacks* getVkAllocator() noexcept { return &vkAllocatorCallbacks; }
+    [[nodiscard]] VkAllocationCallbacks *getVkAllocator() noexcept { return &vkAllocatorCallbacks; }
 
     // CONST: query methods do not modify *this.
     [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
@@ -94,7 +93,8 @@ public:
     // SPAN: std::span<const VkFormat> replaces const std::vector<VkFormat>&.
     // Callers are no longer required to own a vector; a stack array, a span
     // over a contiguous range, or an initializer_list all work without copying.
-    [[nodiscard]] VkFormat findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const;
+    [[nodiscard]] VkFormat findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling,
+                                               VkFormatFeatureFlags features) const;
 
     // Buffer Helper Functions
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
@@ -140,7 +140,7 @@ private:
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void hasGflwRequiredInstanceExtensions();
     [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-    [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device)const;
+    [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
 
     VkInstance instance{VK_NULL_HANDLE};
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
