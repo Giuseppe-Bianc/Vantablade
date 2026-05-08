@@ -7,6 +7,12 @@
 ## About Vantablade
 This project is a ray tracer implemented in C++23 using the Vulkan API. It is designed to explore high-performance rendering techniques. The system supports GPU-accelerated computation and focuses on efficient light transport simulation.
 
+## Obsidian Vault
+
+The repository root is also an Obsidian vault. Open this folder in Obsidian and start with [INDEX.md](INDEX.md).
+
+The tracked vault notes live in `docs/` and summarize the build, architecture, dependencies, testing setup, and code layout.
+
 ## WebAssembly Demo
 
 Try the live WebAssembly demo:

@@ -1,33 +1,47 @@
-# Vantablade Project Index
+---
+aliases:
+  - Home
+tags:
+  - docs
+  - obsidian
+  - vantablade
+---
 
-Welcome to the Vantablade Obsidian Vault!
+# Vantablade Vault
 
-## Overview
-This vault documents the Vantablade project structure, architecture, and development notes.
+This repository root is the Obsidian vault for Vantablade. Use this note as the map of content when you open the project in Obsidian.
 
-## Quick Links
+## Start Here
+
 - [[Project Overview]]
 - [[Architecture]]
 - [[Development Setup]]
 
-## Main Directories
-- **src/** -- Source code
-- **include/** -- Header files
-- **test/** -- Unit and integration tests
-- **cmake/** -- CMake build configuration
-- **build/** -- Build artifacts
-- **docs/** -- Project documentation
+## Build and Tooling
 
-## Getting Started
-1. Explore the project structure in the File Explorer (left sidebar)
-2. Use the Graph view to visualize connections between documents
-3. Check the Backlinks to find related notes
-4. Use the Outline to navigate longer documents
+- [[Build Tooling]]
+- [[Dependencies]]
+- [[Testing]]
 
-## Notes Structure
-- Create new notes in the appropriate subdirectory
-- Use backlinks to connect related concepts
-- Tag notes for easy filtering
+## Code Orientation
 
----
-Last Updated: 2026-05-08
+- [[Code Map]]
+- `src/vantablade_Core_lib/` contains the foundational utilities layer.
+- `src/vantablade_lib/` contains the Vulkan and application runtime layer.
+- `src/vantablade/` contains the CLI executable entry point.
+
+## Repository Landmarks
+
+- `CMakeLists.txt` defines the top-level project, packaging, and optional test and fuzz targets.
+- `CMakePresets.json` defines cross-platform configure and test presets.
+- `Dependencies.cmake` pulls third-party libraries through CPM.
+- `shaders/` contains GLSL sources compiled into SPIR-V during the build.
+- `docs/` contains the tracked project notes for this vault.
+
+## Using This Vault
+
+- Start in Graph view from this note to visualize the major documentation clusters.
+- Use Backlinks on notes like [[Architecture]] and [[Code Map]] while reading source.
+- Keep new notes in `docs/` so vault content stays tracked with the repository.
+
+Last updated: 2026-05-08
