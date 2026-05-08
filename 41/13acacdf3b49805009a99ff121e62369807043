@@ -1,0 +1,35 @@
+GEMINI.md
+  s_9bd0db24a5b047::t_1f62333f19e24d 1-107
+include/Vantablade/Device.hpp
+  h_361662506da91f 29-51,112-125,139
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 12-17,19-37,39,42,44-52,57-111,196,200,213,224,368,590,595-596,604-605,607,620,630-631
+src/vantablade_lib/VmaImplementation.cpp
+  h_361662506da91f 1-6
+src/vantablade_lib/CMakeLists.txt
+  s_9bd0db24a5b047::t_60a7d3d3476a11 14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "4113acacdf3b49805009a99ff121e62369807043",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_9bd0db24a5b047": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "11437fa1-f4e0-4628-b5a8-3a6103e321ee",
+        "model": "gemini-3-flash-preview"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
