@@ -1,0 +1,26 @@
+INDEX.md
+  s_82786337eb6b0d::t_d8249d2f93eafa 1-10,12,14,20,22-47
+README.md
+  s_82786337eb6b0d::t_d8249d2f93eafa 10-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "da48da41790b4bc1c2291c9de7e91af69fca3fff",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_82786337eb6b0d": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e08e7-9bab-7162-92ab-79b9643cf58c",
+        "model": "gpt-5.4"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
