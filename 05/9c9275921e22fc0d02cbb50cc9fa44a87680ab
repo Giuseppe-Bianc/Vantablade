@@ -1,0 +1,38 @@
+include/Vantablade/SwapChain.hpp
+  s_a0d41993360fc9::t_6f2d3fbfcc584a 57
+src/vantablade_lib/SwapChain.cpp
+  s_a0d41993360fc9::t_2d8567832ee5da 43-44,46
+  s_a0d41993360fc9::t_e1b61b7427d362 9-12
+  s_a0d41993360fc9::t_c861b86ee54d70 274,294
+src/vantablade_lib/Device.cpp
+  s_a0d41993360fc9::t_08d4d7cab6de76 662-664,666
+  h_361662506da91f 122-123
+  s_a0d41993360fc9::t_60c8fde062b9a1 571,578-579,581
+include/Vantablade/Device.hpp
+  s_a0d41993360fc9::t_9b59151a415db7 99,106
+  s_a0d41993360fc9::t_da5a5ce32a1bf9 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "059c9275921e22fc0d02cbb50cc9fa44a87680ab",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a0d41993360fc9": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "ae060e03-b748-40a6-974d-6fe7960022a7",
+        "model": "gemini-3-flash-preview"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
