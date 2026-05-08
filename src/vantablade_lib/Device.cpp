@@ -575,8 +575,10 @@ void Device::createBuffer(
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VmaAllocationCreateInfo allocInfo = {};
+    VmaAllocationCreateInfo allocInfo{};
+    allocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
     allocInfo.requiredFlags = propertiesp;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
     VK_CHECK(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &buffer, &allocation, nullptr), "failed to create buffer!");
 }
