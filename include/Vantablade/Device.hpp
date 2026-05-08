@@ -8,6 +8,9 @@
 #include "DeviceInfo.hpp"
 #include "Window.hpp"
 
+// Forward declaration for VMA
+VK_DEFINE_HANDLE(VmaAllocator)
+
 struct SwapChainSupportDetails {
     VkSurfaceCapabilitiesKHR capabilities;
     std::vector<VkSurfaceFormatKHR> formats;
@@ -78,6 +81,7 @@ public:
     [[nodiscard]] VkSurfaceKHR surface() const noexcept { return surface_; }
     [[nodiscard]] VkQueue graphicsQueue() const noexcept { return graphicsQueue_; }
     [[nodiscard]] VkQueue presentQueue() const noexcept { return presentQueue_; }
+    [[nodiscard]] VmaAllocator getAllocator() const noexcept { return allocator; }
 
     // CONST: query methods do not modify *this.
     [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
@@ -109,6 +113,7 @@ private:
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createCommandPool();
+    void createAllocator();
     template <typename Fn> [[nodiscard]] static Fn loadInstanceProc(VkInstance inst, const char *name) noexcept;
 
     // Carica tutti i function pointer debug_utils dopo la creazione dell'istanza.
@@ -142,6 +147,7 @@ private:
     VkCommandPool commandPool{VK_NULL_HANDLE};
 
     VkDevice device_{VK_NULL_HANDLE};
+    VmaAllocator allocator{VK_NULL_HANDLE};
     VkSurfaceKHR surface_{VK_NULL_HANDLE};
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};

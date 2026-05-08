@@ -9,6 +9,10 @@
 #include "Vantablade/VulkanLogInfoCallback.hpp"
 #include "Vantablade/Device.hpp"
 
+DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
+#include <vma/vk_mem_alloc.h>
+DISABLE_WARNINGS_POP()
+
 template <typename Fn> Fn Device::loadInstanceProc(VkInstance inst, const char *name) noexcept {
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
     return reinterpret_cast<Fn>(vkGetInstanceProcAddr(inst, name));
@@ -166,10 +170,12 @@ Device::Device(Window &window) : window{window} {
   pickPhysicalDevice();
   createLogicalDevice();
   createCommandPool();
+  createAllocator();
 }
 
 Device::~Device() {
     const vnd::AutoTimer timer("Destroying Device");
+    vmaDestroyAllocator(allocator);
     vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);
 
@@ -319,6 +325,21 @@ void Device::createCommandPool() {
 
     VK_CHECK(vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool), "failed to create command pool!");
     psetObjectName(commandPool, "Command Pool");
+}
+
+void Device::createAllocator() {
+    VmaVulkanFunctions vulkanFunctions = {};
+    vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+
+    VmaAllocatorCreateInfo allocatorCreateInfo = {};
+    allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_4;
+    allocatorCreateInfo.physicalDevice = physicalDevice;
+    allocatorCreateInfo.device = device_;
+    allocatorCreateInfo.instance = instance;
+    allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+
+    VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
 
 void Device::createSurface() { window.createWindowSurface(instance, &surface_); }
