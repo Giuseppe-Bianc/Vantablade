@@ -174,6 +174,14 @@ Device::Device(Window &window) : window{window} {
 }
 
 Device::~Device() {
+    const FileSizeReport report{
+        .info = {.bytes = vkAllocator.getTotalAllocated()},
+        .si_sys = kSI,
+        .iec_sys = kIEC,
+    };
+
+    LINFO("VkAlloc before teardown: {} B | SI {} | IEC {}", report.info.bytes, report.info.format(report.si_sys),
+          report.info.format(report.iec_sys));
     const vnd::AutoTimer timer("Destroying Device");
     vmaDestroyAllocator(allocator);
     vkDestroyCommandPool(device_, commandPool, &vkAllocatorCallbacks);
