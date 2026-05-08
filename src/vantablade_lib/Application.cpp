@@ -16,7 +16,7 @@ Application::Application() {
 
 Application::~Application() { 
     const vnd::AutoTimer timer{"Destroying Application"};
-    vkDestroyPipelineLayout(device_m.device(), pipelineLayout, nullptr); 
+    vkDestroyPipelineLayout(device_m.device(), pipelineLayout, device_m.getVkAllocator()); 
 }
 
 void Application::run() {
@@ -53,7 +53,7 @@ void Application::createPipelineLayout() {
 
     // STYLE: VK_CHECK replaces manual if-check for consistency with the rest
     // of the codebase.
-    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout), "failed to create pipeline layout!");
+    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, device_m.getVkAllocator(), &pipelineLayout), "failed to create pipeline layout!");
 }
 
 void Application::createPipeline() {

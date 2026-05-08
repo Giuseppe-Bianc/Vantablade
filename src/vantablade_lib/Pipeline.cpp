@@ -16,9 +16,10 @@ Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::s
 Pipeline::~Pipeline() {
     const vnd::AutoTimer timer("Destroying pipeline");
     auto *vkdevice = device_m.device();
-    vkDestroyPipeline(vkdevice, graphicsPipeline, nullptr);
-    vkDestroyShaderModule(vkdevice, fragShaderModule, nullptr);
-    vkDestroyShaderModule(vkdevice, vertShaderModule, nullptr);
+    auto *vkAlloc = device_m.getVkAllocator();
+    vkDestroyPipeline(vkdevice, graphicsPipeline, vkAlloc);
+    vkDestroyShaderModule(vkdevice, fragShaderModule, vkAlloc);
+    vkDestroyShaderModule(vkdevice, vertShaderModule, vkAlloc);
 }
 
 std::vector<char> Pipeline::readFile(const std::string &filepath) {
@@ -84,7 +85,7 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    VK_CHECK(vkCreateGraphicsPipelines(device_m.device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline),
+    VK_CHECK(vkCreateGraphicsPipelines(device_m.device(), VK_NULL_HANDLE, 1, &pipelineInfo, device_m.getVkAllocator(), &graphicsPipeline),
              "failed to create graphics pipeline");
 }
 
@@ -94,7 +95,7 @@ void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule 
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data()); // NOLINT(*-pro-type-reinterpret-cast)
 
-    VK_CHECK(vkCreateShaderModule(device_m.device(), &createInfo, nullptr, shaderModule), "failed to create shader module");
+    VK_CHECK(vkCreateShaderModule(device_m.device(), &createInfo, device_m.getVkAllocator(), shaderModule), "failed to create shader module");
 }
 
 void Pipeline::bind(VkCommandBuffer commandBuffer) const {

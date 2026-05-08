@@ -4,7 +4,7 @@
 */
 
 #include "Vantablade/Model.hpp"
-
+#include "Vantablade/vulkanCheck.hpp"
 #include <vma/vk_mem_alloc.h>
 
 Model::Model(Device &device, const std::vector<Vertex> &vertices)
@@ -31,7 +31,7 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
         vertexBufferAllocation);
 
     void *data = nullptr;
-    vmaMapMemory(lveDevice.getAllocator(), vertexBufferAllocation, &data);
+    VK_CHECK(vmaMapMemory(lveDevice.getAllocator(), vertexBufferAllocation, &data), "failed to map vertex buffer memory!");
     memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));
     vmaUnmapMemory(lveDevice.getAllocator(), vertexBufferAllocation);
 }

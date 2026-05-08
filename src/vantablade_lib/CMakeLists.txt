@@ -24,6 +24,8 @@ add_library(vantablade_lib
         Device.cpp
         ../../include/Vantablade/Device.hpp
         ../../include/Vantablade/DeviceInfo.hpp
+        VulkanAllocator.cpp
+        ../../include/Vantablade/VulkanAllocator.hpp
         SwapChain.cpp
         ../../include/Vantablade/SwapChain.hpp
         Model.cpp

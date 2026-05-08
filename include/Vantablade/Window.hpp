@@ -25,7 +25,7 @@ public:
     [[nodiscard]] bool wasWindowResized() const noexcept { return framebufferResized; }
     void resetWindowResizedFlag() noexcept { framebufferResized = false; }
 
-    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface, const VkAllocationCallbacks *allocator = nullptr);
 
     // CONST + [[nodiscard]]: pure query, return value must not be silently dropped.
     [[nodiscard]] VkExtent2D getExtent() const noexcept { return {C_UI32T(width), C_UI32T(height)}; }

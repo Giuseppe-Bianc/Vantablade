@@ -98,8 +98,8 @@ void Window::centerWindow() {
     LINFO("Created the window {}: (w: {}, h: {}, pos:({}/{}))", windowName, width, height, centerX, centerY);
 }
 
-void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface) {
-    VK_CHECK(glfwCreateWindowSurface(instance, window, nullptr, surface), "failed to create window surface");
+void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface, const VkAllocationCallbacks *allocator) {
+    VK_CHECK(glfwCreateWindowSurface(instance, window, allocator, surface), "failed to create window surface");
 }
 
 void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) noexcept {

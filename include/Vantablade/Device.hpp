@@ -7,6 +7,7 @@
 
 #include "DeviceInfo.hpp"
 #include "Window.hpp"
+#include "VulkanAllocator.hpp"
 
 // Forward declaration for VMA
 VK_DEFINE_HANDLE(VmaAllocator)
@@ -83,6 +84,7 @@ public:
     [[nodiscard]] VkQueue graphicsQueue() const noexcept { return graphicsQueue_; }
     [[nodiscard]] VkQueue presentQueue() const noexcept { return presentQueue_; }
     [[nodiscard]] VmaAllocator getAllocator() const noexcept { return allocator; }
+    [[nodiscard]] VkAllocationCallbacks* getVkAllocator() noexcept { return &vkAllocatorCallbacks; }
 
     // CONST: query methods do not modify *this.
     [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
@@ -149,6 +151,8 @@ private:
 
     VkDevice device_{VK_NULL_HANDLE};
     VmaAllocator allocator{VK_NULL_HANDLE};
+    vnd::VulkanAllocator vkAllocator;
+    VkAllocationCallbacks vkAllocatorCallbacks;
     VkSurfaceKHR surface_{VK_NULL_HANDLE};
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};
