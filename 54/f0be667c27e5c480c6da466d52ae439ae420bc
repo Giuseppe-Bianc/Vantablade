@@ -1,0 +1,63 @@
+include/Vantablade/Device.hpp
+  s_a0d41993360fc9::t_d840ae87939420 87
+  s_a0d41993360fc9::t_e674820d1fe091 10
+  s_a0d41993360fc9::t_8f233ddbce4a1f 154-155
+src/vantablade_lib/Window.cpp
+  s_a0d41993360fc9::t_8fc3fc05e46bef 101-102
+include/VantabladeCore/Log.hpp
+  s_a0d41993360fc9::t_de17626bf8f037 71,75
+src/vantablade_lib/Pipeline.cpp
+  s_a0d41993360fc9::t_fa9f5f47e30960 19-22
+  s_a0d41993360fc9::t_36bbd771c14f38 88,98
+src/vantablade_lib/CMakeLists.txt
+  s_a0d41993360fc9::t_98c46980b6c306 27-28
+src/vantablade_lib/VulkanAllocator.cpp
+  s_a0d41993360fc9::t_418b28f4e48d3a 1-94
+src/vantablade_lib/SwapChain.cpp
+  s_a0d41993360fc9::t_21f9df29e26b7e 249
+  s_a0d41993360fc9::t_0a4803580cfa49 168,193
+  s_a0d41993360fc9::t_99fac8684cb46f 26,29,32,35,40,46,54-56
+  s_a0d41993360fc9::t_c844f03f41947f 268
+  s_a0d41993360fc9::t_e15af7ebc0a59d 311,325,329-330
+src/vantablade_lib/Device.cpp
+  s_a0d41993360fc9::t_b8275c0f4acdc6 387
+  s_a0d41993360fc9::t_018ef7cf2e4ddf 166,179-180,183,186-187
+  s_a0d41993360fc9::t_bb00e941ad6cd0 239
+  s_a0d41993360fc9::t_9fed346b03c3ad 326,341
+  s_a0d41993360fc9::t_ec1a212bd00023 305
+  s_a0d41993360fc9::t_8fbd31270133a2 346
+include/Vantablade/VulkanAllocator.hpp
+  s_a0d41993360fc9::t_65c1f4531669ee 1-72
+src/vantablade_lib/Application.cpp
+  s_a0d41993360fc9::t_69abb6197cf08f 19
+  s_a0d41993360fc9::t_ce1b826551f9a0 56
+include/Vantablade/Window.hpp
+  s_a0d41993360fc9::t_00a8ea00cd753f 28
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 7
+  s_a0d41993360fc9::t_d25e8ef29a70b4 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "54f0be667c27e5c480c6da466d52ae439ae420bc",
+  "prompts": {},
+  "humans": {
+    "h_0b496d7e860864": {
+      "author": "GIUSEPPE BIANCONI"
+    },
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_a0d41993360fc9": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "ae060e03-b748-40a6-974d-6fe7960022a7",
+        "model": "gemini-3.1-flash-lite-preview"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
