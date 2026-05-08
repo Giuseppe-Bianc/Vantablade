@@ -1,0 +1,42 @@
+.obsidian/app.json
+  h_361662506da91f 1-8
+.obsidian/core-plugins-migration.json
+  s_f9ed515c70dab3::t_1d8ad24280a207 1-15
+.obsidian/community-plugins.json
+  h_361662506da91f 1
+"docs/Development Setup.md"
+  s_f9ed515c70dab3::t_52ad2bb0d55b9a 1-56
+.obsidian/workspace.json
+  s_f9ed515c70dab3::t_d6fcfcbc3d086c 1-42
+.obsidian/core-plugins.json
+  h_361662506da91f 1-13
+INDEX.md
+  s_f9ed515c70dab3::t_b661017413a43e 1-33
+docs/Architecture.md
+  s_f9ed515c70dab3::t_156562e80319e4 1-37
+.obsidian/appearance.json
+  h_361662506da91f 1-13
+"docs/Project Overview.md"
+  h_361662506da91f 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "0fcb22d794ae2b57e528c85976eec5ee80094cd0",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_f9ed515c70dab3": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "e2aa2da8-f7a5-4152-9493-fda261a5fc6b",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
