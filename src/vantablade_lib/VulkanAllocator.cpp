@@ -4,7 +4,6 @@
  */
 
 #include "Vantablade/VulkanAllocator.hpp"
-#include <cstdlib>
 
 namespace vnd {
 

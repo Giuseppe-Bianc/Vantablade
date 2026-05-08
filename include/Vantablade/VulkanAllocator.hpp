@@ -5,10 +5,7 @@
 
 #pragma once
 
-#include "VantabladeCore/Log.hpp"
-#include <vulkan/vulkan.h>
-#include <atomic>
-#include <mutex>
+#include "Vantablade/headers.hpp"
 
 namespace vnd {
 
