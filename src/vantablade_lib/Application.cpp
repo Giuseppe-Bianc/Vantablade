@@ -8,6 +8,7 @@
 #include "Vantablade/vulkanCheck.hpp"
 
 Application::Application() {
+    loadModels();
     createPipelineLayout();
     createPipeline();
     createCommandBuffers();
@@ -24,6 +25,12 @@ void Application::run() {
     mainLoop();
     //cleanup();
 }
+void Application::loadModels() {
+    const vnd::AutoTimer timer{"Loading models"};
+    std::vector<Model::Vertex> vertices{{{0.0f, -0.5f}}, {{0.5f, 0.5f}}, {{-0.5f, 0.5f}}};
+    model = std::make_unique<Model>(device_m, vertices);
+}
+
 
 void Application::mainLoop() {
     FPSCounter fps{window.getGLFWWindow(), wtile};
@@ -80,7 +87,7 @@ void Application::createCommandBuffers() {
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
         renderPassInfo.renderPass = swapChain.getRenderPass();
         renderPassInfo.framebuffer = swapChain.getFrameBuffer(C_ST(i));
-        renderPassInfo.renderArea.offset = {0, 0};
+        renderPassInfo.renderArea.offset = {.x=0, .y=0};
         renderPassInfo.renderArea.extent = swapChain.getSwapChainExtent();
 
         const std::array<VkClearValue, 2> clearValues{VkClearValue{.color = {.float32 = {0.1f, 0.1f, 0.1f, 1.0f}}},
@@ -92,7 +99,8 @@ void Application::createCommandBuffers() {
         vkCmdBeginRenderPass(cmdBuf, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         pipeline->bind(cmdBuf);
-        vkCmdDraw(cmdBuf, 3, 1, 0, 0);
+        model->bind(cmdBuf);
+        model->draw(cmdBuf);
 
         vkCmdEndRenderPass(cmdBuf);
         VK_CHECK(vkEndCommandBuffer(cmdBuf), "failed to record command buffer!");

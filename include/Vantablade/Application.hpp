@@ -10,6 +10,7 @@
 #include "Device.hpp"
 #include "Pipeline.hpp"
 #include "Swapchain.hpp"
+#include "Model.hpp"
 // clang-format on
 
 class Application {
@@ -27,11 +28,13 @@ private:
     std::unique_ptr<Pipeline> pipeline;
     VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
     std::vector<VkCommandBuffer> commandBuffers;
+    std::unique_ptr<Model> model;
 
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
     void drawFrame();
+    void loadModels();
 
     void mainLoop();
 };

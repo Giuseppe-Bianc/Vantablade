@@ -26,6 +26,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/DeviceInfo.hpp
         SwapChain.cpp
         ../../include/Vantablade/SwapChain.hpp
+        Model.cpp
+        ../../include/Vantablade/Model.hpp
 )
 
 
