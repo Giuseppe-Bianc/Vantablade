@@ -119,9 +119,8 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
     [[maybe_unused]] void *pUserData) {
-    if(std::string_view(pCallbackData->pMessageIdName) == "Loader Message") {
-        return VK_FALSE;  // silently ignore loader messages
-    }
+    const char *id = pCallbackData->pMessageIdName;
+    if(id != nullptr && std::string_view{id} == "Loader Message") { return VK_FALSE; }
     const std::string type = VkDebugUtilsMessageTypeFlagsEXTString(messageType);
 
     // Structured Header
@@ -569,26 +568,17 @@ void Device::createBuffer(
     VkBufferUsageFlags usage,
     VkMemoryPropertyFlags propertiesp,
     VkBuffer &buffer,
-    VkDeviceMemory &bufferMemory) {
+    VmaAllocation &allocation) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VK_CHECK(vkCreateBuffer(device_, &bufferInfo, nullptr, &buffer), "failed to create vertex buffer!");
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.requiredFlags = propertiesp;
 
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device_, buffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, propertiesp);
-
-    VK_CHECK(vkAllocateMemory(device_, &allocInfo, nullptr, &bufferMemory), "failed to allocate vertex buffer memory!");
-
-    VK_CHECK(vkBindBufferMemory(device_, buffer, bufferMemory, 0), "failed to bind buffer memory!");
+    VK_CHECK(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &buffer, &allocation, nullptr), "failed to create buffer!");
 }
 
 VkCommandBuffer Device::beginSingleTimeCommands() {
@@ -669,20 +659,11 @@ void Device::createImageWithInfo(
     const VkImageCreateInfo &imageInfo,
     VkMemoryPropertyFlags propertiesp,
     VkImage &image,
-    VkDeviceMemory &imageMemory) {
-    VK_CHECK(vkCreateImage(device_, &imageInfo, nullptr, &image), "failed to create image!");
+    VmaAllocation &allocation) {
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.requiredFlags = propertiesp;
 
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(device_, image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, propertiesp);
-
-    VK_CHECK(vkAllocateMemory(device_, &allocInfo, nullptr, &imageMemory), "failed to allocate image memory!");
-
-    VK_CHECK(vkBindImageMemory(device_, image, imageMemory, 0), "failed to bind image memory!");
+    VK_CHECK(vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr), "failed to create image!");
 }
 
 // clang-format off

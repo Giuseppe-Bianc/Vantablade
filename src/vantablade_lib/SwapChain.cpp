@@ -6,6 +6,10 @@
 #include "Vantablade/SwapChain.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
+DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
+#include <vma/vk_mem_alloc.h>
+DISABLE_WARNINGS_POP()
+
 SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {
     createSwapChain();
@@ -36,11 +40,10 @@ SwapChain::~SwapChain() {
         swapChain = VK_NULL_HANDLE;
     }
 
-    for(const auto &[img, view, mem] :
-        std::views::zip(depthImages, depthImageViews, depthImageMemorys)) {
+    for(const auto &[img, view, alloc] :
+        std::views::zip(depthImages, depthImageViews, depthImageAllocations)) {
         vkDestroyImageView(vkdevice, view, nullptr);
-        vkDestroyImage(vkdevice, img, nullptr);
-        vkFreeMemory(vkdevice, mem, nullptr);
+        vmaDestroyImage(device.getAllocator(), img, alloc);
     }
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, MAX_FRAMES_IN_FLIGHT)) {
@@ -268,7 +271,7 @@ void SwapChain::createDepthResources() {
     const std::size_t count = imageCount();
 
     depthImages.resize(count);
-    depthImageMemorys.resize(count);
+    depthImageAllocations.resize(count);
     depthImageViews.resize(count);
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, count)) {
@@ -288,7 +291,7 @@ void SwapChain::createDepthResources() {
         imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
         imageInfo.flags = 0;
 
-        device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages[i], depthImageMemorys[i]);
+        device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages[i], depthImageAllocations[i]);
 
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
