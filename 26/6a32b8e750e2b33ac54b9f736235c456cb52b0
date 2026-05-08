@@ -1,0 +1,24 @@
+.gitignore
+  s_c8133d7bbfe083::t_dbe3f19ad389a1 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "266a32b8e750e2b33ac54b9f736235c456cb52b0",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_c8133d7bbfe083": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "9310fb1b-26ef-450c-8fa1-ae9b9c5f94c7",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
