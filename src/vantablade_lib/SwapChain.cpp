@@ -45,6 +45,9 @@ SwapChain::~SwapChain() {
         vkDestroyImageView(vkdevice, view, nullptr);
         vmaDestroyImage(device.getAllocator(), img, alloc);
     }
+    depthImages.clear();
+    depthImageViews.clear();
+    depthImageAllocations.clear();
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, MAX_FRAMES_IN_FLIGHT)) {
         vkDestroySemaphore(vkdevice, renderFinishedSemaphores[i], nullptr);
