@@ -38,13 +38,17 @@ Vantablade is a high-performance ray tracer implemented in **C++23** using the *
 # Configure the project
 cmake -S . -B build
 
-# Build the project
+# Build the project in Debug
+cmake --build build --config Debug
+
+# Build the project in Release
 cmake --build build --config Release
 
-# Run the application (from the root directory to ensure shader paths are correct)
+# Run the application (from the root directory to ensure shader paths are correct) Debug
+./build/src/vantablade/Debug/vantablade.exe
+# Run the application (from the root directory to ensure shader paths are correct) Release
 ./build/src/vantablade/Release/vantablade.exe
 ```
-
 
 ### Running Tests
 
@@ -72,6 +76,7 @@ Use the following macros for logging:
 ### Vulkan Error Handling
 
 Use the `VK_CHECK` macro to wrap Vulkan function calls for consistent error reporting and assertions:
+
 ```cpp
 VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), "Failed to create logical device!");
 ```
