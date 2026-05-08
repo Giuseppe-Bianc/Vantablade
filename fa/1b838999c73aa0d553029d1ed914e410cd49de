@@ -1,0 +1,25 @@
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 177-184
+  s_73ac347ab78985::t_6bbb976a3506db 657
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "fa1b838999c73aa0d553029d1ed914e410cd49de",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_73ac347ab78985": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e08fb-c40f-7453-8736-7430597aebaf",
+        "model": "gpt-5.4"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
