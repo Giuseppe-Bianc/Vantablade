@@ -73,7 +73,7 @@ void Device::pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<cons
     if(!enableValidationLayers || debugFuncs.cmdBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdBeginLabel(cb, &label);
-    LINFO("Inserted command buffer label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
+    LINFO("Began command buffer label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
 }
 
 void Device::pcmdEndLabel(VkCommandBuffer cb) noexcept {
@@ -93,7 +93,7 @@ void Device::pqueueBeginLabel(VkQueue queue, const char *name, std::span<const f
     if(!enableValidationLayers || debugFuncs.queueBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueBeginLabel(queue, &label);
-    LINFO("Inserted queue label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
+    LINFO("Began queue label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
 }
 
 void Device::pqueueEndLabel(VkQueue queue) noexcept {
@@ -298,10 +298,8 @@ void Device::createLogicalDevice() {
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
 
-    auto device = device_;
-    auto dinstance = instance;
-    psetObjectName(dinstance, "Main Instance");
-    psetObjectName(device, "Main Device");
+    psetObjectName(instance, "Main Instance");
+    psetObjectName(device_, "Main Device");
     psetObjectName(physicalDevice, "Main Physical Device");
 
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);

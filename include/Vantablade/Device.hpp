@@ -40,13 +40,13 @@ using DebugLabelColor = std::array<float, 4>;
 
 // Colori predefiniti come constexpr: zero overhead, disponibili ovunque.
 namespace DebugColors {
-    inline constexpr DebugLabelColor Red = {1.0f, 0.0f, 0.0f, 1.0f};
-    inline constexpr DebugLabelColor Green = {0.0f, 1.0f, 0.0f, 1.0f};
-    inline constexpr DebugLabelColor Blue = {0.0f, 0.0f, 1.0f, 1.0f};
-    inline constexpr DebugLabelColor Yellow = {1.0f, 1.0f, 0.0f, 1.0f};
-    inline constexpr DebugLabelColor Cyan = {0.0f, 1.0f, 1.0f, 1.0f};
-    inline constexpr DebugLabelColor White = {1.0f, 1.0f, 1.0f, 1.0f};
-    inline constexpr DebugLabelColor None = {0.0f, 0.0f, 0.0f, 0.0f};
+    static inline constexpr DebugLabelColor Red = {1.0f, 0.0f, 0.0f, 1.0f};
+    static inline constexpr DebugLabelColor Green = {0.0f, 1.0f, 0.0f, 1.0f};
+    static inline constexpr DebugLabelColor Blue = {0.0f, 0.0f, 1.0f, 1.0f};
+    static inline constexpr DebugLabelColor Yellow = {1.0f, 1.0f, 0.0f, 1.0f};
+    static inline constexpr DebugLabelColor Cyan = {0.0f, 1.0f, 1.0f, 1.0f};
+    static inline constexpr DebugLabelColor White = {1.0f, 1.0f, 1.0f, 1.0f};
+    static inline constexpr DebugLabelColor None = {0.0f, 0.0f, 0.0f, 0.0f};
 }  // namespace DebugColors
 
 class Device {

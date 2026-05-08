@@ -5,7 +5,7 @@ Vantablade is a high-performance ray tracer implemented in **C++23** using the *
 ## Core Technologies
 
 - **Language:** C++23
-- **Graphics API:** Vulkan
+- **Graphics API:** Vulkan SDK 1.4.* (minimum 1.4.0)
 - **Windowing/Input:** GLFW
 - **Mathematics:** GLM (OpenGL Mathematics)
 - **Logging:** spdlog (with async support)
@@ -45,13 +45,6 @@ cmake --build build --config Release
 ./build/src/vantablade/Release/vantablade.exe
 ```
 
-### WebAssembly Build (Emscripten)
-
-```bash
-# Using a preset if available
-cmake . --preset wasm-release
-cmake --build --preset wasm-release
-```
 
 ### Running Tests
 
@@ -85,7 +78,30 @@ VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device), "Failed 
 
 ### Coding Style
 
+**Naming Conventions:**
+
+- Classes/Structs: `PascalCase` (e.g., `VulkanDevice`, `SwapChain`)
+- Functions/Methods: `camelCase` (e.g., `createDevice()`, `renderFrame()`)
+- Variables: `camelCase` (e.g., `deviceCount`, `physicalDevice`)
+- Constants/Enums: `UPPER_SNAKE_CASE`
+- Namespaces: `lowercase` (e.g., `vantablade`, `vnd`)
+
+**Formatting:**
+
+- The project uses `clang-format` for automatic code formatting
+- Configuration: `.clang-format` in repository root
+- Run before committing: `clang-format -i file`
+
+**C++ Best Practices:**
+
 - Follow modern C++23 idioms (e.g., `std::views`, `std::format`).
+- Prefer `const` wherever possible (const-correctness)
+- Use RAII for all resource management (no raw `new`/`delete`)
+- Smart pointers: `std::unique_ptr` by default, `std::shared_ptr` only when shared ownership is needed
+- Use `#pragma once` instead of header guards
+
+**Performance Profiling:**
+
 - Use `AutoTimer` for performance profiling of scopes:
 
   ```cpp
