@@ -1,0 +1,14 @@
+include/Vantablade/VulkanAllocator.hpp
+  h_361662506da91f 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "ef95c7601a072a10b4e0c2153267be1cc830639d",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
