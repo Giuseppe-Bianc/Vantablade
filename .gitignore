@@ -3,6 +3,7 @@ build/
 out/
 out/coverage/*
 graphify-out/
+graphify-vault/
 cmake-build-*/
 conan-cache/
 
