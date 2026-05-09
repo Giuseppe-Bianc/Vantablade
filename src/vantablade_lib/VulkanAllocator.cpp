@@ -7,9 +7,9 @@
 
 namespace vnd {
 
-    struct AllocationHeader {
-        size_t size;  // user-requested size, used to update the atomic counter on free
-        void *base;   // original std::malloc base; recovered on free to release the block
+    struct AllocationHeader final {
+        std::size_t size;  // user-requested size, used to update the atomic counter on free
+        void *base;        // original std::malloc base; recovered on free to release the block
     };
 
     [[nodiscard]] static constexpr size_t computeEffectiveAlignment(size_t alignment) noexcept {
@@ -52,8 +52,8 @@ namespace vnd {
 
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::reallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
                                                               VkSystemAllocationScope allocationScope) noexcept {
-        if(!pOriginal) return allocation(pUserData, size, alignment, allocationScope);
-        if(size == 0) {
+        if(!pOriginal) { return allocation(pUserData, size, alignment, allocationScope); }
+        if(size == 0u) {
             free(pUserData, pOriginal);
             return nullptr;
         }
@@ -73,7 +73,7 @@ namespace vnd {
     }
 
     VKAPI_ATTR void VKAPI_CALL VulkanAllocator::free(void *pUserData, void *pMemory) noexcept {
-        if(!pMemory) return;
+        if(!pMemory) { return; }
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
@@ -82,8 +82,7 @@ namespace vnd {
 
         self->totalAllocated.fetch_sub(header->size, std::memory_order_relaxed);
 
-        // Free the original malloc base, not the user pointer.
-        // SAFETY: header->base is the pointer returned by std::malloc in allocation().
+        // Free the original malloc base, not the user pointer..
         std::free(header->base);
     }
 

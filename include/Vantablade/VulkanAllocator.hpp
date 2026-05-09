@@ -16,7 +16,7 @@ namespace vnd {
      * Implements the logic described in Kyle Halladay's "Custom Allocators in Vulkan"
      * to track and log CPU memory usage by the Vulkan driver.
      */
-    class VulkanAllocator {
+    class VulkanAllocator final {
     public:
         VulkanAllocator() = default;
         ~VulkanAllocator() = default;
