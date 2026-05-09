@@ -32,9 +32,9 @@ namespace vnd {
          */
         [[nodiscard]] VkAllocationCallbacks getCallbacks() noexcept {
             return {.pUserData = this,
-                    .pfnAllocation = &allocation,
-                    .pfnReallocation = &reallocation,
-                    .pfnFree = &free,
+                    .pfnAllocation = &vklAllocation,
+                    .pfnReallocation = &vklReallocation,
+                    .pfnFree = &vklFree,
                     .pfnInternalAllocation = nullptr,
                     .pfnInternalFree = nullptr};
         }
@@ -42,13 +42,13 @@ namespace vnd {
         [[nodiscard]] size_t getTotalAllocated() const noexcept { return totalAllocated.load(std::memory_order_relaxed); }
 
     private:
-        static VKAPI_ATTR void *VKAPI_CALL allocation(void *pUserData, size_t size, size_t alignment,
+        static VKAPI_ATTR void *VKAPI_CALL vklAllocation(void *pUserData, size_t size, size_t alignment,
                                                       VkSystemAllocationScope allocationScope) noexcept;
 
-        static VKAPI_ATTR void *VKAPI_CALL reallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
+        static VKAPI_ATTR void *VKAPI_CALL vklReallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
                                                         VkSystemAllocationScope allocationScope) noexcept;
 
-        static VKAPI_ATTR void VKAPI_CALL free(void *pUserData, void *pMemory) noexcept;
+        static VKAPI_ATTR void VKAPI_CALL vklFree(void *pUserData, void *pMemory) noexcept;
 
         std::atomic<size_t> totalAllocated{0};
         // Note: In a high-concurrency scenario, a more complex tracker might be needed.

@@ -16,7 +16,7 @@ namespace vnd {
         return std::max(alignment, alignof(AllocationHeader));
     }
 
-    VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::allocation(void *pUserData, size_t size, size_t alignment,
+    VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklAllocation(void *pUserData, size_t size, size_t alignment,
                                                             VkSystemAllocationScope allocationScope) noexcept {
         if(size == 0) return nullptr;
 
@@ -50,11 +50,11 @@ namespace vnd {
         return reinterpret_cast<void *>(aligned);
     }
 
-    VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::reallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
+    VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklReallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
                                                               VkSystemAllocationScope allocationScope) noexcept {
-        if(!pOriginal) { return allocation(pUserData, size, alignment, allocationScope); }
+        if(!pOriginal) { return vklAllocation(pUserData, size, alignment, allocationScope); }
         if(size == 0u) {
-            free(pUserData, pOriginal);
+            vklFree(pUserData, pOriginal);
             return nullptr;
         }
 
@@ -62,17 +62,17 @@ namespace vnd {
         const auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(reinterpret_cast<uintptr_t>(pOriginal) - sizeof(AllocationHeader));
         const size_t oldSize = oldHeader->size;
 
-        void *const newPtr = allocation(pUserData, size, alignment, allocationScope);
+        void *const newPtr = vklAllocation(pUserData, size, alignment, allocationScope);
         if(newPtr) {
             // SAFETY: copy only the bytes valid in both old and new buffers.
             std::memcpy(newPtr, pOriginal, std::min(oldSize, size));
-            free(pUserData, pOriginal);
+            vklFree(pUserData, pOriginal);
         }
 
         return newPtr;
     }
 
-    VKAPI_ATTR void VKAPI_CALL VulkanAllocator::free(void *pUserData, void *pMemory) noexcept {
+    VKAPI_ATTR void VKAPI_CALL VulkanAllocator::vklFree(void *pUserData, void *pMemory) noexcept {
         if(!pMemory) { return; }
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
