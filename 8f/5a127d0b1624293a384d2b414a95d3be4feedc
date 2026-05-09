@@ -1,0 +1,14 @@
+specs/001-vulkan-allocator/tasks.md
+  h_361662506da91f 1-295
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "8f5a127d0b1624293a384d2b414a95d3be4feedc",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
