@@ -1,0 +1,18 @@
+.github/agents/speckit.tasks.agent.md
+  h_361662506da91f 130-174,213-228,230-255,289-332
+.github/agents/speckit.specify.agent.md
+  h_361662506da91f 268-311,372-434
+.github/agents/speckit.implement.agent.md
+  h_361662506da91f 135-178,199-227,229-261,277-319
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "ea672a0856438de70f710773078803fb23de88f9",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
