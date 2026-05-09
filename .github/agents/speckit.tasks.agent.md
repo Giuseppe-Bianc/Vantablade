@@ -149,6 +149,7 @@ The workflow above relies on correct handling of variable inputs and priority-ba
 - **Context of application:** Apply during Step 3 (task organization) and Step 4 (tasks.md generation) when determining the order of Phase 3 and beyond.
 - **Key characteristics:** The generator reads priority labels (P1, P2, P3) from spec.md and maps them one-to-one to phase order. P1 stories become Phase 3, P2 stories become Phase 4, and so on. When multiple stories share the same priority level, they are ordered by dependency — stories that other stories depend on come first. If no dependency exists between same-priority stories, they are presented in the order they appear in spec.md.
 - **Operational guidance:**
+  0. Before extracting stories, validate that priority labels in spec.md match the expected format (P1, P2, P3, etc.). If non-conforming labels are found (e.g., "High", "Critical"), report them and request user clarification. If a story has no priority label, assign it to a default lowest-priority tier and note this in the report.
   1. Extract all user stories from spec.md along with their priority labels.
   2. Sort stories by priority (P1 first, P2 second, etc.).
   3. Within the same priority level, check for inter-story dependencies (e.g., US2 requires an entity created in US1). Place prerequisite stories earlier.

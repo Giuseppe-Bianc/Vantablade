@@ -134,7 +134,9 @@ The semantic models built in this step serve as the analytical foundation for ea
 - **Operational guidance:**
   1. First pass — exact matches: link tasks that explicitly reference requirement IDs, user story identifiers, or quoted requirement phrases.
   2. Second pass — key phrase matches: link tasks whose descriptions contain distinctive multi-word phrases (≥3 content words) that appear verbatim in a requirement.
-  3. Third pass — entity matches: link tasks that reference the same named data entity, API endpoint, or component as a requirement, where the entity name is sufficiently specific (not generic terms like "user," "data," "system").
+  3. Third pass — entity matches: link tasks that reference the same named data entity, API endpoint, or component as a requirement, where the entity name is sufficiently specific:
+   - **Specific enough**: Domain-specific nouns (e.g., "ShoppingCart," "PaymentGateway," "InventoryRecord"), named API endpoints (e.g., "/api/orders"), or components with schema definitions in plan.md
+   - **Too generic**: Abstract programming concepts ("user," "data," "system," "service," "handler," "manager") unless qualified (e.g., "OrderManager" is specific, "manager" is not)
   4. For any remaining unmapped tasks or requirements, record them as unmapped rather than forcing a speculative connection. These feed directly into Coverage Gaps detection (Step 4E).
 
 #### Anti-Patterns for Semantic Model Construction
@@ -155,7 +157,7 @@ The semantic models built in this step serve as the analytical foundation for ea
 
 ### 4. Detection Passes (Token-Efficient Analysis)
 
-Prioritize findings with the highest informational relevance and evidential strength. Limit the output to a maximum of 50 findings. Any additional findings must be consolidated into a clearly labeled overflow summary that preserves their meaning without full elaboration. Define high-signal findings as those that are directly relevant to the analytical objective, supported by evidence, and materially significant to interpretation or decision-making. The overflow summary must contain all excluded findings organized in a structured form that allows later retrieval or review.
+Prioritize findings with the highest informational relevance and evidential strength. Limit the output to a maximum of 50 findings. Any additional findings must be consolidated into a clearly labeled overflow summary that preserves their meaning without full elaboration. Define high-signal findings as those that are directly relevant to the analytical objective, supported by evidence, and materially significant to interpretation or decision-making. When applying the 50-finding cap, rank findings by severity (CRITICAL > HIGH > MEDIUM > LOW) and then by impact breadth (findings affecting multiple artifacts rank higher); see Cross-Pass Deduplication guidance in Step 4 for detailed prioritization procedure. The overflow summary must contain all excluded findings organized in a structured form that allows later retrieval or review.
 
 #### A. Duplication Detection
 
@@ -164,7 +166,7 @@ Prioritize findings with the highest informational relevance and evidential stre
 
 #### B. Ambiguity Detection
 
-- Flag vague adjectives lacking measurable criteria, including but not limited to:
+- Flag vague adjectives that lack accompanying measurable criteria in the same requirement or in referenced sections, including but not limited to:
     - **Performance**: fast, scalable, efficient, performant, responsive, optimized, lightweight, low-latency, real-time
     - **Reliability**: robust, reliable, stable, resilient, fault-tolerant, highly-available
     - **Security**: secure, safe, protected, hardened
@@ -172,7 +174,8 @@ Prioritize findings with the highest informational relevance and evidential stre
     - **Maintainability**: maintainable, extensible, flexible, modular, well-structured
     - **Quality**: high-quality, production-ready, enterprise-grade, world-class, best-in-class
     - **Comparatives without baseline**: better, faster, improved, enhanced, superior
-    - Require numeric thresholds, SLOs, or testable acceptance criteria for each flagged term
+    - For each flagged term, verify that the requirement (or a cross-referenced section) provides numeric thresholds, SLOs, or testable acceptance criteria. Only flag when such criteria are absent or implied but not stated.
+
 
 - Flag unresolved placeholders (case-insensitive detection): BUG, FIXME, HACK, NOTE, OPTIMIZE, TODO, TBD, TKTK, WIP, XXX, ???, `<placeholder>`, etc.
 
@@ -211,7 +214,7 @@ The six detection passes above define *what* to look for. The following guidance
 - **Key characteristics:** Each finding includes the artifact filename, the line range or section heading where the issue occurs, and a direct quotation or precise paraphrase of the problematic text. No finding relies on the agent's general impression of the artifact. If a finding cannot cite specific text, it is discarded.
 - **Operational guidance:**
   1. For each candidate finding, record the exact source location (file and line range or section identifier) before drafting the summary.
-  2. Include a brief quotation (≤15 words) of the specific text that triggers the finding — for ambiguity findings, quote the vague term in context; for inconsistency findings, quote both conflicting statements.
+  2. Include a brief quotation (typically ≤15 words, up to 30 when necessary for context) of the specific text that triggers the finding — for ambiguity findings, quote the vague term in context; for inconsistency findings, quote both conflicting statements (may require two separate quotations).
   3. If a finding involves an absence (e.g., a coverage gap), cite the section where the content would be expected and confirm its absence explicitly (e.g., "spec.md §Non-Functional Requirements contains no performance targets").
   4. Before finalizing the findings list, discard any finding whose "Location(s)" cell would require "general" or "throughout" rather than a specific reference.
 
@@ -220,6 +223,14 @@ The six detection passes above define *what* to look for. The following guidance
 - **Objective:** After completing six predefined detection passes, merge findings that refer to the same underlying issue based on defined equivalence criteria and that originate from distinct analytical perspectives. Then identify compound issues as higher-order aggregated patterns that emerge across multiple detection passes, where a single root cause produces linked or repeated findings across different analytical dimensions.
 - **Context of application:** As a consolidation step after all individual passes (A through F) have generated their candidate findings, before applying the 50-finding cap.
 - **Key characteristics:** Findings from different passes that reference the same artifact location or the same requirement key are compared. If they describe the same root issue (e.g., an ambiguous requirement flagged by both Ambiguity Detection and Underspecification), they are merged into a single finding with the higher severity and references to both detection categories. Compound issues that only become visible through cross-pass correlation (e.g., a terminology drift that causes a false coverage gap) are surfaced as new findings.
+
+  **Equivalence criteria for merging:**
+  - Same requirement/location + findings describe different symptoms of the same underlying defect (e.g., vague term + missing threshold)
+  - One finding subsumes the other (specific instance of broader pattern)
+  
+  **Non-equivalence criteria (do not merge):**
+  - Same requirement/location but distinct, independent problems (e.g., duplication vs. constitution violation)
+  - Different requirements even if similar problem pattern (count as separate findings)
 - **Operational guidance:**
   1. After all passes complete, sort all candidate findings by artifact location.
   2. For adjacent findings referencing the same location or requirement key, determine whether they describe the same root issue. If yes, merge into one finding and list both detection categories in the "Category" column (e.g., "Ambiguity / Underspecification").

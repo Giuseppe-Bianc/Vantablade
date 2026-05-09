@@ -157,6 +157,19 @@ Steps 1 through 4 establish the pre-implementation foundation — validating pre
   1. For each ignore file to be managed, check whether the file exists before taking any action.
   2. If the file exists, read its full content. For each critical pattern in the technology-specific list, check whether the pattern (or a functionally equivalent glob) is already present. Only append patterns that are genuinely missing.
   3. When appending, add a comment marker (e.g., `# Added by speckit.implement`) followed by the missing patterns. This makes the additions identifiable and reversible.
+     - Append to the end of the existing file content
+     - Insert a blank line before the comment marker if the file does not end with a blank line
+     - Use the format: `# Added by speckit.implement on YYYY-MM-DD`
+     - List one pattern per line, with no blank lines between patterns in the added block
+     - Example:
+
+       ```
+       # Added by speckit.implement on 2026-05-09
+       node_modules/
+       dist/
+       *.log
+       ```
+
   4. If the file does not exist, create it with the full technology-appropriate pattern set, including a header comment noting it was generated.
   5. Do not modify ignore files for technologies not detected in the project. If no Dockerfile exists and Docker is not in plan.md, do not create or modify .dockerignore.
 

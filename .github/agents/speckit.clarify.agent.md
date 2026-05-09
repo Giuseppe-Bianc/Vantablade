@@ -207,6 +207,7 @@ The structured scan above is the foundation for every downstream decision in thi
        - Otherwise, validate the answer maps to one option or fits the <=5 word constraint.
        - If ambiguous, ask for a quick disambiguation (count still belongs to same question; do not advance).
        - Once satisfactory, record it in working memory (do not yet write to disk) and move to the next queued question.
+       - Before advancing to the next question, re-evaluate remaining queued questions: if the accepted answer resolved ambiguities that make a queued question redundant or unnecessary, remove it from the queue and note the reason internally.
     - Stop asking further questions when:
        - All critical ambiguities resolved early (remaining queued items become unnecessary), OR
        - User signals completion ("done", "good", "no more"), OR

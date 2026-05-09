@@ -164,8 +164,9 @@ You **MUST** consider the user input before proceeding (if not empty).
 - **Context of application:** Apply during step 2 of Phase 1 when deciding whether to create contracts and what format they should take.
 - **Key characteristics:** The generator evaluates the project type (library, CLI tool, web service, desktop application, internal script) before generating any contract. The decision to create or skip contracts is deliberate, not defaulted. When contracts are created, their format reflects the consumption model — OpenAPI for REST services, type signatures for libraries, command schemas for CLI tools, component contracts for UI applications. The contract format is chosen based on how consumers will interact with the interface, not on a universal template.
 - **Operational guidance:**
-  1. Determine the project type from plan.md's Technical Context and the feature spec. Classify it as one of: library, CLI tool, web service, desktop/mobile application, internal tool, or hybrid.
+  1. Determine the project type from the plan's Technical Context (in IMPL_PLAN) and the feature spec. Classify it as one of: library, CLI tool, web service, desktop/mobile application, internal tool, or hybrid.
   2. If the project is purely internal (build scripts, one-off data migrations, internal automation), skip contract generation entirely and document the skip reason in the plan.
+    Document in IMPL_PLAN under Phase 1 output as: "**Contracts skipped**: [project type] - [brief justification]"
   3. For libraries: generate contracts as type signatures, public API surface documentation, or interface definitions in the language's idiomatic format.
   4. For CLI tools: generate contracts as command schemas documenting arguments, flags, input formats, and output formats.
   5. For web services: generate contracts as endpoint definitions with request/response schemas, status codes, and error formats.
