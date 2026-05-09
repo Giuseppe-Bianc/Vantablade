@@ -27,32 +27,25 @@ namespace vnd {
         VulkanAllocator(VulkanAllocator &&) = delete;
         VulkanAllocator &operator=(VulkanAllocator &&) = delete;
 
-        /**
-         * @brief Returns a VkAllocationCallbacks structure populated with this class's methods.
-         */
         [[nodiscard]] VkAllocationCallbacks getCallbacks() noexcept {
-            return {.pUserData = this,
-                    .pfnAllocation = &vklAllocation,
-                    .pfnReallocation = &vklReallocation,
-                    .pfnFree = &vklFree,
-                    .pfnInternalAllocation = nullptr,
-                    .pfnInternalFree = nullptr};
+            return VkAllocationCallbacks{.pUserData = this,
+                                         .pfnAllocation = &vklAllocation,
+                                         .pfnReallocation = &vklReallocation,
+                                         .pfnFree = &vklFree,
+                                         .pfnInternalAllocation = nullptr,
+                                         .pfnInternalFree = nullptr};
         }
 
-        [[nodiscard]] size_t getTotalAllocated() const noexcept { return totalAllocated.load(std::memory_order_relaxed); }
+        [[nodiscard]] std::size_t getTotalAllocated() const noexcept { return totalAllocated.load(std::memory_order_relaxed); }
 
     private:
-        static VKAPI_ATTR void *VKAPI_CALL vklAllocation(void *pUserData, size_t size, size_t alignment,
-                                                      VkSystemAllocationScope allocationScope) noexcept;
+        static VKAPI_ATTR void *VKAPI_CALL vklAllocation(void *pUserData, std::size_t size, std::size_t alignment, VkSystemAllocationScope allocationScope) noexcept;
 
-        static VKAPI_ATTR void *VKAPI_CALL vklReallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
-                                                        VkSystemAllocationScope allocationScope) noexcept;
+        static VKAPI_ATTR void *VKAPI_CALL vklReallocation(void *pUserData, void *pOriginal, std::size_t size, std::size_t alignment, VkSystemAllocationScope allocationScope) noexcept;
 
         static VKAPI_ATTR void VKAPI_CALL vklFree(void *pUserData, void *pMemory) noexcept;
 
-        std::atomic<size_t> totalAllocated{0};
-        // Note: In a high-concurrency scenario, a more complex tracker might be needed.
-        // For now, atomic counter is sufficient for basic telemetry.
+        std::atomic<std::size_t> totalAllocated{0};
     };
 
 }  // namespace vnd
