@@ -1,0 +1,30 @@
+specs/001-vulkan-allocator/spec.md
+  s_ec0988202f654e::t_2ecb2be3e88bc8 135
+  s_ec0988202f654e::t_00a7f1b57cdab2 132,212,343-345
+  s_ec0988202f654e::t_e790ea7d0509a6 131,158-160,167-169,329-331
+  s_ec0988202f654e::t_a51076eda3f867 229-235
+  s_ec0988202f654e::t_94d12a5e2e4de1 116,133,151-153
+  s_ec0988202f654e::t_811d89cf1c361f 406
+  s_ec0988202f654e::t_c7ec6b2c3d78af 134
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "bec22edfe0b94a24a5abbafdc344dda2c0643dd0",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ec0988202f654e": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "29047469-fd92-4321-9b35-74db0579c999",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
