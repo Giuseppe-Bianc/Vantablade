@@ -39,3 +39,14 @@ Thumbs.db
 /shaders/*.spv
 /buildd/
 /build/
+
+# Added by speckit.implement on 2026-05-10
+bin/
+obj/
+*.o
+*.so
+*.a
+*.exe
+*.dll
+*.env*
+*.tmp
