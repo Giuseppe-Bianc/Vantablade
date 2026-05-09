@@ -29,14 +29,27 @@ std::vector<char> Pipeline::readFile(const std::string &filepath) {
 
 void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                       const PipelineConfigInfo &configInfo) {
+    const vnd::AutoTimer timer("create Graphics Pipeline");
     assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
     assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
     const auto vertCode = readFile(vertFilepath);
     const auto fragCode = readFile(fragFilepath);
 
-    LINFO("Vertex Shader code size: {}", vertCode.size());
-    LINFO("Fragment Shader code size: {}", fragCode.size());
+    const FileSizeReport vertReport{
+        .info = {.bytes = vertCode.size()},
+        .si_sys = kSI,
+        .iec_sys = kIEC,
+    };
+
+    const FileSizeReport fragReport{
+        .info = {.bytes = fragCode.size()},
+        .si_sys = kSI,
+        .iec_sys = kIEC,
+    };
+
+    LINFO("Vertex Shader code size Bytes: {} SI({}) IEC({})", vertCode.size(), vertReport.info.format(vertReport.si_sys), vertReport.info.format(vertReport.iec_sys));
+    LINFO("Fragment Shader code size Bytes: {} SI({}) IEC({})", fragCode.size(), fragReport.info.format(fragReport.si_sys), fragReport.info.format(fragReport.iec_sys));
     createShaderModule(vertCode, &vertShaderModule);
     createShaderModule(fragCode, &fragShaderModule);
 
