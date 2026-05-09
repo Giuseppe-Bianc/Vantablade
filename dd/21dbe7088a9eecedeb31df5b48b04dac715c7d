@@ -1,0 +1,14 @@
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 32,39-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "dd21dbe7088a9eecedeb31df5b48b04dac715c7d",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
