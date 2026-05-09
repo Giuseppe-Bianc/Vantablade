@@ -23,12 +23,6 @@ add_library(vantablade_lib
         ../../include/Vantablade/Pipeline.hpp
         Device.cpp
         ../../include/Vantablade/Device.hpp
-        AllocatorMetadata.cpp
-        AllocatorStrategy.cpp
-        RecursionGuard.cpp
-        PlatformMemory.cpp
-        AllocatorTelemetry.cpp
-        PmrResourceAdapter.cpp
         VulkanAllocator.cpp
         ../../include/Vantablade/VulkanAllocator.hpp
         SwapChain.cpp
