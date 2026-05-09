@@ -113,7 +113,7 @@ C++ component libraries need to use allocator framework through std::pmr compati
 
 - What happens when allocation request exceeds available virtual address space on the platform?
 - How does allocator handle Vulkan scope transitions (e.g., object created in INSTANCE scope then destroyed in DEVICE scope)?
-- How does allocator behave when pfnAllocation callback is invoked recursively during allocation metadata management?
+- **How does allocator behave when pfnAllocation callback is invoked recursively during allocation metadata management?** Allocator MUST detect recursion via thread-local depth counter and use pre-allocated reserve pools to safely handle recursive calls preventing allocation failures without corrupting state.
 - What happens when platform page protection features (e.g., ASLR, DEP) interact with large region allocation strategies?
 - How does allocator handle allocation requests with exotic alignment values (e.g., 256-byte cache line alignment on 4KB page boundary systems)?
 - What happens under extreme memory pressure when virtual memory reservation succeeds but commitment fails?
@@ -128,6 +128,11 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - **Q: How should virtual memory reservation balance overallocation against fragmentation and OS churn?** → A: Configurable overallocation ratio with three guidance levels - conservative 1.2x, moderate 1.5x (default), aggressive 2.0x.
 - **Q: How should profiling overhead be budgeted to avoid mandatory global synchronization?** → A: Two-tier telemetry model with always-on lightweight per-thread atomic counters (<50ns overhead) and optional heavyweight on-demand snapshots (<10µs).
 - **Q: How should allocator recover from edge case failures (address space exhaustion, corruption)?** → A: Tiered error response - recoverable failures return null (OOM/address space), unrecoverable failures terminate (corruption/double-free) with user-providable diagnostic handler callback.
+- **Q: What are the concrete size boundaries between slab, region, and large allocation strategies?** → A: Slab allocator covers 0–4 KB (pre-allocated slabs), region allocator covers 4 KB–1 MB (segregated fit/buddy system), large allocator covers >1 MB (direct VM); 64 KB is the lock-free fast path upper bound.
+- **Q: What is the API interface for telemetry snapshot queries?** → A: Point-in-time atomic struct snapshot via `snapshot()` method returning immutable `AllocationStatistics` with unified metrics; optional history buffer for trend analysis.
+- **Q: How should allocator handle recursive callback invocations during metadata management?** → A: Detect recursion with thread-local counter; use pre-allocated reserve pools to safely handle recursive calls preventing allocation failures without sacrificing correctness.
+- **Q: How should memory labels be structured for object-centric profiling?** → A: String-based flat labels (e.g., "object:X", "subsystem:Y") with bounded length (64 bytes); query via statistics accessor; assigned via `set_label(string_view)` at allocation time.
+- **Q: What security and signal-safety requirements apply to the allocator?** → A: MVP scope excludes timing-safe guarantees, async-signal-safe operation, and secure zeroing of freed memory. Security model deferred to follow-up phase after core functionality stabilizes.
 
 ## Requirements
 
@@ -143,22 +148,25 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - **FR-006**: All callbacks MUST remain accessible through standard VkAllocationCallbacks structure suitable for direct use with vkCreateInstance, vkCreateDevice, and related Vulkan functions
 - **FR-007**: Allocator MUST preserve all Vulkan allocation scopes (VK_SCOPE_COMMAND, VK_SCOPE_OBJECT, VK_SCOPE_CACHE, VK_SCOPE_DEVICE, VK_SCOPE_INSTANCE) as provided by Vulkan callbacks
 - **FR-008**: Allocator MUST enforce strict Vulkan alignment guarantees, treating misaligned allocation results as fatal allocator errors
+- **FR-008a**: Allocator MUST detect and safely handle recursive callback invocations during metadata management by maintaining thread-local recursion depth counter
+- **FR-008b**: Allocator MUST provide pre-allocated reserve pools to satisfy recursive allocation requests preventing failures while preserving allocator correctness
+- **FR-008c**: Allocator MUST track and report recursion depth metrics for diagnostics and debugging
 
 **Thread Safety and Concurrency**
 
 - **FR-009**: Allocator MUST support safe concurrent allocation and deallocation from unlimited threads without requiring user-provided external synchronization
-- **FR-010**: Allocator MUST provide lock-free fast paths for allocation operations up to configurable threshold (default 64KB) encompassing pre-allocated slabs and buckets
-- **FR-010a**: Allocator MAY use bounded synchronization (spin locks, brief mutexes) for large allocations, cross-region reallocation, and virtual memory reservation operations
-- **FR-010b**: Lock-free fast path operations MUST maintain <1 microsecond p99 latency under 8-thread concurrent workload with randomized allocation patterns
+- **FR-010**: Allocator MUST provide lock-free fast paths for allocation operations up to 64 KB (covering slab and lower region allocations) encompassing pre-allocated slabs and buckets
+- **FR-010a**: Allocator MAY use bounded synchronization (spin locks, brief mutexes) for allocations >64 KB, cross-region reallocation, and virtual memory reservation operations
+- **FR-010b**: Lock-free fast path operations (allocations ≤64 KB) MUST maintain <1 microsecond p99 latency under 8-thread concurrent workload with randomized allocation patterns
 - **FR-011**: Allocator MUST maintain bounded, predictable latency under multithreaded concurrent workloads with measurable contention metrics
 - **FR-012**: Allocator MUST preserve allocation ownership and metadata correctness under all supported concurrency conditions without data races
 - **FR-013**: Allocator MUST support efficient allocation reuse patterns across threads without global contention in hot allocation paths
 
 **Allocation Strategy Framework**
 
-- **FR-014**: Allocator MUST support configurable small allocation strategy using cache-friendly slab or pool-based mechanisms minimizing fragmentation
-- **FR-015**: Allocator MUST support configurable medium allocation strategy using scalable region or segregated fit allocation techniques
-- **FR-016**: Allocator MUST support configurable large allocation strategy using direct virtual memory backed regions with efficient release semantics
+- **FR-014**: Allocator MUST support configurable small allocation strategy using cache-friendly slab or pool-based mechanisms for allocations 0–4 KB minimizing fragmentation
+- **FR-015**: Allocator MUST support configurable medium allocation strategy using scalable region or segregated fit allocation techniques for allocations 4 KB–1 MB
+- **FR-016**: Allocator MUST support configurable large allocation strategy using direct virtual memory backed regions with efficient release semantics for allocations >1 MB
 - **FR-017**: Allocator MUST support transient/frame-local allocation strategy using resettable linear or arena allocation optimized for throughput
 - **FR-018**: Allocator MUST provide deterministic allocation strategy selection observable through diagnostic interfaces
 - **FR-019**: Allocator MUST minimize internal fragmentation through size class segregation and efficient packing algorithms
@@ -201,7 +209,7 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - **FR-044**: Profiling collection MUST support low overhead operation avoiding mandatory global synchronization in hot paths
 - **FR-044a**: Allocator MUST implement two-tier telemetry with always-on lightweight per-thread atomic counters adding <50 nanoseconds per allocation
 - **FR-044b**: Allocator MUST implement optional heavyweight telemetry through on-demand snapshot queries accepting <10 microsecond latency under contention
-- **FR-045**: Allocator MUST support telemetry snapshot queries enabling consistent multi-metric reads through single coherent view
+- **FR-045**: Allocator MUST support telemetry snapshot queries via immutable `AllocationStatistics` struct capturing point-in-time atomic reads of allocation count, bytes allocated, active allocation count, peak bytes, fragmentation percentage, and per-scope breakdown within <10 microsecond latency
 
 **Failure Semantics**
 
@@ -218,12 +226,13 @@ C++ component libraries need to use allocator framework through std::pmr compati
 
 **Memory Tagging and Labeling**
 
-- **FR-054**: Allocator MUST support configurable memory tagging and allocation labeling for debugging and profiling
-- **FR-055**: Allocator MUST enable association of allocation labels with Vulkan objects enabling object-centric profiling
-- **FR-056**: Allocator MUST enable association of allocation labels with subsystems enabling subsystem-level telemetry
-- **FR-057**: Allocator MUST enable association of allocation labels with rendering stages enabling stage-level analysis
-- **FR-058**: Allocator MUST enable association of allocation labels with engine-level ownership groups
-- **FR-059**: Allocator MUST support queryable label interfaces enabling diagnostics without affecting allocation correctness
+- **FR-054**: Allocator MUST support configurable memory tagging and allocation labeling for debugging and profiling via `set_label(string_view)` method accepting labels up to 64 bytes
+- **FR-055**: Allocator MUST enable association of allocation labels with Vulkan objects using string-based flat labels (e.g., "object:meshName") enabling object-centric profiling
+- **FR-056**: Allocator MUST enable association of allocation labels with subsystems using string-based flat labels (e.g., "subsystem:rendering") enabling subsystem-level telemetry
+- **FR-057**: Allocator MUST enable association of allocation labels with rendering stages using string-based flat labels (e.g., "stage:shadowMap") enabling stage-level analysis
+- **FR-058**: Allocator MUST enable association of allocation labels with engine-level ownership groups using string-based flat labels (e.g., "owner:engineCore") enabling ownership tracking
+- **FR-059**: Allocator MUST support queryable label interfaces through `AllocationStatistics.label()` accessor and aggregation APIs enabling diagnostics without affecting allocation correctness
+- **FR-059a**: Allocator MUST store labels inline with allocation metadata with bounded 64-byte length to limit per-allocation overhead
 
 **Platform Portability**
 
@@ -317,9 +326,9 @@ C++ component libraries need to use allocator framework through std::pmr compati
 
 **Allocation Strategy**
 
-- **Slab Allocator**: Manages small allocations (typically <4KB) through fixed-size buckets minimizing fragmentation
-- **Region Allocator**: Manages medium allocations (4KB-1MB) through segregated fit or buddy system allocation
-- **Large Allocator**: Manages large allocations (>1MB) through direct virtual memory backed regions
+- **Slab Allocator**: Manages small allocations (0–4 KB) through fixed-size buckets minimizing fragmentation
+- **Region Allocator**: Manages medium allocations (4 KB–1 MB) through segregated fit or buddy system allocation
+- **Large Allocator**: Manages large allocations (>1 MB) through direct virtual memory backed regions
 - **Linear/Arena Allocator**: Manages transient allocations through resettable linear allocation optimized for frame scoping
 
 **Synchronization Structures**
@@ -331,7 +340,9 @@ C++ component libraries need to use allocator framework through std::pmr compati
 
 **Telemetry Structures**
 
-- **Statistics Snapshot**: Immutable view of allocator metrics at specific point in time
+- **AllocationStatistics**: Immutable snapshot struct containing atomic point-in-time reads: total allocation count, total bytes allocated, total bytes deallocated, active allocation count, active allocation bytes, peak allocation bytes, internal fragmentation percentage, external fragmentation percentage, per-scope allocation distribution (VK_SCOPE_COMMAND, VK_SCOPE_OBJECT, VK_SCOPE_CACHE, VK_SCOPE_DEVICE, VK_SCOPE_INSTANCE)
+- **Statistics Snapshot**: Accessed via allocator `snapshot()` method returning `AllocationStatistics` immutable view
+- **History Buffer** (optional): Thread-safe ringbuffer storing timestamped snapshots enabling trend analysis and performance profiling over time
 - **Per-Thread Counters**: Thread-local accounting enabling efficient contention-free updates
 - **Global Aggregator**: Collects per-thread counters into unified metrics
 - **Scope Distribution**: Breakdown of metrics across VkSystemAllocationScope categories
@@ -392,6 +403,7 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - **Threading Model**: Allocator assumes POSIX-compatible threading on Linux/macOS; Windows threading on Windows
 - **Memory Layout**: Assumes all memory accessed through standard pointer semantics with no custom memory translation
 - **Vulkan Semantics**: Callbacks assume standard Vulkan allocation contract semantics unchanged across versions
+- **Security Scope**: MVP does not include timing-safe guarantees, async-signal-safe operation, or secure zeroing of freed memory. Security hardening deferred to follow-up phase post-MVP stabilization.
 
 ## Out of Scope
 
