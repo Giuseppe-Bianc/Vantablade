@@ -1,0 +1,24 @@
+specs/001-vulkan-allocator/spec.md
+  s_d82a14fa903bde::t_31f5439fd7011d 122-131,150-152,187-189,202-204,208-213,216-217,241-242,351,356
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "4534bdf4271a8b55d350f45a3afb8313ac182a62",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d82a14fa903bde": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "e77959c7-9fa5-44ff-a872-9524bacdf9b5",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
