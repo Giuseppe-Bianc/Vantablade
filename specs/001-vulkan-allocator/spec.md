@@ -119,6 +119,16 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - What happens under extreme memory pressure when virtual memory reservation succeeds but commitment fails?
 - How does allocator behave when operating in environments with strict SELinux or similar security policies?
 
+## Clarifications
+
+### Session 2026-05-09
+
+- **Q: How should debug features (leak detection, double-free checking, guard regions) be configured at development vs. production time?** → A: Runtime policy configuration (per allocator instance) as primary control mechanism, with optional CMake compile-time defaults and environment variable overrides.
+- **Q: What constitutes a "lock-free fast path" and when is fallback to locks acceptable?** → A: Fast paths are pre-allocated slabs and buckets up to configured threshold (default 64KB) requiring <1µs p99 latency; fallback uses locks for large allocations and cross-region operations.
+- **Q: How should virtual memory reservation balance overallocation against fragmentation and OS churn?** → A: Configurable overallocation ratio with three guidance levels - conservative 1.2x, moderate 1.5x (default), aggressive 2.0x.
+- **Q: How should profiling overhead be budgeted to avoid mandatory global synchronization?** → A: Two-tier telemetry model with always-on lightweight per-thread atomic counters (<50ns overhead) and optional heavyweight on-demand snapshots (<10µs).
+- **Q: How should allocator recover from edge case failures (address space exhaustion, corruption)?** → A: Tiered error response - recoverable failures return null (OOM/address space), unrecoverable failures terminate (corruption/double-free) with user-providable diagnostic handler callback.
+
 ## Requirements
 
 ### Functional Requirements
@@ -137,7 +147,9 @@ C++ component libraries need to use allocator framework through std::pmr compati
 **Thread Safety and Concurrency**
 
 - **FR-009**: Allocator MUST support safe concurrent allocation and deallocation from unlimited threads without requiring user-provided external synchronization
-- **FR-010**: Allocator MUST provide lock-free or wait-free fast paths for allocation operations in scenarios where platform synchronization primitives allow
+- **FR-010**: Allocator MUST provide lock-free fast paths for allocation operations up to configurable threshold (default 64KB) encompassing pre-allocated slabs and buckets
+- **FR-010a**: Allocator MAY use bounded synchronization (spin locks, brief mutexes) for large allocations, cross-region reallocation, and virtual memory reservation operations
+- **FR-010b**: Lock-free fast path operations MUST maintain <1 microsecond p99 latency under 8-thread concurrent workload with randomized allocation patterns
 - **FR-011**: Allocator MUST maintain bounded, predictable latency under multithreaded concurrent workloads with measurable contention metrics
 - **FR-012**: Allocator MUST preserve allocation ownership and metadata correctness under all supported concurrency conditions without data races
 - **FR-013**: Allocator MUST support efficient allocation reuse patterns across threads without global contention in hot allocation paths
@@ -172,6 +184,9 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - **FR-033**: Allocator MUST provide fragmentation metrics estimating internal and external fragmentation levels
 - **FR-034**: Allocator MUST support optional guard region validation detecting heap corruption attempts
 - **FR-035**: Debug functionality MUST remain configurable separating development instrumentation from release performance builds
+- **FR-035a**: Debug feature configuration MUST support runtime policy mechanism enabling per-instance control of leak detection, double-free detection, and guard regions
+- **FR-035b**: Debug configuration MUST support optional CMake compile-time defaults providing baseline behavior separate from runtime overrides
+- **FR-035c**: Debug configuration MAY support environment variable overrides as process-wide fallback mechanism
 
 **Profiling and Telemetry**
 
@@ -184,18 +199,22 @@ C++ component libraries need to use allocator framework through std::pmr compati
 - **FR-042**: Allocator MUST expose allocation latency statistics tracking minimum, maximum, mean, and percentile latencies
 - **FR-043**: Allocator MUST expose allocation distribution across Vulkan scopes enabling scope-specific analysis
 - **FR-044**: Profiling collection MUST support low overhead operation avoiding mandatory global synchronization in hot paths
-- **FR-045**: Allocator MUST support telemetry snapshot queries enabling consistent multi-metric reads
+- **FR-044a**: Allocator MUST implement two-tier telemetry with always-on lightweight per-thread atomic counters adding <50 nanoseconds per allocation
+- **FR-044b**: Allocator MUST implement optional heavyweight telemetry through on-demand snapshot queries accepting <10 microsecond latency under contention
+- **FR-045**: Allocator MUST support telemetry snapshot queries enabling consistent multi-metric reads through single coherent view
 
 **Failure Semantics**
 
-- **FR-046**: Allocator MUST propagate allocation failures deterministically returning null or appropriate error status through Vulkan callback expectations
-- **FR-047**: Allocator MUST handle out-of-memory conditions safely without corrupting allocator state
-- **FR-048**: Allocator MUST detect and report invalid alignment requests with explicit diagnostics
-- **FR-049**: Allocator MUST detect and report corrupted metadata with diagnostic information enabling recovery
+- **FR-046**: Allocator MUST implement tiered error response model distinguishing recoverable and unrecoverable failure modes
+- **FR-046a**: Recoverable failures (out-of-memory, exhausted virtual address space) MUST return null pointer from pfnAllocation enabling Vulkan graceful handling
+- **FR-046b**: Unrecoverable failures (corrupted metadata, double-free, alignment violations) MUST invoke user-providable diagnostic handler callback enabling logging/telemetry before termination
+- **FR-047**: Allocator MUST handle out-of-memory conditions safely without corrupting allocator state or metadata
+- **FR-048**: Allocator MUST detect and report invalid alignment requests with explicit diagnostics through error handler
+- **FR-049**: Allocator MUST detect and report corrupted metadata with diagnostic information enabling recovery or safe termination
 - **FR-050**: Allocator MUST detect and report unsupported allocation patterns with clear error messages
 - **FR-051**: Allocator MUST detect and report synchronization violations with structured error context
-- **FR-052**: Allocator MUST support configurable fail-fast behavior for debug configurations enabling immediate error detection
-- **FR-053**: Fatal allocator integrity violations MUST produce explicit diagnostics and never silently continue
+- **FR-052**: Allocator MUST support configurable fail-fast behavior for debug configurations enabling immediate process termination on integrity violations
+- **FR-053**: Fatal allocator integrity violations MUST produce explicit diagnostics through handler callback and never silently continue
 
 **Memory Tagging and Labeling**
 
@@ -219,7 +238,8 @@ C++ component libraries need to use allocator framework through std::pmr compati
 
 **Virtual Memory Management**
 
-- **FR-068**: Allocator MUST support configurable virtual memory reservation strategies suitable for graphics workloads
+- **FR-068**: Allocator MUST support configurable virtual memory reservation strategies with adjustable overallocation ratios suitable for graphics workloads
+- **FR-068a**: Allocator MUST support three guidance levels for overallocation: conservative (1.2x), moderate (1.5x default), aggressive (2.0x)
 - **FR-069**: Allocator MUST support configurable virtual memory commitment strategies separating reservation from commitment
 - **FR-070**: Large region management MUST minimize operating system allocation churn through region reuse
 - **FR-071**: Allocator MUST support efficient reuse of previously reserved regions avoiding repeated OS allocation calls
@@ -328,10 +348,12 @@ C++ component libraries need to use allocator framework through std::pmr compati
 ### Performance Metrics
 
 - **SC-001**: Single-threaded allocation latency must average under 500 nanoseconds for small allocations
+- **SC-001a**: Lock-free fast path allocations (small, pre-allocated) must maintain <1 microsecond p99 latency under 8-thread concurrent workload
 - **SC-002**: Single-threaded allocation latency must average under 5 microseconds for large allocations (>1MB)
 - **SC-003**: Multithreaded allocation throughput must exceed 1 million allocations/second aggregate across 8 concurrent threads
 - **SC-004**: Memory fragmentation overhead must remain under 15% for typical allocation patterns
 - **SC-005**: Lock contention on fast paths must remain sub-microsecond under sustained 8-thread concurrent workload
+- **SC-005a**: Telemetry collection overhead must remain below 50 nanoseconds per allocation for lightweight always-on metrics
 
 ### Correctness Metrics
 
