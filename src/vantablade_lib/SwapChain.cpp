@@ -332,16 +332,40 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 }
 
 VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) const {
-    // if(std::ranges::find(availablePresentModes, VK_PRESENT_MODE_MAILBOX_KHR) != availablePresentModes.end()) {
-    //     LINFO("Present mode: Mailbox");
-    //     return VK_PRESENT_MODE_MAILBOX_KHR;
-    // }
+    auto isAvailable = [&](VkPresentModeKHR mode) { return std::ranges::find(availablePresentModes, mode) != availablePresentModes.end(); };
 
-    if(std::ranges::find(availablePresentModes, VK_PRESENT_MODE_IMMEDIATE_KHR) != availablePresentModes.end()) {
-        LINFO("Present mode: Immediate");
+    // Ordine di priorità realistico per rendering interattivo
+    if(isAvailable(VK_PRESENT_MODE_MAILBOX_KHR)) {
+        LINFO("Present mode: MAILBOX");
+        return VK_PRESENT_MODE_MAILBOX_KHR;
+    }
+
+    if(isAvailable(VK_PRESENT_MODE_IMMEDIATE_KHR)) {
+        LINFO("Present mode: IMMEDIATE");
         return VK_PRESENT_MODE_IMMEDIATE_KHR;
     }
-    LINFO("Present mode: V-Sync");
+
+    if(isAvailable(VK_PRESENT_MODE_FIFO_RELAXED_KHR)) {
+        LINFO("Present mode: FIFO_RELAXED");
+        return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+    }
+
+    if(isAvailable(VK_PRESENT_MODE_FIFO_KHR)) {
+        LINFO("Present mode: FIFO (VSync)");
+        return VK_PRESENT_MODE_FIFO_KHR;
+    }
+
+    if(isAvailable(VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR)) {
+        LINFO("Present mode: SHARED_DEMAND_REFRESH");
+        return VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR;
+    }
+
+    if(isAvailable(VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR)) {
+        LINFO("Present mode: SHARED_CONTINUOUS_REFRESH");
+        return VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR;
+    }
+
+    // Fallback obbligatorio secondo spec Vulkan
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 

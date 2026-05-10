@@ -1,17 +1,5 @@
-/*
- * Created by gbian on 08/05/2026.
- * Copyright (c) 2026 All rights reserved.
- */
 #include "Vantablade/VulkanAllocator.hpp"
 
-// Portable assume hint.
-//
-// [[assume(expr)]] is C++23 (P1774R8); __has_cpp_attribute detects real support.
-// Falls back to compiler-specific intrinsics on older toolchains:
-//   MSVC  : __assume(expr)          — recognised since VS 2005
-//   Clang : __builtin_assume(expr)  — recognised since Clang 3.6
-//   GCC   : if (!(expr)) __builtin_unreachable() — GCC has no direct assume,
-//           but unreachable on the false branch is semantically equivalent.
 #if __has_cpp_attribute(assume) >= 202207L
 #define VND_ASSUME(expr) [[assume(expr)]]
 #elif defined(_MSC_VER)
@@ -32,37 +20,44 @@ namespace vnd {
     namespace {
 
         struct alignas(alignof(void *)) AllocationHeader final {
-            std::size_t size;  // user-requested bytes; used to update the live counter on free
-            void *base;        // original std::malloc base; passed to std::free on deallocation
+            std::size_t size;
+            void *base;
+            VkSystemAllocationScope scope;
         };
 
-        // Returns the smallest alignment satisfying both the Vulkan-requested alignment
-        // and the alignment required to store an AllocationHeader immediately before the
-        // user pointer.
         [[nodiscard]] constexpr std::size_t computeEffectiveAlignment(std::size_t alignment) noexcept {
             return std::max(alignment, alignof(AllocationHeader));
         }
 
-        /**
-         * Portable checked addition for std::size_t (C++23).
-         *
-         * Returns true and writes the sum to `result` if a + b does not overflow.
-         * Returns false and leaves `result` unchanged if it would overflow.
-         *
-         * Identity: a + b > SIZE_MAX  <=>  b > SIZE_MAX - a
-         * Safe to evaluate because SIZE_MAX - a never underflows (a <= SIZE_MAX).
-         *
-         * C++26 will provide std::add_sat / std::overflow_detection for this purpose.
-         * __builtin_add_overflow is available on GCC and Clang but is not ISO standard.
-         * This implementation is fully portable per C++23 (ES.103, C++ Core Guidelines).
-         */
         [[nodiscard]] constexpr bool checked_add(std::size_t a, std::size_t b, std::size_t &result) noexcept {
             if(b > std::numeric_limits<std::size_t>::max() - a) return false;
             result = a + b;
             return true;
         }
 
+        [[nodiscard]] constexpr bool isKnownScope(VkSystemAllocationScope scope) noexcept {
+            const auto v = static_cast<std::size_t>(std::to_underlying(scope));
+            return v < scopeCount;
+        }
+
     }  // namespace
+
+    void VulkanAllocator::updatePeak(std::atomic<std::size_t> &peak, std::size_t candidate) noexcept {
+        std::size_t old = peak.load(std::memory_order_relaxed);
+        while(candidate > old && !peak.compare_exchange_weak(old, candidate, std::memory_order_relaxed, std::memory_order_relaxed)) {}
+    }
+
+    VulkanAllocator::ScopeSnapshot VulkanAllocator::getScopeSnapshot(VkSystemAllocationScope scope) const noexcept {
+        const auto &s = scopes[scopeIndex(scope)];
+        return ScopeSnapshot{
+            .liveBytes = s.liveBytes.load(std::memory_order_relaxed),
+            .peakBytes = s.peakBytes.load(std::memory_order_relaxed),
+            .allocCount = s.allocCount.load(std::memory_order_relaxed),
+            .freeCount = s.freeCount.load(std::memory_order_relaxed),
+            .reallocCount = s.reallocCount.load(std::memory_order_relaxed),
+            .failCount = s.failCount.load(std::memory_order_relaxed),
+        };
+    }
 
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklAllocation(void *pUserData, std::size_t size, std::size_t alignment,
                                                                VkSystemAllocationScope allocationScope) noexcept {
@@ -75,6 +70,10 @@ namespace vnd {
         VND_ASSUME(alignment > 0u && (alignment & (alignment - 1u)) == 0u);
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
+
+        if(!isKnownScope(allocationScope)) {
+            LERROR("Vulkan CPU allocation with unknown scope (scope={})", std::to_underlying(allocationScope));
+        }
 
         const std::size_t effectiveAlign = computeEffectiveAlignment(alignment);
 
@@ -89,6 +88,7 @@ namespace vnd {
         // near SIZE_MAX (C++ Core Guidelines ES.103).
         std::size_t overhead{};
         if(!checked_add(sizeof(AllocationHeader), effectiveAlign - 1u, overhead)) {
+            self->scopes[scopeIndex(allocationScope)].failCount.fetch_add(1, std::memory_order_relaxed);
             LERROR("Vulkan CPU allocation overhead overflow (size={}, alignment={}, scope={})", size, alignment,
                    std::to_underlying(allocationScope));
             return nullptr;
@@ -96,6 +96,7 @@ namespace vnd {
 
         std::size_t totalSize{};
         if(!checked_add(overhead, size, totalSize)) {
+            self->scopes[scopeIndex(allocationScope)].failCount.fetch_add(1, std::memory_order_relaxed);
             LERROR("Vulkan CPU allocation totalSize overflow (size={}, alignment={}, scope={})", size, alignment,
                    std::to_underlying(allocationScope));
             return nullptr;
@@ -103,6 +104,7 @@ namespace vnd {
 
         void *const base = std::malloc(totalSize);
         if(!base) {
+            self->scopes[scopeIndex(allocationScope)].failCount.fetch_add(1, std::memory_order_relaxed);
             LERROR("Vulkan CPU allocation failed (size={}, alignment={}, scope={})", size, alignment, std::to_underlying(allocationScope));
             return nullptr;
         }
@@ -135,8 +137,15 @@ namespace vnd {
         auto *const header = reinterpret_cast<AllocationHeader *>(static_cast<char *>(userPtr) - sizeof(AllocationHeader));
         header->size = size;
         header->base = base;
+        header->scope = allocationScope;
 
         self->totalAllocated.fetch_add(size, std::memory_order_relaxed);
+
+        auto &st = self->scopes[scopeIndex(allocationScope)];
+        st.allocCount.fetch_add(1, std::memory_order_relaxed);
+        const std::size_t live = st.liveBytes.fetch_add(size, std::memory_order_relaxed) + size;
+        updatePeak(st.peakBytes, live);
+
         return userPtr;
     }
 
@@ -150,6 +159,8 @@ namespace vnd {
             return nullptr;
         }
 
+        auto *const self = static_cast<VulkanAllocator *>(pUserData);
+        self->scopes[scopeIndex(allocationScope)].reallocCount.fetch_add(1, std::memory_order_relaxed);
         // Recover the old live size from the header immediately before the user pointer.
         // Pointer arithmetic on char* is well-defined within the same malloc block
         // (C++ [expr.add] §7.6.6 p4); no uintptr_t round-trip is needed.
@@ -178,9 +189,62 @@ namespace vnd {
         // Recover the header from the sizeof(AllocationHeader) bytes before the user pointer.
         // char* arithmetic stays within the original malloc block; no uintptr_t round-trip.
         const auto *const header = reinterpret_cast<const AllocationHeader *>(static_cast<char *>(pMemory) - sizeof(AllocationHeader));
+        const std::size_t sz = header->size;
+        const VkSystemAllocationScope sc = header->scope;
 
-        self->totalAllocated.fetch_sub(header->size, std::memory_order_relaxed);
+        self->totalAllocated.fetch_sub(sz, std::memory_order_relaxed);
+
+        auto &st = self->scopes[scopeIndex(sc)];
+        st.freeCount.fetch_add(1, std::memory_order_relaxed);
+        st.liveBytes.fetch_sub(sz, std::memory_order_relaxed);
+
         std::free(header->base);
+    }
+
+    [[nodiscard]] constexpr std::string_view vnd::VulkanAllocator::scopeName(VkSystemAllocationScope scope) noexcept {
+        switch(scope) {
+        case VK_SYSTEM_ALLOCATION_SCOPE_COMMAND:
+            return "COMMAND";
+        case VK_SYSTEM_ALLOCATION_SCOPE_OBJECT:
+            return "OBJECT";
+        case VK_SYSTEM_ALLOCATION_SCOPE_CACHE:
+            return "CACHE";
+        case VK_SYSTEM_ALLOCATION_SCOPE_DEVICE:
+            return "DEVICE";
+        case VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE:
+            return "INSTANCE";
+        default:
+            return "UNKNOWN";
+        }
+    }
+
+    void vnd::VulkanAllocator::dumpOneScope(VkSystemAllocationScope scope) const {
+        const auto s = getScopeSnapshot(scope);
+
+        LINFO("[{}] live={} peak={} alloc={} free={} realloc={} fail={}", scopeName(scope), s.liveBytes, s.peakBytes, s.allocCount, s.freeCount, s.reallocCount, s.failCount);
+    }
+
+    void vnd::VulkanAllocator::dumpReport() const {
+        const std::size_t totalLive = getTotalAllocated();
+
+        LINFO("VulkanAllocator CPU Memory Report");
+
+        dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_COMMAND);
+        dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_OBJECT);
+        dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_CACHE);
+        dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_DEVICE);
+        dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE);
+
+        const std::size_t s0 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_COMMAND).liveBytes;
+        const std::size_t s1 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_OBJECT).liveBytes;
+        const std::size_t s2 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_CACHE).liveBytes;
+        const std::size_t s3 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_DEVICE).liveBytes;
+        const std::size_t s4 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE).liveBytes;
+
+        const std::size_t scopesSum = s0 + s1 + s2 + s3 + s4;
+        const std::size_t delta = (scopesSum >= totalLive) ? (scopesSum - totalLive) : (totalLive - scopesSum);
+
+        LINFO("total_live={}|-|scopes_sum={}|-|delta={}", totalLive, scopesSum, delta);
     }
 
 }  // namespace vnd
