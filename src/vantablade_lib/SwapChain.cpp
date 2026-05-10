@@ -20,7 +20,9 @@ SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent) : device{deviceRef}, 
 }
 
 SwapChain::~SwapChain() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying SwapChain");
+#endif
     const auto vkdevice = device.device();
     auto *vkAlloc = device.getVkAllocator();
 
@@ -340,19 +342,19 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
         return VK_PRESENT_MODE_MAILBOX_KHR;
     }
 
-    if(isAvailable(VK_PRESENT_MODE_IMMEDIATE_KHR)) {
-        LINFO("Present mode: IMMEDIATE");
-        return VK_PRESENT_MODE_IMMEDIATE_KHR;
+    /*if(isAvailable(VK_PRESENT_MODE_FIFO_KHR)) {
+        LINFO("Present mode: FIFO (VSync)");
+        return VK_PRESENT_MODE_FIFO_KHR;
     }
 
     if(isAvailable(VK_PRESENT_MODE_FIFO_RELAXED_KHR)) {
         LINFO("Present mode: FIFO_RELAXED");
         return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
-    }
+    }*/
 
-    if(isAvailable(VK_PRESENT_MODE_FIFO_KHR)) {
-        LINFO("Present mode: FIFO (VSync)");
-        return VK_PRESENT_MODE_FIFO_KHR;
+    if(isAvailable(VK_PRESENT_MODE_IMMEDIATE_KHR)) {
+        LINFO("Present mode: IMMEDIATE");
+        return VK_PRESENT_MODE_IMMEDIATE_KHR;
     }
 
     if(isAvailable(VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR)) {

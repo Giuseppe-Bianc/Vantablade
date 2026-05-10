@@ -175,8 +175,10 @@ Device::Device(Window &window) : window{window} {
 
 Device::~Device() {
     vkAllocator.dumpReport();
+#ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying Device");
     vmaDestroyAllocator(allocator);
+#endif
     vkDestroyCommandPool(device_, commandPool, &vkAllocatorCallbacks);
     vkDestroyDevice(device_, &vkAllocatorCallbacks);
 
@@ -241,7 +243,9 @@ void Device::createInstance() {
 }
 
 void Device::pickPhysicalDevice() {
+#ifndef NDEBUG
     const vnd::AutoTimer t{"pick Physical Device"};
+#endif
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
     if(deviceCount == 0) { throw std::runtime_error("failed to find GPUs with Vulkan support!"); }
@@ -400,7 +404,9 @@ bool Device::checkValidationLayerSupport() {
 
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 std::vector<const char *> Device::getRequiredExtensions() const {
+#ifndef NDEBUG
     const vnd::AutoTimer timer{"get Required Extensions"};
+#endif
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
@@ -418,7 +424,9 @@ std::vector<const char *> Device::getRequiredExtensions() const {
 }
 
 void Device::hasGflwRequiredInstanceExtensions() {
+#ifndef NDEBUG
     const vnd::AutoTimer t{"has Gflw Required Instance Extensions"};
+#endif
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
     std::vector<VkExtensionProperties> extensions(extensionCount);

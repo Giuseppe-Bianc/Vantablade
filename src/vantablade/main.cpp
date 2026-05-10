@@ -14,7 +14,9 @@ auto main(int argc, const char **argv) -> int {
     INIT_LOG_ASYNC();
     const vnd::AutoTimer compilationTime("Total Execution");
 #ifdef _WIN32
+#ifndef NDEBUG
     const vnd::Timer winConsoleTimer("Windows console setup");
+#endif
     // Set UTF-8 code page for Windows console
     SetConsoleCP(CP_UTF8);
     SetConsoleOutputCP(CP_UTF8);
@@ -31,7 +33,9 @@ auto main(int argc, const char **argv) -> int {
             }
         }
     }
+#ifndef NDEBUG
     LINFO("{}", winConsoleTimer);
+#endif
 #endif
     const auto version = FORMAT("{} version {} git sha {}", Vantablade::cmake::project_name, Vantablade::cmake::project_version,
                                 Vantablade::cmake::git_short_sha);

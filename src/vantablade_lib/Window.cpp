@@ -27,7 +27,9 @@ void Window::initWindow() {
 }
 
 void Window::createWindow() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer("glfw_window creation");
+#endif
 
     window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
 
@@ -39,7 +41,9 @@ void Window::createWindow() {
 }
 
 void Window::setHints() const noexcept {
+#ifndef NDEBUG
     const vnd::AutoTimer timer("set glfw hints");
+#endif
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE);
@@ -48,7 +52,9 @@ void Window::setHints() const noexcept {
 }
 
 void Window::initializeGLFW() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer("glfw setup");
+#endif
     if(glfwInit() == GLFW_FALSE) {
         LCRITICAL("Failed to initialize GLFW");
         throw std::runtime_error("Failed to initialize GLFW.");
@@ -62,22 +68,30 @@ void Window::initializeGLFW() {
 }
 
 void Window::centerWindow() {
+#ifndef NDEBUG
     vnd::Timer monitort("get primary Monitor");
+#endif
     GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
     if(primaryMonitor == nullptr) { throw std::runtime_error("Failed to get the primary monitor."); }
+#ifndef NDEBUG
     LINFO("{}", monitort);
-
+    
     vnd::Timer modet("get monitor informations");
+#endif
     const Monitor monitorInfo(primaryMonitor);
+#ifndef NDEBUG
     LINFO("{}", modet);
 
     vnd::Timer crepositiont("calculating for reposition");
+#endif
     int windowWidth = 0;
     int windowHeight = 0;
     glfwGetWindowSize(window, &windowWidth, &windowHeight);
     const auto centerX = CALC_CENTRO(monitorInfo.getWidth(), windowWidth);
     const auto centerY = CALC_CENTRO(monitorInfo.getHeight(), windowHeight);
+#ifndef NDEBUG
     LINFO("{}", crepositiont);
+#endif
 
 #ifndef __linux__
     vnd::Timer wrepositiont("window reposition");

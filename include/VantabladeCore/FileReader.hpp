@@ -68,7 +68,7 @@ namespace vnd {
         const auto rawFileSize = fs::file_size(filePath);
         const auto fileSize = C_ST(rawFileSize);
 
-#ifdef INDEPT
+#ifndef NDEBUG
         // Optional timer for performance measurement.
         const AutoTimer timer(FORMAT("Reading file {}", filename));
 #endif

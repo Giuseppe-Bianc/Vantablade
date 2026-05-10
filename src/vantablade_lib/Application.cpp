@@ -15,7 +15,9 @@ Application::Application() {
 }
 
 Application::~Application() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer{"Destroying Application"};
+#endif
     vkDestroyPipelineLayout(device_m.device(), pipelineLayout, device_m.getVkAllocator());
 }
 
@@ -26,7 +28,9 @@ void Application::run() {
     // cleanup();
 }
 void Application::loadModels() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer{"Loading models"};
+#endif
     std::vector<Model::Vertex> vertices{{{0.0f, -0.5f}}, {{0.5f, 0.5f}}, {{-0.5f, 0.5f}}};
     model = std::make_unique<Model>(device_m, vertices);
 }
@@ -42,7 +46,9 @@ void Application::mainLoop() {
 }
 
 void Application::createPipelineLayout() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer{"Creating pipeline layout"};
+#endif
 
     const VkPipelineLayoutCreateInfo pipelineLayoutInfo{.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
                                                         .setLayoutCount = 0,
@@ -57,7 +63,9 @@ void Application::createPipelineLayout() {
 }
 
 void Application::createPipeline() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer{"Creating pipeline"};
+#endif
 
     PipelineConfigInfo pipelineConfig{};
     Pipeline::defaultPipelineConfigInfo(pipelineConfig, swapChain.width(), swapChain.height());
@@ -69,7 +77,9 @@ void Application::createPipeline() {
 }
 
 void Application::createCommandBuffers() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer{"Creating command buffers"};
+#endif
     commandBuffers.resize(swapChain.imageCount());
 
     const VkCommandBufferAllocateInfo allocInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,

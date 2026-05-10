@@ -14,7 +14,9 @@ Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::s
 }
 
 Pipeline::~Pipeline() {
+#ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying pipeline");
+#endif
     auto *vkdevice = device_m.device();
     auto *vkAlloc = device_m.getVkAllocator();
     vkDestroyPipeline(vkdevice, graphicsPipeline, vkAlloc);
@@ -29,7 +31,9 @@ std::vector<char> Pipeline::readFile(const std::string &filepath) {
 
 void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
                                       const PipelineConfigInfo &configInfo) {
+#ifndef NDEBUG
     const vnd::AutoTimer timer("create Graphics Pipeline");
+#endif
     assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipelineLayout provided in configInfo");
     assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no renderPass provided in configInfo");
 
