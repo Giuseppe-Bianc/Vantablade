@@ -16,15 +16,56 @@ namespace vnd {
         return std::max(alignment, alignof(AllocationHeader));
     }
 
+    /**
+     * Performs checked addition of two size_t values.
+     *
+     * Returns true and writes the result to `result` if the addition does not
+     * overflow. Returns false and leaves `result` unmodified if it would overflow.
+     *
+     * Uses the identity: a + b > SIZE_MAX  <=>  b > SIZE_MAX - a
+     * which is safe to evaluate because SIZE_MAX - a never underflows (a <= SIZE_MAX).
+     *
+     * C++23 does not expose a standard checked-arithmetic API for size_t directly.
+     * Compiler builtins (__builtin_add_overflow) are available on GCC/Clang but are
+     * not part of the ISO standard. This implementation is fully portable.
+     */
+    [[nodiscard]] static constexpr bool checked_add(size_t a, size_t b, size_t &result) noexcept {
+        if(b > std::numeric_limits<size_t>::max() - a) return false;
+        result = a + b;
+        return true;
+    }
+
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklAllocation(void *pUserData, size_t size, size_t alignment,
-                                                            VkSystemAllocationScope allocationScope) noexcept {
+                                                                VkSystemAllocationScope allocationScope) noexcept {
         if(size == 0) return nullptr;
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
         const size_t effectiveAlign = computeEffectiveAlignment(alignment);
 
-        const size_t totalSize = sizeof(AllocationHeader) + (effectiveAlign - 1) + size;
+        // Compute the total bytes needed for the malloc block:
+        //   sizeof(AllocationHeader)   — space for the header placed immediately before the user pointer
+        //   + (effectiveAlign - 1)     — worst-case padding to align the user pointer
+        //   + size                     — the user-requested payload
+        //
+        // Both additions are checked independently to detect unsigned wraparound.
+        // The Vulkan spec mandates that `alignment` is a power of two, so effectiveAlign
+        // is also a power of two and effectiveAlign - 1 cannot underflow.
+        // In practice Vulkan drivers never request host allocations near SIZE_MAX, but
+        // correctness must not depend on caller behaviour.
+        size_t overhead{};
+        if(!checked_add(sizeof(AllocationHeader), effectiveAlign - 1u, overhead)) {
+            LERROR("Vulkan CPU allocation overhead overflow. size={}, alignment={}, scope={}", size, alignment,
+                   static_cast<int>(allocationScope));
+            return nullptr;
+        }
+
+        size_t totalSize{};
+        if(!checked_add(overhead, size, totalSize)) {
+            LERROR("Vulkan CPU allocation totalSize overflow. size={}, alignment={}, scope={}", size, alignment,
+                   static_cast<int>(allocationScope));
+            return nullptr;
+        }
 
         void *const base = std::malloc(totalSize);
         if(!base) {
@@ -51,7 +92,7 @@ namespace vnd {
     }
 
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklReallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
-                                                              VkSystemAllocationScope allocationScope) noexcept {
+                                                                  VkSystemAllocationScope allocationScope) noexcept {
         if(!pOriginal) { return vklAllocation(pUserData, size, alignment, allocationScope); }
         if(size == 0u) {
             vklFree(pUserData, pOriginal);
@@ -82,7 +123,7 @@ namespace vnd {
 
         self->totalAllocated.fetch_sub(header->size, std::memory_order_relaxed);
 
-        // Free the original malloc base, not the user pointer..
+        // Free the original malloc base, not the user pointer.
         std::free(header->base);
     }
 
