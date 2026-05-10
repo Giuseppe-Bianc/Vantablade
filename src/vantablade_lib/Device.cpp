@@ -55,7 +55,7 @@ template <typename T> void Device::psetObjectName(T handle, const char *name) no
     };
     debugFuncs.setObjectName(device_, &nameInfo);
 
-    LINFO("Assigned debug name \"{}\" to Vulkan object of type {} with handle {:#018x}", name, string_VkObjectType(objectType), nhandle);
+    LINFO("Named '{}' -> {} {:#018x}", name, string_VkObjectType(objectType), nhandle);
 }
 
 // ---------------------------------------------------------------------------
