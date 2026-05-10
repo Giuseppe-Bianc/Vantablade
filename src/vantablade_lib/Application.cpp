@@ -31,8 +31,12 @@ void Application::loadModels() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Loading models"};
 #endif
+// clang-format off
     std::vector<Model::Vertex> vertices{
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}}, {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, 
+        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+// clang-format on
     model = std::make_unique<Model>(device_m, vertices);
 }
 
