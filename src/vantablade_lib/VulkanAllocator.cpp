@@ -7,36 +7,51 @@
 
 namespace vnd {
 
-    struct AllocationHeader final {
-        std::size_t size;  // user-requested size, used to update the atomic counter on free
-        void *base;        // original std::malloc base; recovered on free to release the block
-    };
+    namespace {
 
-    [[nodiscard]] static constexpr size_t computeEffectiveAlignment(size_t alignment) noexcept {
-        return std::max(alignment, alignof(AllocationHeader));
-    }
+        // alignas(alignof(void*)) is stated explicitly rather than relying on the implicit
+        // natural alignment of the members (size_t and void*). Both members have the same
+        // alignment requirement on all supported platforms, so sizeof(AllocationHeader) is
+        // exactly 2 * sizeof(void*) with no padding. Making this contract visible in the
+        // source eliminates any dependency on implicit layout rules and documents the
+        // invariant that (aligned - sizeof(AllocationHeader)) is always AllocationHeader-aligned
+        // when `aligned` is a multiple of effectiveAlign >= alignof(AllocationHeader).
+        struct alignas(alignof(void *)) AllocationHeader final {
+            std::size_t size;  // user-requested size, used to update the atomic counter on free
+            void *base;        // original std::malloc base; recovered on free to release the block
+        };
 
-    /**
-     * Performs checked addition of two size_t values.
-     *
-     * Returns true and writes the result to `result` if the addition does not
-     * overflow. Returns false and leaves `result` unmodified if it would overflow.
-     *
-     * Uses the identity: a + b > SIZE_MAX  <=>  b > SIZE_MAX - a
-     * which is safe to evaluate because SIZE_MAX - a never underflows (a <= SIZE_MAX).
-     *
-     * C++23 does not expose a standard checked-arithmetic API for size_t directly.
-     * Compiler builtins (__builtin_add_overflow) are available on GCC/Clang but are
-     * not part of the ISO standard. This implementation is fully portable.
-     */
-    [[nodiscard]] static constexpr bool checked_add(size_t a, size_t b, size_t &result) noexcept {
-        if(b > std::numeric_limits<size_t>::max() - a) return false;
-        result = a + b;
-        return true;
-    }
+        // Computes the minimum alignment that satisfies both the Vulkan-requested alignment
+        // and the alignment required to place an AllocationHeader immediately before the
+        // user pointer. Using an unnamed namespace instead of `static` gives internal linkage
+        // per the C++ Core Guidelines (SF.22) without the deprecated file-scope `static` idiom.
+        [[nodiscard]] constexpr size_t computeEffectiveAlignment(size_t alignment) noexcept {
+            return std::max(alignment, alignof(AllocationHeader));
+        }
+
+        /**
+         * Performs checked addition of two size_t values.
+         *
+         * Returns true and writes the result to `result` if the addition does not
+         * overflow. Returns false and leaves `result` unmodified if it would overflow.
+         *
+         * Uses the identity: a + b > SIZE_MAX  <=>  b > SIZE_MAX - a
+         * which is safe to evaluate because SIZE_MAX - a never underflows (a <= SIZE_MAX).
+         *
+         * C++23 does not expose a standard checked-arithmetic API for size_t directly.
+         * Compiler builtins (__builtin_add_overflow) are available on GCC/Clang but are
+         * not part of the ISO standard. This implementation is fully portable.
+         */
+        [[nodiscard]] constexpr bool checked_add(size_t a, size_t b, size_t &result) noexcept {
+            if(b > std::numeric_limits<size_t>::max() - a) return false;
+            result = a + b;
+            return true;
+        }
+
+    }  // namespace
 
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklAllocation(void *pUserData, size_t size, size_t alignment,
-                                                                VkSystemAllocationScope allocationScope) noexcept {
+                                                               VkSystemAllocationScope allocationScope) noexcept {
         if(size == 0) return nullptr;
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
@@ -92,7 +107,7 @@ namespace vnd {
     }
 
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklReallocation(void *pUserData, void *pOriginal, size_t size, size_t alignment,
-                                                                  VkSystemAllocationScope allocationScope) noexcept {
+                                                                 VkSystemAllocationScope allocationScope) noexcept {
         if(!pOriginal) { return vklAllocation(pUserData, size, alignment, allocationScope); }
         if(size == 0u) {
             vklFree(pUserData, pOriginal);
@@ -100,7 +115,8 @@ namespace vnd {
         }
 
         // Recover original size from the header immediately before the user pointer.
-        const auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(reinterpret_cast<uintptr_t>(pOriginal) - sizeof(AllocationHeader));
+        const auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(reinterpret_cast<uintptr_t>(pOriginal) -
+                                                                                 sizeof(AllocationHeader));
         const size_t oldSize = oldHeader->size;
 
         void *const newPtr = vklAllocation(pUserData, size, alignment, allocationScope);
@@ -119,7 +135,8 @@ namespace vnd {
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
         // Recover header from the sizeof(AllocationHeader) bytes immediately before the user pointer.
-        const auto *const header = reinterpret_cast<const AllocationHeader *>(reinterpret_cast<uintptr_t>(pMemory) - sizeof(AllocationHeader));
+        const auto *const header = reinterpret_cast<const AllocationHeader *>(reinterpret_cast<uintptr_t>(pMemory) -
+                                                                              sizeof(AllocationHeader));
 
         self->totalAllocated.fetch_sub(header->size, std::memory_order_relaxed);
 
