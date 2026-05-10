@@ -11,6 +11,7 @@ class Model {
 public:
     struct Vertex {
         glm::vec2 position;
+        glm::vec3 color;
 
         [[nodiscard]] static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
         [[nodiscard]] static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
