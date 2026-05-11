@@ -17,24 +17,28 @@ class Application {
 public:
     Application();
     ~Application();
+
     Application(const Application &) = delete;
     Application &operator=(const Application &) = delete;
+
     void run();
 
 private:
+    void mainLoop();
+    void loadModels();
+    void createPipelineLayout();
+    void createPipeline();
+    void createCommandBuffers();
+    void freeCommandBuffers();
+    void drawFrame();
+    void recreateSwapChain();
+    void recordCommandBuffer(int imageIndex);
+
     Window window{wwidth, wheight, wtile};
     Device device_m{window};
-    SwapChain swapChain{device_m, window.getExtent()};
+    std::unique_ptr<SwapChain> swapChain;
     std::unique_ptr<Pipeline> pipeline;
     VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
     std::vector<VkCommandBuffer> commandBuffers;
     std::unique_ptr<Model> model;
-
-    void createPipelineLayout();
-    void createPipeline();
-    void createCommandBuffers();
-    void drawFrame();
-    void loadModels();
-
-    void mainLoop();
 };

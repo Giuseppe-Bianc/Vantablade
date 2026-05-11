@@ -177,8 +177,8 @@ Device::~Device() {
     vkAllocator.dumpReport();
 #ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying Device");
-    vmaDestroyAllocator(allocator);
 #endif
+    vmaDestroyAllocator(allocator);
     vkDestroyCommandPool(device_, commandPool, &vkAllocatorCallbacks);
     vkDestroyDevice(device_, &vkAllocatorCallbacks);
 

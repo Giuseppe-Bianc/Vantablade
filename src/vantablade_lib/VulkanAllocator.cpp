@@ -245,7 +245,27 @@ namespace vnd {
         const std::size_t scopesSum = s0 + s1 + s2 + s3 + s4;
         const std::size_t delta = (scopesSum >= totalLive) ? (scopesSum - totalLive) : (totalLive - scopesSum);
 
-        LINFO("total_live={}|-|scopes_sum={}|-|delta={}", totalLive, scopesSum, delta);
+        const FileSizeReport totalLiveReport{
+            .info = {.bytes = totalLive},
+            .si_sys = kSI,
+            .iec_sys = kIEC,
+        };
+        const FileSizeReport scopesSumReport{
+            .info = {.bytes = scopesSum},
+            .si_sys = kSI,
+            .iec_sys = kIEC,
+        };
+        const FileSizeReport deltaReport{
+            .info = {.bytes = delta},
+            .si_sys = kSI,
+            .iec_sys = kIEC,
+        };
+        LINFO("total_live   Bytes: {:<10} SI({}) IEC({})", totalLiveReport.info.bytes, totalLiveReport.info.format(totalLiveReport.si_sys),
+              totalLiveReport.info.format(totalLiveReport.iec_sys));
+        LINFO("scopes_sum   Bytes: {:<10} SI({}) IEC({})", scopesSumReport.info.bytes, scopesSumReport.info.format(scopesSumReport.si_sys),
+              scopesSumReport.info.format(scopesSumReport.iec_sys));
+        LINFO("delta        Bytes: {:<10} SI({}) IEC({})", deltaReport.info.bytes, deltaReport.info.format(deltaReport.si_sys),
+              deltaReport.info.format(deltaReport.iec_sys));
     }
 
 }  // namespace vnd

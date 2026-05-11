@@ -24,4 +24,4 @@ DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
 
 DISABLE_WARNINGS_POP()
 
-// NOLINTBEGIN(*-include-cleaner, *-macro-usage)
+// NOLINTEND(*-include-cleaner, *-macro-usage)

@@ -29,7 +29,7 @@ public:
 private:
     void createVertexBuffers(const std::vector<Vertex> &vertices);
 
-    Device &lveDevice;
+    Device &device_m;
     VkBuffer vertexBuffer{VK_NULL_HANDLE};
     VmaAllocation vertexBufferAllocation{VK_NULL_HANDLE};  // replaces VkDeviceMemory
     uint32_t vertexCount{0};

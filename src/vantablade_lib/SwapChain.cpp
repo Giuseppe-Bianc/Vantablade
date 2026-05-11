@@ -10,7 +10,15 @@ DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
 #include <vma/vk_mem_alloc.h>
 DISABLE_WARNINGS_POP()
 
-SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent) : device{deviceRef}, windowExtent{extent} {
+SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent) : device{deviceRef}, windowExtent{extent} { init(); }
+
+SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
+  : device{deviceRef}, windowExtent{extent}, oldSwapChain{previous} {
+    init();
+    oldSwapChain = nullptr;
+}
+
+void SwapChain::init() {
     createSwapChain();
     createImageViews();
     createRenderPass();
@@ -154,7 +162,7 @@ void SwapChain::createSwapChain() {
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
-    createInfo.oldSwapchain = VK_NULL_HANDLE;
+    createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
 
     VK_CHECK(vkCreateSwapchainKHR(device.device(), &createInfo, device.getVkAllocator(), &swapChain), "failed to create swap chain!");
 
