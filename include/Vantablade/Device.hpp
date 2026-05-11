@@ -8,6 +8,8 @@
 #include "DeviceInfo.hpp"
 #include "Window.hpp"
 #include "VulkanAllocator.hpp"
+#include "VkObjectTypeResolve.hpp"
+#include "vulkanToString.hpp"
 // clang-format on
 
 // Forward declaration for VMA
@@ -109,6 +111,23 @@ public:
 
     VkPhysicalDeviceProperties properties{};
 
+    template <typename T> void setObjectName(T handle, const char *name) noexcept { psetObjectName(handle, name); }
+    // Command buffer labels
+    void cmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept { pcmdBeginLabel(cb, name, color); }
+    void cmdEndLabel(VkCommandBuffer cb) noexcept { pcmdEndLabel(cb); }
+    void cmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
+        pcmdInsertLabel(cb, name, color);
+    }
+
+    // Queue labels
+    void queueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+        pqueueBeginLabel(queue, name, color);
+    }
+    void queueEndLabel(VkQueue queue) noexcept { pqueueEndLabel(queue); }
+    void queueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+        pqueueInsertLabel(queue, name, color);
+    }
+
 private:
     void createInstance();
     void setupDebugMessenger();
@@ -161,3 +180,22 @@ private:
     static inline constexpr std::array<const char *, 1> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     static inline constexpr float queuePriority = 1.0f;
 };
+
+template <typename T> inline void Device::psetObjectName(T handle, const char *name) noexcept {
+    if(!enableValidationLayers || debugFuncs.setObjectName == nullptr) { return; }
+    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
+    constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
+    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast, *-no-int-to-ptr)
+    const auto nhandle = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
+
+    const VkDebugUtilsObjectNameInfoEXT nameInfo{
+        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+        .pNext = nullptr,
+        .objectType = objectType,
+        .objectHandle = nhandle,
+        .pObjectName = name,
+    };
+    debugFuncs.setObjectName(device_, &nameInfo);
+
+    LINFO("Named '{}' -> {} {:#018x}", name, VkObjectString(objectType), nhandle);
+}

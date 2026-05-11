@@ -13,7 +13,7 @@ DISABLE_WARNINGS_POP()
 SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent) : device{deviceRef}, windowExtent{extent} { init(); }
 
 SwapChain::SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous)
-  : device{deviceRef}, windowExtent{extent}, oldSwapChain{previous} {
+  : device{deviceRef}, windowExtent{extent}, oldSwapChain{std::move(previous)} {
     init();
     oldSwapChain = nullptr;
 }
@@ -31,6 +31,7 @@ SwapChain::~SwapChain() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying SwapChain");
 #endif
+
     const auto vkdevice = device.device();
     auto *vkAlloc = device.getVkAllocator();
 
@@ -39,6 +40,7 @@ SwapChain::~SwapChain() {
     vkDestroyRenderPass(vkdevice, renderPass, vkAlloc);
 
     for(const auto imageView : swapChainImageViews) { vkDestroyImageView(vkdevice, imageView, vkAlloc); }
+
     swapChainImageViews.clear();
 
     if(swapChain != VK_NULL_HANDLE) {
@@ -50,6 +52,7 @@ SwapChain::~SwapChain() {
         vkDestroyImageView(vkdevice, view, vkAlloc);
         vmaDestroyImage(device.getAllocator(), img, alloc);
     }
+
     depthImages.clear();
     depthImageViews.clear();
     depthImageAllocations.clear();
@@ -79,6 +82,7 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_
         VK_CHECK(vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max()),
                  "failed to wait for in-flight image fence!");
     }
+
     imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
 
     VkSubmitInfo submitInfo{};
@@ -87,6 +91,7 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_
     // SAFETY: std::array<T,N> replaces C-style arrays — size never lost at call boundary.
     // These are all single-element arrays matching the Vulkan spec for this submit pattern.
     const std::array<VkSemaphore, 1> waitSemaphores{imageAvailableSemaphores[currentFrame]};
+
     const std::array<VkPipelineStageFlags, 1> waitStages{VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
     submitInfo.waitSemaphoreCount = C_UI32T(waitSemaphores.size());
@@ -98,10 +103,12 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_
 
     // SAFETY: std::array replaces C-style array for signal semaphores.
     const std::array<VkSemaphore, 1> signalSemaphores{renderFinishedSemaphores[currentFrame]};
+
     submitInfo.signalSemaphoreCount = C_UI32T(signalSemaphores.size());
     submitInfo.pSignalSemaphores = signalSemaphores.data();
 
     vkResetFences(device.device(), 1, &inFlightFences[currentFrame]);
+
     VK_CHECK(vkQueueSubmit(device.graphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]), "failed to submit draw command buffer!");
 
     VkPresentInfoKHR presentInfo{};
@@ -111,12 +118,15 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_
 
     // SAFETY: std::array replaces C-style array for swap chains.
     const std::array<VkSwapchainKHR, 1> swapChains{swapChain};
+
     presentInfo.swapchainCount = C_UI32T(swapChains.size());
     presentInfo.pSwapchains = swapChains.data();
     presentInfo.pImageIndices = imageIndex;
 
     const VkResult result = vkQueuePresentKHR(device.presentQueue(), &presentInfo);
+
     currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
     return result;
 }
 
@@ -128,6 +138,7 @@ void SwapChain::createSwapChain() {
     const VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+
     if(swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
@@ -165,10 +176,19 @@ void SwapChain::createSwapChain() {
 
     VK_CHECK(vkCreateSwapchainKHR(device.device(), &createInfo, device.getVkAllocator(), &swapChain), "failed to create swap chain!");
 
+    device.setObjectName(swapChain, "Main SwapChain");
+
     VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, nullptr), "failed to query swapchain image count!");
+
     swapChainImages.resize(imageCount);
+
     VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data()),
              "failed to retrieve swapchain images!");
+
+    for(const auto &[i, image] : std::views::enumerate(swapChainImages)) {
+        const auto name = FORMAT("SwChain Image[{}]", i);
+        device.setObjectName(image, name.c_str());
+    }
 
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
@@ -191,6 +211,9 @@ void SwapChain::createImageViews() {
 
         VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &swapChainImageViews[C_ST(i)]),
                  "failed to create swapchain image view!");
+
+        const auto name = FORMAT("SwChain ImageView[{}]", i);
+        device.setObjectName(swapChainImageViews[C_ST(i)], name.c_str());
     }
 }
 
@@ -228,12 +251,16 @@ void SwapChain::createRenderPass() {
     VkSubpassDependency dependency{};
     dependency.dstSubpass = 0;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.srcAccessMask = 0;
+
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
     const std::array<VkAttachmentDescription, 2> attachments{colorAttachment, depthAttachment};
+
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = C_UI32T(attachments.size());
@@ -244,6 +271,8 @@ void SwapChain::createRenderPass() {
     renderPassInfo.pDependencies = &dependency;
 
     VK_CHECK(vkCreateRenderPass(device.device(), &renderPassInfo, device.getVkAllocator(), &renderPass), "failed to create render pass!");
+
+    device.setObjectName(renderPass, "Main RenderPass");
 }
 
 void SwapChain::createFramebuffers() {

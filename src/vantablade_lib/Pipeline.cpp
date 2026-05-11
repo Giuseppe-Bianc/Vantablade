@@ -23,14 +23,20 @@ Pipeline::~Pipeline() {
     vkDestroyShaderModule(vkdevice, fragShaderModule, vkAlloc);
     vkDestroyShaderModule(vkdevice, vertShaderModule, vkAlloc);
 }
-
+[[nodiscard]]
 std::vector<char> Pipeline::readFile(const fs::path &filepath) {
-    auto sCode = vnd::readFromFile(filepath.string());
-    return {std::ranges::begin(sCode), std::ranges::end(sCode)};
+    std::string sCode = vnd::readFromFile(filepath.string());
+
+    // PERF: single allocation with exact size
+    std::vector<char> result(sCode.size());
+
+    // PERF: contiguous bulk copy, avoids iterator abstraction overhead
+    std::memcpy(result.data(), sCode.data(), sCode.size());
+
+    return result;
 }
 
-void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::path &fragFilepath,
-                                      const PipelineConfigInfo &configInfo) {
+void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::path &fragFilepath, const PipelineConfigInfo &configInfo) {
 #ifndef NDEBUG
     const vnd::AutoTimer timer("create Graphics Pipeline");
 #endif
@@ -40,21 +46,26 @@ void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::pa
     const auto vertCode = readFile(vertFilepath);
     const auto fragCode = readFile(fragFilepath);
 
+    // PERF: avoid repeated .size() calls
+    const std::size_t vertSize = vertCode.size();
+    const std::size_t fragSize = fragCode.size();
+
     const FileSizeReport vertReport{
-        .info = {.bytes = vertCode.size()},
+        .info = {.bytes = vertSize},
         .si_sys = kSI,
         .iec_sys = kIEC,
     };
 
     const FileSizeReport fragReport{
-        .info = {.bytes = fragCode.size()},
+        .info = {.bytes = fragSize},
         .si_sys = kSI,
         .iec_sys = kIEC,
     };
 
-    LINFO("Vertex Shader code size Bytes: {} SI({}) IEC({})", vertCode.size(), vertReport.info.format(vertReport.si_sys),
+    LINFO("Vertex Shader bytes: {} SI({}) IEC({})", vertSize, vertReport.info.format(vertReport.si_sys),
           vertReport.info.format(vertReport.iec_sys));
-    LINFO("Fragment Shader code size Bytes: {} SI({}) IEC({})", fragCode.size(), fragReport.info.format(fragReport.si_sys),
+
+    LINFO("Fragment Shader bytes: {} SI({}) IEC({})", fragSize, fragReport.info.format(fragReport.si_sys),
           fragReport.info.format(fragReport.iec_sys));
     createShaderModule(vertCode, &vertShaderModule);
     createShaderModule(fragCode, &fragShaderModule);
@@ -106,6 +117,7 @@ void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::pa
 
     VK_CHECK(vkCreateGraphicsPipelines(device_m.device(), VK_NULL_HANDLE, 1, &pipelineInfo, device_m.getVkAllocator(), &graphicsPipeline),
              "failed to create graphics pipeline");
+    device_m.setObjectName(graphicsPipeline, "GraphicsPipeline");
 }
 
 void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule) {

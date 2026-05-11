@@ -63,6 +63,7 @@ void Application::createPipelineLayout() {
                                                   .pPushConstantRanges = nullptr};
     VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, device_m.getVkAllocator(), &pipelineLayout),
              "failed to create pipeline layout!");
+    device_m.setObjectName(pipelineLayout, "Main PipelineLayout");
 }
 
 void Application::recreateSwapChain() {
@@ -114,6 +115,11 @@ void Application::createCommandBuffers() {
                                           .commandBufferCount = C_UI32T(commandBuffers.size())};
 
     VK_CHECK(vkAllocateCommandBuffers(device_m.device(), &allocInfo, commandBuffers.data()), "failed to allocate command buffers!");
+
+    for(const auto &[i, commandBuffer] : std::views::enumerate(commandBuffers)) {
+        const auto name = FORMAT("Main CommandBuffer[{}]", i);
+        device_m.setObjectName(commandBuffer, name.c_str());
+    }
 }
 
 void Application::freeCommandBuffers() {

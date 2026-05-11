@@ -39,25 +39,6 @@ void Device::loadDebugUtilsFunctions() noexcept {
     LINFO("queueInsertLabel: {}", debugFuncs.queueInsertLabel != nullptr);
 }
 
-template <typename T> void Device::psetObjectName(T handle, const char *name) noexcept {
-    if(!enableValidationLayers || debugFuncs.setObjectName == nullptr) { return; }
-    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
-    constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
-    // NOLINTNEXTLINE(*-pro-type-reinterpret-cast, *-no-int-to-ptr)
-    const auto nhandle = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
-
-    const VkDebugUtilsObjectNameInfoEXT nameInfo{
-        .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
-        .pNext = nullptr,
-        .objectType = objectType,
-        .objectHandle = nhandle,
-        .pObjectName = name,
-    };
-    debugFuncs.setObjectName(device_, &nameInfo);
-
-    LINFO("Named '{}' -> {} {:#018x}", name, string_VkObjectType(objectType), nhandle);
-}
-
 // ---------------------------------------------------------------------------
 // Helper interno: costruisce VkDebugUtilsLabelEXT senza heap allocation.
 // Usato da tutti i wrapper che richiedono un colore.
