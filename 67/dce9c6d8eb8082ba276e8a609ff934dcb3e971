@@ -1,0 +1,20 @@
+include/Vantablade/headers.hpp
+  h_361662506da91f 33-45,47,50-53,56-62,64-66,68-70,72-74
+include/Vantablade/Pipeline.hpp
+  h_361662506da91f 32,42,44
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 11,27-28,32
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 101-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "67dce9c6d8eb8082ba276e8a609ff934dcb3e971",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
