@@ -1,0 +1,32 @@
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 10,14,23
+include/Vantablade/Pipeline.hpp
+  h_361662506da91f 23-24,36
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 125,132,134,186-191
+include/Vantablade/Application.hpp
+  h_361662506da91f 27-35,39
+include/Vantablade/SwapChain.hpp
+  h_361662506da91f 15,39,68
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 13-21,165
+src/vantablade_lib/VmaImplementation.cpp
+  h_361662506da91f 27
+include/Vantablade/Model.hpp
+  h_361662506da91f 32
+src/vantablade_lib/VulkanAllocator.cpp
+  h_361662506da91f 248-265
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 13,30,35,40,59-63,68-88,93-94,97-98,109,111-114,117-122,124-125,127,129-132,134-135,137-141,143,145-154,156-161,166-171,175-183
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "f9509dead44045fb51d460e1c80e5491910c7d1f",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
