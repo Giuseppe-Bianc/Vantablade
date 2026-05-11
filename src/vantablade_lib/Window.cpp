@@ -75,7 +75,7 @@ void Window::centerWindow() {
     if(primaryMonitor == nullptr) { throw std::runtime_error("Failed to get the primary monitor."); }
 #ifndef NDEBUG
     LINFO("{}", monitort);
-    
+
     vnd::Timer modet("get monitor informations");
 #endif
     const Monitor monitorInfo(primaryMonitor);

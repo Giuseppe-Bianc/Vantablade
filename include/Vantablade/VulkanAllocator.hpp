@@ -8,7 +8,7 @@
 
 namespace vnd {
     static constexpr std::size_t scopeCount = 5;  // COMMAND, OBJECT, CACHE, DEVICE, INSTANCE
-    
+
     /**
      * @class VulkanAllocator
      * @brief CPU-side memory tracker for Vulkan allocations.
@@ -70,7 +70,6 @@ namespace vnd {
             std::atomic<std::size_t> reallocCount{0};
             std::atomic<std::size_t> failCount{0};
         };
-
 
         [[nodiscard]] static constexpr std::size_t scopeIndex(VkSystemAllocationScope scope) noexcept {
             const auto v = static_cast<std::size_t>(std::to_underlying(scope));

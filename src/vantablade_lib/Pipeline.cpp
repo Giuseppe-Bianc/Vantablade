@@ -52,8 +52,10 @@ void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std
         .iec_sys = kIEC,
     };
 
-    LINFO("Vertex Shader code size Bytes: {} SI({}) IEC({})", vertCode.size(), vertReport.info.format(vertReport.si_sys), vertReport.info.format(vertReport.iec_sys));
-    LINFO("Fragment Shader code size Bytes: {} SI({}) IEC({})", fragCode.size(), fragReport.info.format(fragReport.si_sys), fragReport.info.format(fragReport.iec_sys));
+    LINFO("Vertex Shader code size Bytes: {} SI({}) IEC({})", vertCode.size(), vertReport.info.format(vertReport.si_sys),
+          vertReport.info.format(vertReport.iec_sys));
+    LINFO("Fragment Shader code size Bytes: {} SI({}) IEC({})", fragCode.size(), fragReport.info.format(fragReport.si_sys),
+          fragReport.info.format(fragReport.iec_sys));
     createShaderModule(vertCode, &vertShaderModule);
     createShaderModule(fragCode, &fragShaderModule);
 

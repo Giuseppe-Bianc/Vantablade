@@ -4,11 +4,11 @@
  */
 
 #pragma once
-
+// clang-format off
 #include "DeviceInfo.hpp"
 #include "Window.hpp"
 #include "VulkanAllocator.hpp"
-
+// clang-format on
 
 // Forward declaration for VMA
 VK_DEFINE_HANDLE(VmaAllocator)

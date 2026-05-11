@@ -152,7 +152,7 @@ namespace vnd {
     VKAPI_ATTR void *VKAPI_CALL VulkanAllocator::vklReallocation(void *pUserData, void *pOriginal, std::size_t size, std::size_t alignment,
                                                                  VkSystemAllocationScope allocationScope) noexcept {
         // Vulkan 1.4 §11.8: if pOriginal is NULL, behave as pfnAllocation.
-        if(!pOriginal){ return vklAllocation(pUserData, size, alignment, allocationScope);}
+        if(!pOriginal) { return vklAllocation(pUserData, size, alignment, allocationScope); }
         // Vulkan 1.4 §11.8: if size is 0, behave as pfnFree and return NULL.
         if(size == 0u) {
             vklFree(pUserData, pOriginal);
@@ -221,7 +221,8 @@ namespace vnd {
     void vnd::VulkanAllocator::dumpOneScope(VkSystemAllocationScope scope) const {
         const auto s = getScopeSnapshot(scope);
 
-        LINFO("[{}] live={} peak={} alloc={} free={} realloc={} fail={}", scopeName(scope), s.liveBytes, s.peakBytes, s.allocCount, s.freeCount, s.reallocCount, s.failCount);
+        LINFO("[{}] live={} peak={} alloc={} free={} realloc={} fail={}", scopeName(scope), s.liveBytes, s.peakBytes, s.allocCount,
+              s.freeCount, s.reallocCount, s.failCount);
     }
 
     void vnd::VulkanAllocator::dumpReport() const {
