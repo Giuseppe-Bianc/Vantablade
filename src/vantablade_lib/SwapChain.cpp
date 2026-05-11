@@ -76,9 +76,8 @@ VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
 VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
     if(imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
         // CONST: result not reassigned after this call.
-        vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE,
-                        // STYLE: use project constant instead of C macro UINT64_MAX.
-                        std::numeric_limits<uint64_t>::max());
+        VK_CHECK(vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max()),
+                 "failed to wait for in-flight image fence!");
     }
     imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
 
