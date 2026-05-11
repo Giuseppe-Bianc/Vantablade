@@ -30,28 +30,46 @@ static inline const auto currentP = fs::current_path();
 [[nodiscard]] static constexpr auto calcolaCentro(int width, int w) noexcept { return (width - w) / 2; }
 #define CALC_CENTRO(width, w) calcolaCentro(width, w)
 
-inline fs::path calculateRelativePathToSrc(const fs::path &executablePath, const fs::path &targetFile, const std::string &subDir) {
-    fs::path parentDir = executablePath.parent_path();
-    while(!fs::exists(parentDir / "src")) {
-        parentDir = parentDir.parent_path();
-        if(parentDir == parentDir.root_path()) {
-            LERROR("Error: 'src' directory not found in the path.");
-            return {};
-        }
+[[nodiscard]] inline std::optional<fs::path> findProjectRoot(const fs::path &startPath) noexcept {
+    std::error_code ec;
+
+    // Se startPath è un file, parte dal suo parent; se è già una directory, parte da lì.
+    fs::path current = fs::is_directory(startPath, ec) ? startPath : startPath.parent_path();
+
+    current = fs::weakly_canonical(current, ec);
+
+    while(!current.empty()) {
+        if(fs::is_directory(current / "src", ec)) { return current; }
+        const fs::path parent = current.parent_path();
+        if(parent == current) { break; }  // filesystem root raggiunto
+        current = parent;
     }
-    parentDir = parentDir.parent_path();
-    const auto resp = fs::path(subDir);
-    const auto relativePathToTarget = parentDir / resp / targetFile;
-    const auto relativePath = fs::relative(relativePathToTarget, executablePath);
-    return relativePath.lexically_normal();
+    return std::nullopt;
 }
 
-inline fs::path calculateRelativePathToShaders(const fs::path &executablePath, const fs::path &targetFile) {
-    return calculateRelativePathToSrc(executablePath, targetFile, "shaders");
+[[nodiscard]] inline fs::path calculateRelativePathToSrc(const fs::path &startPath, const fs::path &targetFile, std::string_view subDir) {
+    const auto projectRoot = findProjectRoot(startPath);
+    if(!projectRoot.has_value()) {
+        LERROR("project root not found: 'src' directory missing in hierarchy of '{}'", startPath.string());
+        return {};
+    }
+    std::error_code ec;
+    const auto result = fs::weakly_canonical(*projectRoot / subDir / targetFile, ec);
+    if(ec) {
+        LERROR("path resolution failed for '{}/{}': {}", subDir, targetFile.string(), ec.message());
+        return {};
+    }
+    return result;
 }
-inline fs::path calculateRelativePathToTextures(const fs::path &executablePath, const fs::path &targetFile) {
-    return calculateRelativePathToSrc(executablePath, targetFile, "textures");
+
+[[nodiscard]] inline fs::path calculateRelativePathToShaders(const fs::path &startPath, const fs::path &targetFile) {
+    return calculateRelativePathToSrc(startPath, targetFile, "shaders");
 }
-inline fs::path calculateRelativePathToModels(const fs::path &executablePath, const fs::path &targetFile) {
-    return calculateRelativePathToSrc(executablePath, targetFile, "models");
+
+[[nodiscard]] inline fs::path calculateRelativePathToTextures(const fs::path &startPath, const fs::path &targetFile) {
+    return calculateRelativePathToSrc(startPath, targetFile, "textures");
+}
+
+[[nodiscard]] inline fs::path calculateRelativePathToModels(const fs::path &startPath, const fs::path &targetFile) {
+    return calculateRelativePathToSrc(startPath, targetFile, "models");
 }

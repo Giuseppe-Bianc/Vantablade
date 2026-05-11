@@ -8,7 +8,7 @@
 
 #include "Vantablade/Model.hpp"
 
-Pipeline::Pipeline(Device &device, const std::string &vertFilepath, const std::string &fragFilepath, const PipelineConfigInfo &configInfo)
+Pipeline::Pipeline(Device &device, const fs::path &vertFilepath, const fs::path &fragFilepath, const PipelineConfigInfo &configInfo)
   : device_m{device} {
     createGraphicsPipeline(vertFilepath, fragFilepath, configInfo);
 }
@@ -24,12 +24,12 @@ Pipeline::~Pipeline() {
     vkDestroyShaderModule(vkdevice, vertShaderModule, vkAlloc);
 }
 
-std::vector<char> Pipeline::readFile(const std::string &filepath) {
-    auto sCode = vnd::readFromFile(filepath);
+std::vector<char> Pipeline::readFile(const fs::path &filepath) {
+    auto sCode = vnd::readFromFile(filepath.string());
     return {std::ranges::begin(sCode), std::ranges::end(sCode)};
 }
 
-void Pipeline::createGraphicsPipeline(const std::string &vertFilepath, const std::string &fragFilepath,
+void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::path &fragFilepath,
                                       const PipelineConfigInfo &configInfo) {
 #ifndef NDEBUG
     const vnd::AutoTimer timer("create Graphics Pipeline");
