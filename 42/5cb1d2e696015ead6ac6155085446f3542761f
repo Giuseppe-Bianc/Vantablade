@@ -1,0 +1,14 @@
+include/VantabladeCore/Log.hpp
+  h_361662506da91f 91,119-127,327,329,333,339-342,350,404,407,411,416-419,431
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "425cb1d2e696015ead6ac6155085446f3542761f",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
