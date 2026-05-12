@@ -88,6 +88,7 @@ DISABLE_WARNINGS_PUSH(
 DISABLE_CLANG_WARNINGS_PUSH("-Wunused-result")
 #include <spdlog/async.h>  // async_logger, init_thread_pool, thread_pool
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/rotating_file_sink.h>   // <-- add this
 #include <spdlog/spdlog.h>
 DISABLE_CLANG_WARNINGS_POP()
 
@@ -114,6 +115,15 @@ DISABLE_GCC_WARNINGS_POP()
 // 'static inline constexpr' form is kept here for consistency with the rest
 // of this codebase (see headersCore.hpp).
 // ---------------------------------------------------------------------------
+
+/// Log file path.
+static inline constexpr std::string_view LOG_FILE_PATH = "logs/app.log";
+
+/// Max size per log file before rotation (10 MiB).
+static inline constexpr std::size_t LOG_FILE_MAX_SIZE = 10u * 1024u * 1024u;
+
+/// Number of rotated files to keep on disk.
+static inline constexpr std::size_t LOG_FILE_MAX_FILES = 5u;
 
 /// Lock-free async queue depth.  Must be a power of two.
 /// 8 192 slots × ~32 B each ≈ 256 KiB; handles any renderer burst comfortably.
@@ -314,25 +324,30 @@ inline void my_error_handler(const std::string& msg) noexcept {try {
  * @endcode
  */
 inline void setup_logger() {
+    std::filesystem::create_directories("logs");
     std::vector<spdlog::sink_ptr> sinks;
-    sinks.reserve(2);  // PERF: 2 sinks declared; avoids reallocation
+    sinks.reserve(3);  // PERF: 2 sinks declared; avoids reallocation
 
     const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     stdout_sink->set_level(spdlog::level::trace);
+    stdout_sink->set_pattern(R"(%^[%T %l] %v%$)");
 
     // Stderr sink available when split output is desired:
     // const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
     // stderr_sink->set_level(spdlog::level::warn);
     // sinks.push_back(stderr_sink);
+    const auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(std::string(LOG_FILE_PATH), LOG_FILE_MAX_SIZE,LOG_FILE_MAX_FILES);
+    file_sink->set_level(spdlog::level::trace);
+    file_sink->set_pattern(R"([%Y-%m-%d %T.%e] [%l] [%t] [%s:%#] %v)");
+    sinks.push_back(file_sink);
 
     sinks.push_back(stdout_sink);
 
     const auto logger = std::make_shared<spdlog::logger>("main", sinks.begin(), sinks.end());
-    logger->set_pattern(R"(%^[%T %l] %v%$)");
     logger->set_level(spdlog::level::trace);
 
     // Flush immediately on error or critical.
-    logger->flush_on(spdlog::level::err);
+    logger->flush_on(spdlog::level::trace);
 
     spdlog::register_logger(logger);
     spdlog::set_default_logger(logger);
@@ -386,16 +401,22 @@ inline void setup_logger() {
 inline void setup_logger_async() {
     // One thread pool per process.  Must be created before the async_logger.
     spdlog::init_thread_pool(ASYNC_QUEUE_SIZE, ASYNC_THREAD_COUNT);
+    std::filesystem::create_directories("logs");
 
     std::vector<spdlog::sink_ptr> sinks;
-    sinks.reserve(2);
+    sinks.reserve(3);
 
     const auto stdout_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     stdout_sink->set_level(spdlog::level::trace);
+    stdout_sink->set_pattern(R"(%^[%T %l] %v%$)");
 
     // const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
     // stderr_sink->set_level(spdlog::level::warn);
     // sinks.push_back(stderr_sink);
+    const auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(std::string(LOG_FILE_PATH), LOG_FILE_MAX_SIZE,LOG_FILE_MAX_FILES);
+    file_sink->set_level(spdlog::level::trace);
+    file_sink->set_pattern(R"([%Y-%m-%d %T.%e] [%l] [%t] [%s:%#] %v)");
+    sinks.push_back(file_sink);
 
     sinks.push_back(stdout_sink);
 
@@ -404,11 +425,10 @@ inline void setup_logger_async() {
         spdlog::async_overflow_policy::block  // park caller on full queue; never drop
     );
 
-    logger->set_pattern(R"(%^[%T %l] %v%$)");
     logger->set_level(spdlog::level::trace);
 
     // Flush immediately on error or critical.
-    logger->flush_on(spdlog::level::err);
+    logger->flush_on(spdlog::level::trace);
 
     // Periodic flush: uncomment to drain low-severity messages that never
     // reach the flush_on threshold (useful for long-lived renderer sessions).
