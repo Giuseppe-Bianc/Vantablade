@@ -1,0 +1,25 @@
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 196-197,199,212-213,230-231
+  s_6eda96076852d6::t_2015aa5bb14e37 198
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "d6dd148b95febe58cef848d771e5c7dbb8be0ff1",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_6eda96076852d6": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "55376687-a14e-4dde-a733-7de427e68c51",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
