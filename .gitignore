@@ -49,4 +49,5 @@ obj/
 *.exe
 *.dll
 *.env*
-*.tmp
+*.tmpCLAUDE.local.md
+CLAUDE.local.md
