@@ -25,15 +25,18 @@ Pipeline::~Pipeline() {
 }
 [[nodiscard]]
 std::vector<char> Pipeline::readFile(const fs::path &filepath) {
-    std::string sCode = vnd::readFromFile(filepath.string());
+    std::ifstream file{filepath, std::ios::ate | std::ios::binary};
 
-    // PERF: single allocation with exact size
-    std::vector<char> result(sCode.size());
+    if(!file.is_open()) { throw std::runtime_error(FFORMAT("failed to open file: {}", filepath)); }
 
-    // PERF: contiguous bulk copy, avoids iterator abstraction overhead
-    std::memcpy(result.data(), sCode.data(), sCode.size());
+    size_t fileSize = static_cast<size_t>(file.tellg());
+    std::vector<char> buffer(fileSize);
 
-    return result;
+    file.seekg(0);
+    file.read(buffer.data(), fileSize);
+
+    file.close();
+    return buffer;
 }
 
 void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::path &fragFilepath, const PipelineConfigInfo &configInfo) {

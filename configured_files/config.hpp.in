@@ -1,7 +1,6 @@
 // NOLINTBEGIN
-#ifndef Vantablade_CONFIG_HPP
-#define Vantablade_CONFIG_HPP
-
+#pragma once
+#include <filesystem>
 #include <string_view>
 
 // this is a basic example of how a CMake configured file might look
@@ -15,7 +14,10 @@ inline constexpr int project_version_patch { @PROJECT_VERSION_PATCH@ };
 inline constexpr int project_version_tweak { @PROJECT_VERSION_TWEAK@ };
 inline constexpr std::string_view git_sha = "@GIT_SHA@";
 inline constexpr std::string_view git_short_sha = "@GIT_SHORT_SHA@";
+inline constexpr std::string_view project_dir = "@PROJECT_SOURCE_DIR@";
+
+inline std::filesystem::path project_path() { return std::filesystem::path{project_dir}; }
 }// namespace Vantablade::cmake
 
-#endif
+
 // NOLINTEND

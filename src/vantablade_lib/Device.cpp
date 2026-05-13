@@ -405,11 +405,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
     vkGetPhysicalDeviceFeatures2(device, &features2);
 
     return indices.isComplete() && extensionsSupported && swapChainAdequate &&
-           (features2.features.samplerAnisotropy != 0u) &&
-           features12.bufferDeviceAddress &&
-           features12.timelineSemaphore &&
-           features12.vulkanMemoryModel &&
-           features13.dynamicRendering;
+           (features2.features.samplerAnisotropy != 0u);
 }
 
 void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {

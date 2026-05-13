@@ -99,8 +99,9 @@ void Application::createPipeline() {
     pipelineConfig.renderPass = swapChain->getRenderPass();
     pipelineConfig.pipelineLayout = pipelineLayout;
 
-    pipeline = std::make_unique<Pipeline>(device_m, calculateRelativePathToShaders(currentP, "simple_shader.vert.opt.spv"),
-                                          calculateRelativePathToShaders(currentP, "simple_shader.frag.opt.spv"), pipelineConfig);
+    pipeline = std::make_unique<Pipeline>(
+        device_m, calculateRelativePathToShaders(Vantablade::cmake::project_path(), "simple_shader.vert.opt.spv"),
+        calculateRelativePathToShaders(Vantablade::cmake::project_path(), "simple_shader.frag.opt.spv"), pipelineConfig);
 }
 
 void Application::createCommandBuffers() {
