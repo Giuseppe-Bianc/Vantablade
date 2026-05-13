@@ -193,11 +193,11 @@ void Device::createInstance() {
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
     VkValidationFeaturesEXT validationFeatures{};
-    std::array<VkValidationFeatureEnableEXT, 1> enables = {
-        VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
-    };
+    std::array<VkValidationFeatureEnableEXT, 3> enables = {
+        VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT, VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+        VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT};
 
-    const void* pNextChain = nullptr;
+    const void *pNextChain = nullptr;
 
 #ifdef NDEBUG
     if(enableValidationLayers) [[unlikely]] {
@@ -214,7 +214,6 @@ void Device::createInstance() {
         pNextChain = &validationFeatures;
     } else [[likely]] {
         createInfo.enabledLayerCount = 0;
-        createInfo.pNext = nullptr;
     }
 #else
     if(enableValidationLayers) [[likely]] {
@@ -231,7 +230,6 @@ void Device::createInstance() {
         pNextChain = &validationFeatures;
     } else [[unlikely]] {
         createInfo.enabledLayerCount = 0;
-        createInfo.pNext = nullptr;
     }
 #endif
     createInfo.pNext = pNextChain;
@@ -281,21 +279,59 @@ void Device::createLogicalDevice() {
         queueCreateInfos.push_back(queueCreateInfo);
     }
 
-    VkPhysicalDeviceFeatures deviceFeatures = {};
-    deviceFeatures.samplerAnisotropy = VK_TRUE;
+    // 1. Query supported features into a temporary chain
+    VkPhysicalDeviceVulkan14Features supported14{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES};
+    VkPhysicalDeviceVulkan13Features supported13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, .pNext = &supported14};
+    VkPhysicalDeviceVulkan12Features supported12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &supported13};
+    VkPhysicalDeviceVulkan11Features supported11{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES, .pNext = &supported12};
+    VkPhysicalDeviceFeatures2 supported2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, .pNext = &supported11};
+    vkGetPhysicalDeviceFeatures2(physicalDevice, &supported2);
+
+    // 2. Prepare requested features (zero-initialized by default)
+    VkPhysicalDeviceVulkan14Features features14{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES};
+    VkPhysicalDeviceVulkan13Features features13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, .pNext = &features14};
+    VkPhysicalDeviceVulkan12Features features12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &features13};
+    VkPhysicalDeviceVulkan11Features features11{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES, .pNext = &features12};
+    VkPhysicalDeviceFeatures2 features2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, .pNext = &features11};
+
+    // 3. Surgical Enablement: Only enable what we actually use or need for compliance
+    // Core Features
+    features2.features.samplerAnisotropy = supported2.features.samplerAnisotropy;
+    features2.features.shaderInt64 = supported2.features.shaderInt64;
+    features2.features.fragmentStoresAndAtomics = supported2.features.fragmentStoresAndAtomics;
+    features2.features.vertexPipelineStoresAndAtomics = supported2.features.vertexPipelineStoresAndAtomics;
+
+    // Vulkan 1.1
+    features11.storageBuffer16BitAccess = supported11.storageBuffer16BitAccess;
+
+    // Vulkan 1.2
+    features12.bufferDeviceAddress = supported12.bufferDeviceAddress;
+    features12.timelineSemaphore = supported12.timelineSemaphore;
+    features12.scalarBlockLayout = supported12.scalarBlockLayout;
+    features12.storageBuffer8BitAccess = supported12.storageBuffer8BitAccess;
+    features12.descriptorIndexing = supported12.descriptorIndexing;
+    features12.runtimeDescriptorArray = supported12.runtimeDescriptorArray;
+    features12.vulkanMemoryModel = supported12.vulkanMemoryModel;
+    features12.vulkanMemoryModelDeviceScope = supported12.vulkanMemoryModelDeviceScope;
+
+    // Vulkan 1.3
+    features13.dynamicRendering = supported13.dynamicRendering;
+    features13.synchronization2 = supported13.synchronization2;
+    features13.maintenance4 = supported13.maintenance4;
+
+    // NOTE: robustBufferAccess is explicitly LEFT AS FALSE to avoid conflicts with 
+    // descriptorBinding*UpdateAfterBind when robustBufferAccessUpdateAfterBind is not supported.
 
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    createInfo.pNext = &features2;
 
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-    createInfo.pEnabledFeatures = &deviceFeatures;
     createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    // might not really be necessary anymore because device specific validation layers
-    // have been deprecated
     if(enableValidationLayers) {
         createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -356,10 +392,19 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
         swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
-    VkPhysicalDeviceFeatures supportedFeatures;
-    vkGetPhysicalDeviceFeatures(device, &supportedFeatures);
+    // Check for required features using VkPhysicalDeviceFeatures2
+    VkPhysicalDeviceVulkan13Features features13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+    VkPhysicalDeviceVulkan12Features features12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &features13};
+    VkPhysicalDeviceFeatures2 features2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, .pNext = &features12};
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate && (supportedFeatures.samplerAnisotropy != 0u);
+    vkGetPhysicalDeviceFeatures2(device, &features2);
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate &&
+           (features2.features.samplerAnisotropy != 0u) &&
+           features12.bufferDeviceAddress &&
+           features12.timelineSemaphore &&
+           features12.vulkanMemoryModel &&
+           features13.dynamicRendering;
 }
 
 void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
