@@ -193,9 +193,10 @@ void Device::createInstance() {
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
     VkValidationFeaturesEXT validationFeatures{};
-    std::array<VkValidationFeatureEnableEXT, 3> enables = {
-        VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT, VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
-        VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT};
+    std::array<VkValidationFeatureEnableEXT, 1> enables = {//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
+                                                           //VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+                                                           VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT};
+    /*std::array<VkValidationFeatureDisableEXT, 1> disables = {};*/
 
     const void *pNextChain = nullptr;
 
@@ -208,6 +209,8 @@ void Device::createInstance() {
         validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
         validationFeatures.enabledValidationFeatureCount = C_UI32T(enables.size());
         validationFeatures.pEnabledValidationFeatures = enables.data();
+        /*validationFeatures.disabledValidationFeatureCount = C_UI32T(disables.size());
+        validationFeatures.pDisabledValidationFeatures = disables.data();*/
 
         // Chain: InstanceCreateInfo -> ValidationFeatures -> DebugMessengerCreateInfo
         validationFeatures.pNext = &debugCreateInfo;
@@ -224,6 +227,8 @@ void Device::createInstance() {
         validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
         validationFeatures.enabledValidationFeatureCount = C_UI32T(enables.size());
         validationFeatures.pEnabledValidationFeatures = enables.data();
+        /*validationFeatures.disabledValidationFeatureCount = C_UI32T(disables.size());
+        validationFeatures.pDisabledValidationFeatures = disables.data();*/
 
         // Chain: InstanceCreateInfo -> ValidationFeatures -> DebugMessengerCreateInfo
         validationFeatures.pNext = &debugCreateInfo;
