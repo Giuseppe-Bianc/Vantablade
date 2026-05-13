@@ -173,8 +173,6 @@ private:
     VmaAllocator allocator{VK_NULL_HANDLE};
     vnd::VulkanAllocator vkAllocator;
     VkAllocationCallbacks vkAllocatorCallbacks{VK_NULL_HANDLE};
-    // If true, do not register custom VkAllocationCallbacks (RenderDoc capture sessions)
-    bool disableCustomAllocatorsForRenderDoc{false};
     VkSurfaceKHR surface_{VK_NULL_HANDLE};
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};

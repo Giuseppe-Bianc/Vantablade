@@ -164,10 +164,10 @@ Device::~Device() {
 
 void Device::createInstance() {
     if(enableValidationLayers && !checkValidationLayerSupport()) {
-        throw std::runtime_error("validation layers requested, but not available!");
+        throw std::runtime_error("Validation layers requested but not available.");
     }
 
-    VkApplicationInfo appInfo = {};
+    VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "LittleVulkanEngine App";
     appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
@@ -175,21 +175,43 @@ void Device::createInstance() {
     appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_4;
 
-    VkInstanceCreateInfo createInfo = {};
+    auto extensions = getRequiredExtensions();
+
+#if defined(__APPLE__)
+    extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
+
+    VkInstanceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
-
-    auto extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = C_UI32T(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
+
+#if defined(__APPLE__)
+    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
+
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+    VkValidationFeaturesEXT validationFeatures{};
+    std::array<VkValidationFeatureEnableEXT, 1> enables = {
+        VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
+    };
+
+    const void* pNextChain = nullptr;
+
 #ifdef NDEBUG
     if(enableValidationLayers) [[unlikely]] {
         createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = &debugCreateInfo;
+        validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+        validationFeatures.enabledValidationFeatureCount = C_UI32T(enables.size());
+        validationFeatures.pEnabledValidationFeatures = enables.data();
+
+        // Chain: InstanceCreateInfo -> ValidationFeatures -> DebugMessengerCreateInfo
+        validationFeatures.pNext = &debugCreateInfo;
+        pNextChain = &validationFeatures;
     } else [[likely]] {
         createInfo.enabledLayerCount = 0;
         createInfo.pNext = nullptr;
@@ -200,12 +222,19 @@ void Device::createInstance() {
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
         populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = &debugCreateInfo;
+        validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+        validationFeatures.enabledValidationFeatureCount = C_UI32T(enables.size());
+        validationFeatures.pEnabledValidationFeatures = enables.data();
+
+        // Chain: InstanceCreateInfo -> ValidationFeatures -> DebugMessengerCreateInfo
+        validationFeatures.pNext = &debugCreateInfo;
+        pNextChain = &validationFeatures;
     } else [[unlikely]] {
         createInfo.enabledLayerCount = 0;
         createInfo.pNext = nullptr;
     }
 #endif
+    createInfo.pNext = pNextChain;
 
     VK_CHECK(vkCreateInstance(&createInfo, &vkAllocatorCallbacks, &instance), "failed to create instance!");
 

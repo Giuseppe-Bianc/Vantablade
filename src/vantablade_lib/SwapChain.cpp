@@ -185,11 +185,6 @@ void SwapChain::createSwapChain() {
     VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data()),
              "failed to retrieve swapchain images!");
 
-    for(const auto &[i, image] : std::views::enumerate(swapChainImages)) {
-        const auto name = FORMAT("SwChain Image[{}]", i);
-        device.setObjectName(image, name.c_str());
-    }
-
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
 }
@@ -211,9 +206,6 @@ void SwapChain::createImageViews() {
 
         VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &swapChainImageViews[C_ST(i)]),
                  "failed to create swapchain image view!");
-
-        const auto name = FORMAT("SwChain ImageView[{}]", i);
-        device.setObjectName(swapChainImageViews[C_ST(i)], name.c_str());
     }
 }
 
