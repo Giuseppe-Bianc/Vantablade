@@ -58,42 +58,34 @@ void Device::pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<cons
     if(!enableValidationLayers || debugFuncs.cmdBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdBeginLabel(cb, &label);
-    LINFO("Began command buffer label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2],
-          color[3]);
 }
 
 void Device::pcmdEndLabel(VkCommandBuffer cb) noexcept {
     if(!enableValidationLayers || debugFuncs.cmdEndLabel == nullptr) { return; }
     debugFuncs.cmdEndLabel(cb);
-    LINFO("Ended command buffer label");
 }
 
 void Device::pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
     if(!enableValidationLayers || debugFuncs.cmdInsertLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdInsertLabel(cb, &label);
-    LINFO("Inserted command buffer label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2],
-          color[3]);
 }
 
 void Device::pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
     if(!enableValidationLayers || debugFuncs.queueBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueBeginLabel(queue, &label);
-    LINFO("Began queue label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
 }
 
 void Device::pqueueEndLabel(VkQueue queue) noexcept {
     if(!enableValidationLayers || debugFuncs.queueEndLabel == nullptr) { return; }
     debugFuncs.queueEndLabel(queue);
-    LINFO("Ended queue label");
 }
 
 void Device::pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
     if(!enableValidationLayers || debugFuncs.queueInsertLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueInsertLabel(queue, &label);
-    LINFO("Inserted queue label: \"{}\" with color RGBA({:.2f}, {:.2f}, {:.2f}, {:.2f})", name, color[0], color[1], color[2], color[3]);
 }
 
 // local callback functions
@@ -144,6 +136,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 
 // class member functions
 Device::Device(Window &window) : window{window} {
+    
     vkAllocatorCallbacks = vkAllocator.getCallbacks();
     createInstance();
     setupDebugMessenger();
@@ -189,10 +182,6 @@ void Device::createInstance() {
     auto extensions = getRequiredExtensions();
     createInfo.enabledExtensionCount = C_UI32T(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
-#ifdef __APPLE__
-    createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
-#endif
-
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 #ifdef NDEBUG
     if(enableValidationLayers) [[unlikely]] {
@@ -396,9 +385,6 @@ std::vector<const char *> Device::getRequiredExtensions() const {
 
     if(enableValidationLayers) {
         extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-#ifdef __APPLE__
-        extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-#endif
     }
 
     return extensions;
@@ -631,7 +617,11 @@ void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, u
 void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags propertiesp, VkImage &image,
                                  VmaAllocation &allocation) {
     VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
     allocInfo.requiredFlags = propertiesp;
+    if((propertiesp & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) != 0u) {
+        allocInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    }
 
     VK_CHECK(vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr), "failed to create image!");
 }

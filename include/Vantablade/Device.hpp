@@ -51,6 +51,7 @@ namespace DebugColors {
     static inline constexpr DebugLabelColor Blue = {0.0f, 0.0f, 1.0f, 1.0f};
     static inline constexpr DebugLabelColor Yellow = {1.0f, 1.0f, 0.0f, 1.0f};
     static inline constexpr DebugLabelColor Cyan = {0.0f, 1.0f, 1.0f, 1.0f};
+    static inline constexpr DebugLabelColor Magenta = {1.0f, 0.0f, 1.0f, 1.0f};
     static inline constexpr DebugLabelColor White = {1.0f, 1.0f, 1.0f, 1.0f};
     static inline constexpr DebugLabelColor None = {0.0f, 0.0f, 0.0f, 0.0f};
 }  // namespace DebugColors
@@ -171,7 +172,9 @@ private:
     VkDevice device_{VK_NULL_HANDLE};
     VmaAllocator allocator{VK_NULL_HANDLE};
     vnd::VulkanAllocator vkAllocator;
-    VkAllocationCallbacks vkAllocatorCallbacks;
+    VkAllocationCallbacks vkAllocatorCallbacks{VK_NULL_HANDLE};
+    // If true, do not register custom VkAllocationCallbacks (RenderDoc capture sessions)
+    bool disableCustomAllocatorsForRenderDoc{false};
     VkSurfaceKHR surface_{VK_NULL_HANDLE};
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};
