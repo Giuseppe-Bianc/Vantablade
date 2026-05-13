@@ -1,0 +1,47 @@
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 386
+include/Vantablade/Device.hpp
+  h_361662506da91f 175
+  s_c677fcd993445d::t_82d5ff1013357d 176-177
+  s_10457a5bd0bba6::t_7e84ab36f93794 54
+src/vantablade_lib/Device.cpp
+  s_49d06cb4eb03b4::t_005145ac4d574a 620,622-624
+  h_361662506da91f 139
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "ba135905ae2307cad39da0176650acb74ac691f8",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_10457a5bd0bba6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "722b5eda-caa6-428f-ae8b-12e8ead6d320",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_49d06cb4eb03b4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "33b66e53-dfaf-40aa-bb1d-d7ad4b678a31",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_c677fcd993445d": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "285560a2-49dd-40c1-861f-624bf723c146",
+        "model": "unknown"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
