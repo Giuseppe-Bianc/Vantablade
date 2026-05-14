@@ -73,6 +73,9 @@ void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::pa
     createShaderModule(vertCode, &vertShaderModule);
     createShaderModule(fragCode, &fragShaderModule);
 
+    device_m.setObjectName(vertShaderModule, "Vertex ShaderModule");
+    device_m.setObjectName(fragShaderModule, "Fragment ShaderModule");
+
     std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages{};
     shaderStages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;

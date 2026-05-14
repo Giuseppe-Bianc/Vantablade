@@ -136,6 +136,9 @@ namespace vkutil {
     // VK_OBJECT_TYPE_COMMAND_POOL == 25
     template <> constexpr VkObjectType vulkanObjectType<VkCommandPool>() noexcept { return VK_OBJECT_TYPE_COMMAND_POOL; }
 
+    // VK_OBJECT_TYPE_SURFACE_KHR == 1000000000
+    template <> constexpr VkObjectType vulkanObjectType<VkSurfaceKHR>() noexcept { return VK_OBJECT_TYPE_SURFACE_KHR; }
+
     // ── 4.2  Vulkan 1.1 core promotions ──────────────────────────────────────────
 
     // VK_OBJECT_TYPE_SAMPLER_YCBCR_CONVERSION == 1000156000
@@ -339,6 +342,7 @@ namespace vkutil {
     static_assert(vulkanObjectType<VkPrivateDataSlot>() == VK_OBJECT_TYPE_PRIVATE_DATA_SLOT);
 
     // ── 5.4  KHR extension handles ────────────────────────────────────────────────
+    static_assert(vulkanObjectType<VkSurfaceKHR>() == VK_OBJECT_TYPE_SURFACE_KHR);
     static_assert(vulkanObjectType<VkSwapchainKHR>() == VK_OBJECT_TYPE_SWAPCHAIN_KHR);
     static_assert(vulkanObjectType<VkDisplayKHR>() == VK_OBJECT_TYPE_DISPLAY_KHR);
     static_assert(vulkanObjectType<VkDisplayModeKHR>() == VK_OBJECT_TYPE_DISPLAY_MODE_KHR);

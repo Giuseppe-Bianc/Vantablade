@@ -354,6 +354,9 @@ void Device::createLogicalDevice() {
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
     psetObjectName(graphicsQueue_, "Graphics Queue");
     psetObjectName(presentQueue_, "Present Queue");
+
+    psetObjectName(surface_, "Window Surface KHR");
+    psetObjectName(debugMessenger, "Debug Utils Messenger");
 }
 
 void Device::createCommandPool() {
@@ -598,8 +601,7 @@ uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
-                          VmaAllocation &allocation) {
+void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VmaAllocation &allocation) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
@@ -614,6 +616,7 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryP
     }
 
     VK_CHECK(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &buffer, &allocation, nullptr), "failed to create buffer!");
+
 }
 
 VkCommandBuffer Device::beginSingleTimeCommands() {
@@ -625,6 +628,7 @@ VkCommandBuffer Device::beginSingleTimeCommands() {
 
     VkCommandBuffer commandBuffer{VK_NULL_HANDLE};
     VK_CHECK(vkAllocateCommandBuffers(device_, &allocInfo, &commandBuffer), "failed to allocate single-time command buffer!");
+    psetObjectName(commandBuffer, "Single Time Command Buffer");
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;

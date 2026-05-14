@@ -22,7 +22,10 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 
     device_m.createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexBuffer, vertexBufferAllocation);
-
+    device_m.setObjectName(vertexBuffer, "Vertex Buffer");
+    VmaAllocationInfo info{};
+    vmaGetAllocationInfo(device_m.getAllocator(), vertexBufferAllocation, &info);
+    device_m.setObjectName(info.deviceMemory, "Vertex Buffer Memory");
     void *data = nullptr;
     VK_CHECK(vmaMapMemory(device_m.getAllocator(), vertexBufferAllocation, &data), "failed to map vertex buffer memory!");
     memcpy(data, vertices.data(), static_cast<size_t>(bufferSize));

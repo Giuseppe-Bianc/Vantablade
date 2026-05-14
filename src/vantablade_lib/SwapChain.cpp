@@ -184,6 +184,10 @@ void SwapChain::createSwapChain() {
 
     VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data()),
              "failed to retrieve swapchain images!");
+    for(const auto &[i, image] : std::views::enumerate(swapChainImages)) {
+        const auto name = FORMAT("SwapChain Image[{}]", i);
+        device.setObjectName(image, name.c_str());
+    }
 
     swapChainImageFormat = surfaceFormat.format;
     swapChainExtent = extent;
@@ -206,6 +210,8 @@ void SwapChain::createImageViews() {
 
         VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &swapChainImageViews[C_ST(i)]),
                  "failed to create swapchain image view!");
+        const auto name = FORMAT("SwapChain ImageView[{}]", i);
+        device.setObjectName(swapChainImageViews[C_ST(i)], name.c_str());
     }
 }
 
@@ -285,6 +291,8 @@ void SwapChain::createFramebuffers() {
 
         VK_CHECK(vkCreateFramebuffer(device.device(), &framebufferInfo, device.getVkAllocator(), &swapChainFramebuffers[C_ST(i)]),
                  "failed to create framebuffer!");
+        const auto name = FORMAT("Framebuffer[{}]", i);
+        device.setObjectName(swapChainFramebuffers[C_ST(i)], name.c_str());
     }
 }
 
@@ -315,6 +323,12 @@ void SwapChain::createDepthResources() {
         imageInfo.flags = 0;
 
         device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, depthImages[i], depthImageAllocations[i]);
+        const auto imgName = FORMAT("Depth Image[{}]", i);
+        device.setObjectName(depthImages[i], imgName.c_str());
+        VmaAllocationInfo info{};
+        vmaGetAllocationInfo(device.getAllocator(), depthImageAllocations[i], &info);
+        const auto inf = FORMAT("Depth Image Memory[{}]", i);
+        device.setObjectName(info.deviceMemory, inf.c_str());
 
         VkImageViewCreateInfo viewInfo{};
         viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -329,6 +343,8 @@ void SwapChain::createDepthResources() {
 
         VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &depthImageViews[i]),
                  "failed to create texture image view!");
+        const auto viewName = FORMAT("Depth ImageView[{}]", i);    // aggiunta
+        device.setObjectName(depthImageViews[i], viewName.c_str());
     }
 }
 
@@ -349,6 +365,10 @@ void SwapChain::createSyncObjects() {
                               vkCreateSemaphore(vkdevice, &semaphoreInfo, vkAlloc, &renderFinishedSemaphores[i]),
                               vkCreateFence(vkdevice, &fenceInfo, vkAlloc, &inFlightFences[i]),
                               "failed to create synchronization objects for a frame!");
+        device.setObjectName(imageAvailableSemaphores[i], FORMAT("ImageAvailable Semaphore[{}]", i).c_str());
+        device.setObjectName(renderFinishedSemaphores[i], FORMAT("RenderFinished Semaphore[{}]", i).c_str());
+        device.setObjectName(inFlightFences[i],           FORMAT("InFlight Fence[{}]", i).c_str());
+    
     }
 }
 
