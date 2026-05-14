@@ -1,0 +1,22 @@
+include/Vantablade/VkObjectTypeResolve.hpp
+  h_361662506da91f 139-141,345
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 357-359,604,619,631
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 25-28
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 76-78
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 187-190,213-214,294-295,326-331,346-347,368-371
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "3f663837cc28a038d78b19ea8bc6e796a8ee4e96",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
