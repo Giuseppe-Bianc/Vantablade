@@ -18,25 +18,17 @@ Pipeline::~Pipeline() {
     const vnd::AutoTimer timer("Destroying pipeline");
 #endif
     auto *vkdevice = device_m.device();
-    auto *vkAlloc = device_m.getVkAllocator();
+    const auto *vkAlloc = device_m.getVkAllocator();
     vkDestroyPipeline(vkdevice, graphicsPipeline, vkAlloc);
     vkDestroyShaderModule(vkdevice, fragShaderModule, vkAlloc);
     vkDestroyShaderModule(vkdevice, vertShaderModule, vkAlloc);
 }
 [[nodiscard]]
 std::vector<char> Pipeline::readFile(const fs::path &filepath) {
-    std::ifstream file{filepath, std::ios::ate | std::ios::binary};
-
-    if(!file.is_open()) { throw std::runtime_error(FFORMAT("failed to open file: {}", filepath)); }
-
-    size_t fileSize = static_cast<size_t>(file.tellg());
-    std::vector<char> buffer(fileSize);
-
-    file.seekg(0);
-    file.read(buffer.data(), fileSize);
-
-    file.close();
-    return buffer;
+    std::string sCode = vnd::readFromFile(filepath.string());
+    std::vector<char> result(sCode.size());
+    std::memcpy(result.data(), sCode.data(), sCode.size());
+    return result;
 }
 
 void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::path &fragFilepath, const PipelineConfigInfo &configInfo) {

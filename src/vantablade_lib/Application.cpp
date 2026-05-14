@@ -2,7 +2,8 @@
  * Created by gbian on 02/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-// NOLINTBEGIN(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)
+// NOLINTBEGIN(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers,
+// *-magic-numbers)
 #include "Vantablade/Application.hpp"
 #include "Vantablade/FPSCounter.hpp"
 #include "Vantablade/vulkanCheck.hpp"
@@ -33,10 +34,10 @@ void Application::loadModels() {
     const vnd::AutoTimer timer{"Loading models"};
 #endif
     // clang-format off
-    std::vector<Model::Vertex> vertices{
-        {{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}}, 
-        {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-        {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+    const std::vector<Model::Vertex> vertices{
+        {.position={0.0f, -0.5f}, .color={1.0f, 0.0f, 0.0f}},
+        {.position={0.5f, 0.5f}, .color={0.0f, 1.0f, 0.0f}},
+        {.position={-0.5f, 0.5f}, .color={0.0f, 0.0f, 1.0f}}};
     // clang-format on
     model = std::make_unique<Model>(device_m, vertices);
 }
@@ -56,11 +57,13 @@ void Application::createPipelineLayout() {
     const vnd::AutoTimer timer{"Creating pipeline layout"};
 #endif
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo{.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-                                                  .setLayoutCount = 0,
-                                                  .pSetLayouts = nullptr,
-                                                  .pushConstantRangeCount = 0,
-                                                  .pPushConstantRanges = nullptr};
+    const VkPipelineLayoutCreateInfo pipelineLayoutInfo{.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+                                                        .pNext = nullptr,
+                                                        .flags = 0,
+                                                        .setLayoutCount = 0,
+                                                        .pSetLayouts = nullptr,
+                                                        .pushConstantRangeCount = 0,
+                                                        .pPushConstantRanges = nullptr};
     VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, device_m.getVkAllocator(), &pipelineLayout),
              "failed to create pipeline layout!");
     device_m.setObjectName(pipelineLayout, "Main PipelineLayout");
@@ -110,10 +113,11 @@ void Application::createCommandBuffers() {
 #endif
     commandBuffers.resize(swapChain->imageCount());
 
-    VkCommandBufferAllocateInfo allocInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
-                                          .commandPool = device_m.getCommandPool(),
-                                          .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-                                          .commandBufferCount = C_UI32T(commandBuffers.size())};
+    const VkCommandBufferAllocateInfo allocInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+                                                .pNext = nullptr,
+                                                .commandPool = device_m.getCommandPool(),
+                                                .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+                                                .commandBufferCount = C_UI32T(commandBuffers.size())};
 
     VK_CHECK(vkAllocateCommandBuffers(device_m.device(), &allocInfo, commandBuffers.data()), "failed to allocate command buffers!");
 
@@ -129,7 +133,8 @@ void Application::freeCommandBuffers() {
 }
 
 void Application::recordCommandBuffer(int imageIndex) {
-    VkCommandBufferBeginInfo beginInfo{.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    const VkCommandBufferBeginInfo beginInfo{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .pNext = nullptr, .flags = 0, .pInheritanceInfo = nullptr};
 
     VK_CHECK(vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo), "failed to begin recording command buffer!");
 
@@ -141,9 +146,8 @@ void Application::recordCommandBuffer(int imageIndex) {
     renderPassInfo.renderArea.offset = {.x = 0, .y = 0};
     renderPassInfo.renderArea.extent = swapChain->getSwapChainExtent();
 
-    std::array<VkClearValue, 2> clearValues{};
-    clearValues[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
-    clearValues[1].depthStencil = {1.0f, 0};
+    std::array<VkClearValue, 2> clearValues = {VkClearValue{.color = VkClearColorValue{{0.1f, 0.1f, 0.1f, 1.0f}}},
+                                               VkClearValue{.depthStencil = VkClearDepthStencilValue{1.0f, 0}}};
     renderPassInfo.clearValueCount = C_UI32T(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
@@ -156,7 +160,7 @@ void Application::recordCommandBuffer(int imageIndex) {
     viewport.height = C_F(swapChain->getSwapChainExtent().height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    VkRect2D scissor{{0, 0}, swapChain->getSwapChainExtent()};
+    const VkRect2D scissor{{0, 0}, swapChain->getSwapChainExtent()};
     vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
     vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
@@ -179,7 +183,7 @@ void Application::drawFrame() {
 
     VK_CHECK_SWAPCHAIN(acquireResult, "failed to acquire swap chain image!");
 
-    recordCommandBuffer(imageIndex);
+    recordCommandBuffer(NC_I(imageIndex));
     auto submitResult = swapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
     if(submitResult == VK_ERROR_OUT_OF_DATE_KHR || submitResult == VK_SUBOPTIMAL_KHR || window.wasWindowResized()) {
         window.resetWindowResizedFlag();
@@ -190,4 +194,5 @@ void Application::drawFrame() {
     }
 }
 
-// NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix)
+// NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers,
+// *-magic-numbers)

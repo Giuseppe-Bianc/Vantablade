@@ -2,7 +2,7 @@
  * Created by gbian on 08/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-
+// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise)
 #include "Vantablade/Model.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 #include <vma/vk_mem_alloc.h>
@@ -19,7 +19,6 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
     const VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
-
     device_m.createBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vertexBuffer, vertexBufferAllocation);
     device_m.setObjectName(vertexBuffer, "Vertex Buffer");
@@ -32,9 +31,9 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
     vmaUnmapMemory(device_m.getAllocator(), vertexBufferAllocation);
 }
 
-void Model::draw(VkCommandBuffer commandBuffer) { vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0); }
+void Model::draw(VkCommandBuffer commandBuffer) const { vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0); }
 
-void Model::bind(VkCommandBuffer commandBuffer) {
+void Model::bind(VkCommandBuffer commandBuffer) const {
     const std::array<VkBuffer, 1> buffers{vertexBuffer};
     const std::array<VkDeviceSize, 1> offsets{0};
     vkCmdBindVertexBuffers(commandBuffer, 0, C_UI32T(buffers.size()), buffers.data(), offsets.data());
@@ -61,3 +60,5 @@ std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescri
     attributeDescriptions[1].offset = offsetof(Vertex, color);
     return attributeDescriptions;
 }
+
+// NOLINTEND(*-include-cleaner, *-signed-bitwise)

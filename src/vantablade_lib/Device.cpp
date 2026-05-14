@@ -3,7 +3,7 @@
  * Copyright (c) 2026 All rights reserved.
  */
 // clang-format off
-// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise, *-easily-swappable-parameters, *-use-anonymous-namespace, *-diagnostic-old-style-cast, *-pro-type-cstyle-cast, *-pro-type-member-init,*-member-init, *-pro-bounds-constant-array-index, *-qualified-auto, *-uppercase-literal-suffix)
+// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise, *-easily-swappable-parameters, *-use-anonymous-namespace, *-diagnostic-old-style-cast, *-pro-type-cstyle-cast, *-pro-type-member-init,*-member-init, *-pro-bounds-constant-array-index, *-qualified-auto, *-uppercase-literal-suffix, *-identifier-length, *-magic-numbers, *-diagnostic-missing-designated-field-initializers)
 // clang-format on
 #include "Vantablade/Device.hpp"
 #include "Vantablade/VkObjectTypeResolve.hpp"
@@ -20,7 +20,7 @@ template <typename Fn> Fn Device::loadInstanceProc(VkInstance inst, const char *
 
 void Device::loadDebugUtilsFunctions() noexcept {
     if(!enableValidationLayers) { return; }
-    const vnd::AutoTimer t{"load Debug Utils Functions"};
+    const vnd::AutoTimer time{"load Debug Utils Functions"};
 
     debugFuncs.setObjectName = loadInstanceProc<PFN_vkSetDebugUtilsObjectNameEXT>(instance, "vkSetDebugUtilsObjectNameEXT");
     debugFuncs.cmdBeginLabel = loadInstanceProc<PFN_vkCmdBeginDebugUtilsLabelEXT>(instance, "vkCmdBeginDebugUtilsLabelEXT");
@@ -54,35 +54,35 @@ void Device::loadDebugUtilsFunctions() noexcept {
     };
 }
 
-void Device::pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
+void Device::pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
     if(!enableValidationLayers || debugFuncs.cmdBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdBeginLabel(cb, &label);
 }
 
-void Device::pcmdEndLabel(VkCommandBuffer cb) noexcept {
+void Device::pcmdEndLabel(VkCommandBuffer cb) const noexcept {
     if(!enableValidationLayers || debugFuncs.cmdEndLabel == nullptr) { return; }
     debugFuncs.cmdEndLabel(cb);
 }
 
-void Device::pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
+void Device::pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
     if(!enableValidationLayers || debugFuncs.cmdInsertLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdInsertLabel(cb, &label);
 }
 
-void Device::pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+void Device::pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept {
     if(!enableValidationLayers || debugFuncs.queueBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueBeginLabel(queue, &label);
 }
 
-void Device::pqueueEndLabel(VkQueue queue) noexcept {
+void Device::pqueueEndLabel(VkQueue queue) const noexcept {
     if(!enableValidationLayers || debugFuncs.queueEndLabel == nullptr) { return; }
     debugFuncs.queueEndLabel(queue);
 }
 
-void Device::pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+void Device::pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept {
     if(!enableValidationLayers || debugFuncs.queueInsertLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueInsertLabel(queue, &label);
@@ -136,7 +136,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 
 // class member functions
 Device::Device(Window &window) : window{window} {
-    
     vkAllocatorCallbacks = vkAllocator.getCallbacks();
     createInstance();
     setupDebugMessenger();
@@ -193,8 +192,8 @@ void Device::createInstance() {
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
     VkValidationFeaturesEXT validationFeatures{};
-    std::array<VkValidationFeatureEnableEXT, 1> enables = {//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
-                                                           //VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+    std::array<VkValidationFeatureEnableEXT, 1> enables = {// VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
+                                                           // VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
                                                            VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT};
     /*std::array<VkValidationFeatureDisableEXT, 1> disables = {};*/
 
@@ -246,7 +245,7 @@ void Device::createInstance() {
 
 void Device::pickPhysicalDevice() {
 #ifndef NDEBUG
-    const vnd::AutoTimer t{"pick Physical Device"};
+    const vnd::AutoTimer time{"pick Physical Device"};
 #endif
     uint32_t deviceCount = 0;
     vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -285,7 +284,7 @@ void Device::createLogicalDevice() {
     }
 
     // 1. Query supported features into a temporary chain
-    VkPhysicalDeviceVulkan14Features supported14{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES};
+    VkPhysicalDeviceVulkan14Features supported14{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES, .pNext = nullptr};
     VkPhysicalDeviceVulkan13Features supported13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, .pNext = &supported14};
     VkPhysicalDeviceVulkan12Features supported12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &supported13};
     VkPhysicalDeviceVulkan11Features supported11{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES, .pNext = &supported12};
@@ -293,7 +292,7 @@ void Device::createLogicalDevice() {
     vkGetPhysicalDeviceFeatures2(physicalDevice, &supported2);
 
     // 2. Prepare requested features (zero-initialized by default)
-    VkPhysicalDeviceVulkan14Features features14{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES};
+    VkPhysicalDeviceVulkan14Features features14{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES, .pNext = nullptr};
     VkPhysicalDeviceVulkan13Features features13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, .pNext = &features14};
     VkPhysicalDeviceVulkan12Features features12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &features13};
     VkPhysicalDeviceVulkan11Features features11{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES, .pNext = &features12};
@@ -324,7 +323,7 @@ void Device::createLogicalDevice() {
     features13.synchronization2 = supported13.synchronization2;
     features13.maintenance4 = supported13.maintenance4;
 
-    // NOTE: robustBufferAccess is explicitly LEFT AS FALSE to avoid conflicts with 
+    // NOTE: robustBufferAccess is explicitly LEFT AS FALSE to avoid conflicts with
     // descriptorBinding*UpdateAfterBind when robustBufferAccessUpdateAfterBind is not supported.
 
     VkDeviceCreateInfo createInfo = {};
@@ -401,14 +400,13 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
     }
 
     // Check for required features using VkPhysicalDeviceFeatures2
-    VkPhysicalDeviceVulkan13Features features13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES};
+    VkPhysicalDeviceVulkan13Features features13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, .pNext = nullptr};
     VkPhysicalDeviceVulkan12Features features12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &features13};
     VkPhysicalDeviceFeatures2 features2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, .pNext = &features12};
 
     vkGetPhysicalDeviceFeatures2(device, &features2);
 
-    return indices.isComplete() && extensionsSupported && swapChainAdequate &&
-           (features2.features.samplerAnisotropy != 0u);
+    return indices.isComplete() && extensionsSupported && swapChainAdequate && (features2.features.samplerAnisotropy != 0u);
 }
 
 void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
@@ -461,16 +459,14 @@ std::vector<const char *> Device::getRequiredExtensions() const {
     const std::span<const char *> extSpan(glfwExtensions, glfwExtensionCount);
     std::vector<const char *> extensions(extSpan.begin(), extSpan.end());
 
-    if(enableValidationLayers) {
-        extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-    }
+    if(enableValidationLayers) { extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); }
 
     return extensions;
 }
 
 void Device::hasGflwRequiredInstanceExtensions() {
 #ifndef NDEBUG
-    const vnd::AutoTimer t{"has Gflw Required Instance Extensions"};
+    const vnd::AutoTimer time{"has Gflw Required Instance Extensions"};
 #endif
     uint32_t extensionCount = 0;
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
@@ -601,7 +597,8 @@ uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
     throw std::runtime_error("failed to find suitable memory type!");
 }
 
-void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer, VmaAllocation &allocation) {
+void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
+                          VmaAllocation &allocation) {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
@@ -616,7 +613,6 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryP
     }
 
     VK_CHECK(vmaCreateBuffer(allocator, &bufferInfo, &allocInfo, &buffer, &allocation, nullptr), "failed to create buffer!");
-
 }
 
 VkCommandBuffer Device::beginSingleTimeCommands() {
@@ -706,5 +702,5 @@ void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPro
 }
 
 // clang-format off
-// NOLINTEND(*-include-cleaner, *-signed-bitwise, *-easily-swappable-parameters, *-use-anonymous-namespace, *-diagnostic-old-style-cast, *-pro-type-cstyle-cast, *-pro-type-member-init,*-member-init, *-pro-bounds-constant-array-index, *-qualified-auto, *-uppercase-literal-suffix)
+// NOLINTEND(*-include-cleaner, *-signed-bitwise, *-easily-swappable-parameters, *-use-anonymous-namespace, *-diagnostic-old-style-cast, *-pro-type-cstyle-cast, *-pro-type-member-init,*-member-init, *-pro-bounds-constant-array-index, *-qualified-auto, *-uppercase-literal-suffix, *-identifier-length, *-magic-numbers, *-diagnostic-missing-designated-field-initializers)
 // clang-format on

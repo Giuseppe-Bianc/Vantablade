@@ -2,7 +2,7 @@
  * Created by gbian on 07/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-
+// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise)
 #include "Vantablade/SwapChain.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
@@ -32,14 +32,14 @@ SwapChain::~SwapChain() {
     const vnd::AutoTimer timer("Destroying SwapChain");
 #endif
 
-    const auto vkdevice = device.device();
-    auto *vkAlloc = device.getVkAllocator();
+    auto *const vkdevice = device.device();
+    const auto *vkAlloc = device.getVkAllocator();
 
-    for(const auto framebuffer : swapChainFramebuffers) { vkDestroyFramebuffer(vkdevice, framebuffer, vkAlloc); }
+    for(auto *const framebuffer : swapChainFramebuffers) { vkDestroyFramebuffer(vkdevice, framebuffer, vkAlloc); }
 
     vkDestroyRenderPass(vkdevice, renderPass, vkAlloc);
 
-    for(const auto imageView : swapChainImageViews) { vkDestroyImageView(vkdevice, imageView, vkAlloc); }
+    for(auto *const imageView : swapChainImageViews) { vkDestroyImageView(vkdevice, imageView, vkAlloc); }
 
     swapChainImageViews.clear();
 
@@ -65,7 +65,7 @@ SwapChain::~SwapChain() {
 }
 
 VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
-    const auto vkdevice = device.device();
+    auto *const vkdevice = device.device();
 
     // CONST: waitResult is not reassigned — const makes the intent explicit.
     const VkResult waitResult = vkWaitForFences(vkdevice, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
@@ -76,6 +76,7 @@ VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
                                  VK_NULL_HANDLE, imageIndex);
 }
 
+// NOLINTNEXTLINE(*-non-const-parameter)
 VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
     if(imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
         // CONST: result not reassigned after this call.
@@ -343,7 +344,7 @@ void SwapChain::createDepthResources() {
 
         VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &depthImageViews[i]),
                  "failed to create texture image view!");
-        const auto viewName = FORMAT("Depth ImageView[{}]", i);    // aggiunta
+        const auto viewName = FORMAT("Depth ImageView[{}]", i);  // aggiunta
         device.setObjectName(depthImageViews[i], viewName.c_str());
     }
 }
@@ -354,11 +355,13 @@ void SwapChain::createSyncObjects() {
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
     imagesInFlight.assign(imageCount(), VK_NULL_HANDLE);
 
-    const VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO};
-    const VkFenceCreateInfo fenceInfo{.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .flags = VK_FENCE_CREATE_SIGNALED_BIT};
+    // NOLINTNEXTLINE(*-diagnostic-missing-designated-field-initializers)
+    const VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr};
+    const VkFenceCreateInfo fenceInfo{
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = nullptr, .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
-    const auto vkdevice = device.device();
-    auto *vkAlloc = device.getVkAllocator();
+    auto *const vkdevice = device.device();
+    const auto *vkAlloc = device.getVkAllocator();
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, MAX_FRAMES_IN_FLIGHT)) {
         VK_CHECK_SYNC_OBJECTS(vkCreateSemaphore(vkdevice, &semaphoreInfo, vkAlloc, &imageAvailableSemaphores[i]),
@@ -367,11 +370,11 @@ void SwapChain::createSyncObjects() {
                               "failed to create synchronization objects for a frame!");
         device.setObjectName(imageAvailableSemaphores[i], FORMAT("ImageAvailable Semaphore[{}]", i).c_str());
         device.setObjectName(renderFinishedSemaphores[i], FORMAT("RenderFinished Semaphore[{}]", i).c_str());
-        device.setObjectName(inFlightFences[i],           FORMAT("InFlight Fence[{}]", i).c_str());
-    
+        device.setObjectName(inFlightFences[i], FORMAT("InFlight Fence[{}]", i).c_str());
     }
 }
 
+// NOLINTNEXTLINE(*-convert-member-functions-to-static)
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) const {
     for(const auto &availableFormat : availableFormats) {
         if(availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
@@ -381,6 +384,7 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
     return availableFormats[0];
 }
 
+// NOLINTNEXTLINE(*-convert-member-functions-to-static)
 VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) const {
     auto isAvailable = [&](VkPresentModeKHR mode) { return std::ranges::find(availablePresentModes, mode) != availablePresentModes.end(); };
 
@@ -434,3 +438,5 @@ VkFormat SwapChain::findDepthFormat() const {
     constexpr std::array<VkFormat, 3> candidates{VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
     return device.findSupportedFormat(candidates, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
 }
+
+// NOLINTEND(*-include-cleaner, *-signed-bitwise)

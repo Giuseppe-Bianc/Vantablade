@@ -143,14 +143,14 @@ private:
     void loadDebugUtilsFunctions() noexcept;
     template <typename T> void psetObjectName(T handle, const char *name) noexcept;
     // Command buffer labels
-    void pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept;
-    void pcmdEndLabel(VkCommandBuffer cb) noexcept;
-    void pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept;
+    void pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept;
+    void pcmdEndLabel(VkCommandBuffer cb) const noexcept;
+    void pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept;
 
     // Queue labels
-    void pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept;
-    void pqueueEndLabel(VkQueue queue) noexcept;
-    void pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept;
+    void pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept;
+    void pqueueEndLabel(VkQueue queue) const noexcept;
+    void pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept;
 
     // helper functions
     [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device) const;
