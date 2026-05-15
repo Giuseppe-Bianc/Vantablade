@@ -10,8 +10,7 @@
 
 DISABLE_WARNINGS_PUSH(26429 26481)
 
-constexpr std::string_view kSeparator =
-    "================================================================================";
+constexpr std::string_view kSeparator = "================================================================================";
 
 constexpr std::string_view kUnknown = "Unknown";
 
