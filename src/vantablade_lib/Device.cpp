@@ -645,11 +645,14 @@ void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
+    pqueueBeginLabel(graphicsQueue_, "Transient Upload Submission", DebugColors::Cyan);
     pqueueInsertLabel(graphicsQueue_, "Transient Upload Submission", DebugColors::Cyan);
 
     VK_CHECK(vkQueueSubmit(graphicsQueue_, 1, &submitInfo, VK_NULL_HANDLE), "failed to submit single-time command buffer!");
 
     VK_CHECK(vkQueueWaitIdle(graphicsQueue_), "failed to wait for queue idle!");
+
+    pqueueEndLabel(graphicsQueue_);
 
     vkFreeCommandBuffers(device_, commandPool, 1, &commandBuffer);
 }
@@ -661,8 +664,9 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
     copyRegion.srcOffset = 0;  // Optional
     copyRegion.dstOffset = 0;  // Optional
     copyRegion.size = size;
-    pcmdInsertLabel(commandBuffer, "Copy Buffer", DebugColors::Green);
+    pcmdBeginLabel(commandBuffer, "Copy Buffer", DebugColors::Green);
     vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+    pcmdEndLabel(commandBuffer);
 
     endSingleTimeCommands(commandBuffer);
 }
@@ -670,7 +674,7 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
-    pcmdInsertLabel(commandBuffer, "Copy Buffer To Image", DebugColors::Yellow);
+    pcmdBeginLabel(commandBuffer, "Copy Buffer To Image", DebugColors::Yellow);
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -686,6 +690,7 @@ void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, u
     region.imageExtent = {.width = width, .height = height, .depth = 1};
 
     vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    pcmdEndLabel(commandBuffer);
     endSingleTimeCommands(commandBuffer);
 }
 

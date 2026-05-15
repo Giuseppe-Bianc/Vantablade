@@ -10,9 +10,15 @@
 
 DISABLE_WARNINGS_PUSH(26429 26481)
 
+constexpr std::string_view kSeparator =
+    "================================================================================";
+
+constexpr std::string_view kUnknown = "Unknown";
+
 // PERF: std::string_view — zero-copy, zero-allocation for string literals and existing std::string.
 // The previous const std::string& forced a heap allocation for every literal call site
 // (e.g., "--- Queue Labels ---", "================================================================================").
+
 inline static void printMessageWhitSeverity(std::string_view msg, VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity) {
     switch(messageSeverity) {
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
@@ -25,6 +31,7 @@ inline static void printMessageWhitSeverity(std::string_view msg, VkDebugUtilsMe
         LWARN(msg);
         break;
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        [[unlikely]];
         LERROR(msg);
         break;
     default:
