@@ -143,6 +143,7 @@ namespace vnd {
                                                                  VkSystemAllocationScope allocationScope) noexcept {
         // Regole Vulkan per realloc. :contentReference[oaicite:5]{index=5}
         if(pOriginal == nullptr) { return vklAllocation(pUserData, size, alignment, allocationScope); }
+
         if(size == 0u) {
             vklFree(pUserData, pOriginal);
             return nullptr;
@@ -150,10 +151,9 @@ namespace vnd {
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
-        auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(static_cast<char *>(pOriginal) - sizeof(AllocationHeader));
+        auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(static_cast<const std::byte *>(pOriginal) -
+                                                                           sizeof(AllocationHeader));
 
-        // Vulkan richiede che alignment sia uguale a quello originale quando pOriginal != NULL. :contentReference[oaicite:6]{index=6}
-        // In release non blocco, in debug segnalo. Se vuoi essere aggressivo, puoi abortire.
         if(oldHeader->alignment != alignment) {
             LERROR("Vulkan CPU realloc with mismatched alignment (old={}, new={}, scope={})", oldHeader->alignment, alignment,
                    std::to_underlying(allocationScope));
@@ -162,12 +162,12 @@ namespace vnd {
         self->scopes_.at(scopeIndex(allocationScope)).reallocCount.fetch_add(1, std::memory_order_relaxed);
 
         const std::size_t oldSize = oldHeader->size;
+        if(oldSize == size) { return pOriginal; }
 
         void *const newPtr = vklAllocation(pUserData, size, alignment, allocationScope);
-        if(newPtr != nullptr) {
-            std::memcpy(newPtr, pOriginal, std::ranges::min(oldSize, size));
-            vklFree(pUserData, pOriginal);
-        }
+        if(newPtr == nullptr) { return nullptr; }
+        std::memcpy(newPtr, pOriginal, std::min(oldSize, size));
+        vklFree(pUserData, pOriginal);
         return newPtr;
     }
 
@@ -216,35 +216,50 @@ namespace vnd {
     [[nodiscard]] constexpr std::string_view VulkanAllocator::scopeName(VkSystemAllocationScope scope) noexcept {
         switch(scope) {
         case VK_SYSTEM_ALLOCATION_SCOPE_COMMAND:
-            return "COMMAND";
+            return "[COMMAND]";
         case VK_SYSTEM_ALLOCATION_SCOPE_OBJECT:
-            return "OBJECT";
+            return "[OBJECT]";
         case VK_SYSTEM_ALLOCATION_SCOPE_CACHE:
-            return "CACHE";
+            return "[CACHE]";
         case VK_SYSTEM_ALLOCATION_SCOPE_DEVICE:
-            return "DEVICE";
+            return "[DEVICE]";
         case VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE:
-            return "INSTANCE";
+            return "[INSTANCE]";
         default:
-            return "UNKNOWN";
+            return "[UNKNOWN]";
         }
     }
+
+    static inline constexpr int labelWidth = 10;
 
     void VulkanAllocator::dumpOneScope(VkSystemAllocationScope scope) const {
         const auto snap = getScopeSnapshot(scope);
 
-        LINFO("[{}] live={} peak={} alloc={} free={} realloc={} fail={} int_live={} int_peak={} int_alloc={} int_free={}", scopeName(scope),
-              snap.liveBytes, snap.peakBytes, snap.allocCount, snap.freeCount, snap.reallocCount, snap.failCount, snap.internalLiveBytes,
-              snap.internalPeakBytes, snap.internalAllocCount, snap.internalFreeCount);
+        const std::size_t net = (snap.allocCount >= snap.freeCount) ? (snap.allocCount - snap.freeCount)
+                                                                    : (snap.freeCount - snap.allocCount);
+        LINFO("{:<{}} CPU live={:<9} peak={:<10} net={:<6} alloc={:<6} free={:<6} realloc={:<6} fail={:<6}", scopeName(scope), labelWidth,
+              snap.liveBytes, snap.peakBytes, net, snap.allocCount, snap.freeCount, snap.reallocCount, snap.failCount);
+
+        LINFO("{:<{}} INT live={:<9} peak={:<10} alloc={:<6} free={:<6}", "", labelWidth, snap.internalLiveBytes, snap.internalPeakBytes,
+              snap.internalAllocCount, snap.internalFreeCount);
     }
 
     void VulkanAllocator::dumpReport() const {
         const std::size_t totalLive = getTotalLiveBytes();
         const std::size_t totalCum = getTotalCumulativeAllocatedBytes();
-
+        const FileSizeReport totalLiveReport{
+            .info = {.bytes = totalLive},
+            .si_sys = kSI,
+            .iec_sys = kIEC,
+        };
+        const FileSizeReport totalCumReport{
+            .info = {.bytes = totalCum},
+            .si_sys = kSI,
+            .iec_sys = kIEC,
+        };
         LINFO("VulkanAllocator CPU Memory Report");
-        LINFO("total_live_bytes={}", totalLive);
-        LINFO("total_cumulative_allocated_bytes={}", totalCum);
+        LINFO("total_cumulative_allocated_bytes={:<10} SI({}) IEC({})", totalCumReport.info.bytes,
+              totalCumReport.info.format(totalCumReport.si_sys), totalCumReport.info.format(totalCumReport.iec_sys));
 
         dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_COMMAND);
         dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_OBJECT);
@@ -260,12 +275,6 @@ namespace vnd {
 
         const std::size_t scopesSum = s0 + s1 + s2 + s3 + s4;
         const std::size_t delta = (scopesSum >= totalLive) ? (scopesSum - totalLive) : (totalLive - scopesSum);
-
-        const FileSizeReport totalLiveReport{
-            .info = {.bytes = totalLive},
-            .si_sys = kSI,
-            .iec_sys = kIEC,
-        };
         const FileSizeReport scopesSumReport{
             .info = {.bytes = scopesSum},
             .si_sys = kSI,
