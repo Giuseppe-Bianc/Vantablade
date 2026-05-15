@@ -8,13 +8,22 @@
 
 DISABLE_WARNINGS_PUSH(4324)
 namespace vnd {
-
+#ifdef NDEBUG
+// Release build: diagnostics & stats disabled by default for zero overhead
 #ifndef VND_ALLOCATOR_DEBUG
 #define VND_ALLOCATOR_DEBUG 0
 #endif
-
+#ifndef VND_ALLOCATOR_STATS
+#define VND_ALLOCATOR_STATS 0  // Set to 1 if production telemetry is required
+#endif
+#else
+// Debug build: full diagnostics and statistics enabled automatically
+#ifndef VND_ALLOCATOR_DEBUG
+#define VND_ALLOCATOR_DEBUG 1
+#endif
 #ifndef VND_ALLOCATOR_STATS
 #define VND_ALLOCATOR_STATS 1
+#endif
 #endif
 
 #ifndef VND_ALLOCATOR_TELEMETRY
