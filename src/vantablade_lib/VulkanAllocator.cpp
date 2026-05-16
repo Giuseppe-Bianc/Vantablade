@@ -35,6 +35,17 @@ namespace vnd {
         }
 
         [[nodiscard]] constexpr bool checked_add(std::size_t lhs, std::size_t rhs, std::size_t &result) noexcept {
+            // Usa builtin quando disponibile per codegen ottimale (GCC/Clang/Clang-CL)
+#if defined(__has_builtin)
+#if __has_builtin(__builtin_add_overflow)
+            return !__builtin_add_overflow(lhs, rhs, &result);
+#endif
+#elif defined(__GNUC__) || (defined(__clang__) && !defined(_MSC_VER))
+            return !__builtin_add_overflow(lhs, rhs, &result);
+#endif
+
+            // Fallback portabile e constexpr-compatible per MSVC e altri compiler
+            // Il pattern è ottimizzato dai compiler moderni in istruzioni ADC/overflow flag
             if(rhs > std::numeric_limits<std::size_t>::max() - lhs) { return false; }
             result = lhs + rhs;
             return true;
