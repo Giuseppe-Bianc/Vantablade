@@ -1,0 +1,16 @@
+src/vantablade_lib/VulkanAllocator.cpp
+  h_361662506da91f 26-34,36,39-42,45-46,71-72,75,112-117,141,148,151-158,160,162-166,168,194-195,197-200,203,206-209,212-214,244-250,252,261
+include/Vantablade/VulkanAllocator.hpp
+  h_361662506da91f 9-20,26,42-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "c714cd67e3de646d79d2c6d82d9e2fbc1312103a",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
