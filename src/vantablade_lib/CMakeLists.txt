@@ -23,8 +23,6 @@ add_library(vantablade_lib
         ../../include/Vantablade/Pipeline.hpp
         Device.cpp
         ../../include/Vantablade/Device.hpp
-        VulkanAllocator.cpp
-        ../../include/Vantablade/VulkanAllocator.hpp
         SwapChain.cpp
         ../../include/Vantablade/SwapChain.hpp
         Model.cpp

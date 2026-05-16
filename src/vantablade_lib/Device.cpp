@@ -136,7 +136,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 
 // class member functions
 Device::Device(Window &window) : window{window} {
-    vkAllocatorCallbacks = vkAllocator.getCallbacks();
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -147,18 +146,17 @@ Device::Device(Window &window) : window{window} {
 }
 
 Device::~Device() {
-    vkAllocator.dumpReport();
 #ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying Device");
 #endif
     vmaDestroyAllocator(allocator);
-    vkDestroyCommandPool(device_, commandPool, &vkAllocatorCallbacks);
-    vkDestroyDevice(device_, &vkAllocatorCallbacks);
+    vkDestroyCommandPool(device_, commandPool, nullptr);
+    vkDestroyDevice(device_, nullptr);
 
-    if(enableValidationLayers) { DestroyDebugUtilsMessengerEXT(instance, debugMessenger, &vkAllocatorCallbacks); }
+    if(enableValidationLayers) { DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr); }
 
-    vkDestroySurfaceKHR(instance, surface_, &vkAllocatorCallbacks);
-    vkDestroyInstance(instance, &vkAllocatorCallbacks);
+    vkDestroySurfaceKHR(instance, surface_, nullptr);
+    vkDestroyInstance(instance, nullptr);
 }
 
 void Device::createInstance() {
@@ -238,7 +236,7 @@ void Device::createInstance() {
 #endif
     createInfo.pNext = pNextChain;
 
-    VK_CHECK(vkCreateInstance(&createInfo, &vkAllocatorCallbacks, &instance), "failed to create instance!");
+    VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "failed to create instance!");
 
     hasGflwRequiredInstanceExtensions();
 }
@@ -343,7 +341,7 @@ void Device::createLogicalDevice() {
         createInfo.enabledLayerCount = 0;
     }
 
-    VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, &vkAllocatorCallbacks, &device_), "failed to create logical device!");
+    VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
 
     psetObjectName(instance, "Main Instance");
     psetObjectName(device_, "Main Device");
@@ -366,7 +364,7 @@ void Device::createCommandPool() {
     poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
     poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-    VK_CHECK(vkCreateCommandPool(device_, &poolInfo, &vkAllocatorCallbacks, &commandPool), "failed to create command pool!");
+    VK_CHECK(vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool), "failed to create command pool!");
     psetObjectName(commandPool, "Command Pool");
 }
 
@@ -381,12 +379,12 @@ void Device::createAllocator() {
     allocatorCreateInfo.device = device_;
     allocatorCreateInfo.instance = instance;
     allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
-    allocatorCreateInfo.pAllocationCallbacks = &vkAllocatorCallbacks;
+    allocatorCreateInfo.pAllocationCallbacks = nullptr;
 
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
 
-void Device::createSurface() { window.createWindowSurface(instance, &surface_, &vkAllocatorCallbacks); }
+void Device::createSurface() { window.createWindowSurface(instance, &surface_, nullptr); }
 
 bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
     const QueueFamilyIndices indices = findQueueFamilies(device);
@@ -426,7 +424,7 @@ void Device::setupDebugMessenger() {
     if(!enableValidationLayers) { return; }
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
-    VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, &vkAllocatorCallbacks, &debugMessenger),
+    VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger),
              "failed to set up debug messenger!");
     loadDebugUtilsFunctions();
 }

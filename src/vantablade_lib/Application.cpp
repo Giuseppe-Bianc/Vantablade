@@ -19,7 +19,7 @@ Application::~Application() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Destroying Application"};
 #endif
-    vkDestroyPipelineLayout(device_m.device(), pipelineLayout, device_m.getVkAllocator());
+    vkDestroyPipelineLayout(device_m.device(), pipelineLayout, nullptr);
 }
 
 void Application::run() {
@@ -64,7 +64,7 @@ void Application::createPipelineLayout() {
                                                         .pSetLayouts = nullptr,
                                                         .pushConstantRangeCount = 0,
                                                         .pPushConstantRanges = nullptr};
-    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, device_m.getVkAllocator(), &pipelineLayout),
+    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
              "failed to create pipeline layout!");
     device_m.setObjectName(pipelineLayout, "Main PipelineLayout");
 }

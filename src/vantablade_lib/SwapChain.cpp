@@ -33,23 +33,22 @@ SwapChain::~SwapChain() {
 #endif
 
     auto *const vkdevice = device.device();
-    const auto *vkAlloc = device.getVkAllocator();
 
-    for(auto *const framebuffer : swapChainFramebuffers) { vkDestroyFramebuffer(vkdevice, framebuffer, vkAlloc); }
+    for(auto *const framebuffer : swapChainFramebuffers) { vkDestroyFramebuffer(vkdevice, framebuffer, nullptr); }
 
-    vkDestroyRenderPass(vkdevice, renderPass, vkAlloc);
+    vkDestroyRenderPass(vkdevice, renderPass, nullptr);
 
-    for(auto *const imageView : swapChainImageViews) { vkDestroyImageView(vkdevice, imageView, vkAlloc); }
+    for(auto *const imageView : swapChainImageViews) { vkDestroyImageView(vkdevice, imageView, nullptr); }
 
     swapChainImageViews.clear();
 
     if(swapChain != VK_NULL_HANDLE) {
-        vkDestroySwapchainKHR(vkdevice, swapChain, vkAlloc);
+        vkDestroySwapchainKHR(vkdevice, swapChain, nullptr);
         swapChain = VK_NULL_HANDLE;
     }
 
     for(const auto &[img, view, alloc] : std::views::zip(depthImages, depthImageViews, depthImageAllocations)) {
-        vkDestroyImageView(vkdevice, view, vkAlloc);
+        vkDestroyImageView(vkdevice, view, nullptr);
         vmaDestroyImage(device.getAllocator(), img, alloc);
     }
 
@@ -58,9 +57,9 @@ SwapChain::~SwapChain() {
     depthImageAllocations.clear();
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, MAX_FRAMES_IN_FLIGHT)) {
-        vkDestroySemaphore(vkdevice, renderFinishedSemaphores[i], vkAlloc);
-        vkDestroySemaphore(vkdevice, imageAvailableSemaphores[i], vkAlloc);
-        vkDestroyFence(vkdevice, inFlightFences[i], vkAlloc);
+        vkDestroySemaphore(vkdevice, renderFinishedSemaphores[i], nullptr);
+        vkDestroySemaphore(vkdevice, imageAvailableSemaphores[i], nullptr);
+        vkDestroyFence(vkdevice, inFlightFences[i], nullptr);
     }
 }
 
@@ -175,7 +174,7 @@ void SwapChain::createSwapChain() {
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
 
-    VK_CHECK(vkCreateSwapchainKHR(device.device(), &createInfo, device.getVkAllocator(), &swapChain), "failed to create swap chain!");
+    VK_CHECK(vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain), "failed to create swap chain!");
 
     device.setObjectName(swapChain, "Main SwapChain");
 
@@ -209,7 +208,7 @@ void SwapChain::createImageViews() {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &swapChainImageViews[C_ST(i)]),
+        VK_CHECK(vkCreateImageView(device.device(), &viewInfo, nullptr, &swapChainImageViews[C_ST(i)]),
                  "failed to create swapchain image view!");
         const auto name = FORMAT("SwapChain ImageView[{}]", i);
         device.setObjectName(swapChainImageViews[C_ST(i)], name.c_str());
@@ -269,7 +268,7 @@ void SwapChain::createRenderPass() {
     renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;
 
-    VK_CHECK(vkCreateRenderPass(device.device(), &renderPassInfo, device.getVkAllocator(), &renderPass), "failed to create render pass!");
+    VK_CHECK(vkCreateRenderPass(device.device(), &renderPassInfo, nullptr, &renderPass), "failed to create render pass!");
 
     device.setObjectName(renderPass, "Main RenderPass");
 }
@@ -290,7 +289,7 @@ void SwapChain::createFramebuffers() {
         framebufferInfo.height = extent.height;
         framebufferInfo.layers = 1;
 
-        VK_CHECK(vkCreateFramebuffer(device.device(), &framebufferInfo, device.getVkAllocator(), &swapChainFramebuffers[C_ST(i)]),
+        VK_CHECK(vkCreateFramebuffer(device.device(), &framebufferInfo, nullptr, &swapChainFramebuffers[C_ST(i)]),
                  "failed to create framebuffer!");
         const auto name = FORMAT("Framebuffer[{}]", i);
         device.setObjectName(swapChainFramebuffers[C_ST(i)], name.c_str());
@@ -342,7 +341,7 @@ void SwapChain::createDepthResources() {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK(vkCreateImageView(device.device(), &viewInfo, device.getVkAllocator(), &depthImageViews[i]),
+        VK_CHECK(vkCreateImageView(device.device(), &viewInfo, nullptr, &depthImageViews[i]),
                  "failed to create texture image view!");
         const auto viewName = FORMAT("Depth ImageView[{}]", i);  // aggiunta
         device.setObjectName(depthImageViews[i], viewName.c_str());
@@ -361,12 +360,11 @@ void SwapChain::createSyncObjects() {
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = nullptr, .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
     auto *const vkdevice = device.device();
-    const auto *vkAlloc = device.getVkAllocator();
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, MAX_FRAMES_IN_FLIGHT)) {
-        VK_CHECK_SYNC_OBJECTS(vkCreateSemaphore(vkdevice, &semaphoreInfo, vkAlloc, &imageAvailableSemaphores[i]),
-                              vkCreateSemaphore(vkdevice, &semaphoreInfo, vkAlloc, &renderFinishedSemaphores[i]),
-                              vkCreateFence(vkdevice, &fenceInfo, vkAlloc, &inFlightFences[i]),
+        VK_CHECK_SYNC_OBJECTS(vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]),
+                              vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]),
+                              vkCreateFence(vkdevice, &fenceInfo, nullptr, &inFlightFences[i]),
                               "failed to create synchronization objects for a frame!");
         device.setObjectName(imageAvailableSemaphores[i], FORMAT("ImageAvailable Semaphore[{}]", i).c_str());
         device.setObjectName(renderFinishedSemaphores[i], FORMAT("RenderFinished Semaphore[{}]", i).c_str());
