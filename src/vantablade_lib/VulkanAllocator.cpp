@@ -23,15 +23,27 @@ namespace vnd {
 
     namespace {
 
-        struct alignas(alignof(void *)) AllocationHeader final {
-            std::size_t size{};
-            std::size_t alignment{};
-            void *base{};
+        static constexpr std::uint32_t kAllocMagic = 0x564E4441u;  // 'VNDA'
+
+        struct alignas(std::max_align_t) AllocationHeader final {
+            std::uint32_t magic{};
+            std::uint32_t reserved{};
+            std::size_t requestedSize{};
+            std::size_t requestedAlignment{};
+            std::size_t effectiveAlignment{};
+            std::size_t totalSize{};
             VkSystemAllocationScope scope{};
+            void *base{};
         };
 
+        static_assert(alignof(AllocationHeader) >= alignof(void *));
+        static_assert(sizeof(AllocationHeader) % alignof(AllocationHeader) == 0);
+
+        [[nodiscard]] constexpr bool isPow2(std::size_t x) noexcept { return x != 0u && (x & (x - 1u)) == 0u; }
+
         [[nodiscard]] constexpr std::size_t computeEffectiveAlignment(std::size_t alignment) noexcept {
-            return std::max(alignment, alignof(AllocationHeader));
+            const std::size_t a = std::max(alignment, alignof(AllocationHeader));
+            return std::max(a, alignof(void *));
         }
 
         [[nodiscard]] constexpr bool checked_add(std::size_t lhs, std::size_t rhs, std::size_t &result) noexcept {
@@ -56,7 +68,11 @@ namespace vnd {
             return scopeValue < VulkanAllocator::scopeCount;
         }
 
-        [[nodiscard]] constexpr bool isPow2(std::size_t x) noexcept { return x != 0u && (x & (x - 1u)) == 0u; }
+        [[nodiscard]] void *alignedAllocate(std::size_t totalSize, std::size_t effectiveAlign) noexcept {
+            return ::operator new(totalSize, std::align_val_t{effectiveAlign}, std::nothrow);
+        }
+
+        void alignedFree(void *base, std::size_t effectiveAlign) noexcept { ::operator delete(base, std::align_val_t{effectiveAlign}); }
 
     }  // namespace
 
@@ -91,10 +107,14 @@ namespace vnd {
                                                                VkSystemAllocationScope allocationScope) noexcept {
         if(size == 0u) { return nullptr; }
 
-        // alignment deve essere power-of-two. :contentReference[oaicite:4]{index=4}
-        VND_ASSUME(isPow2(alignment));
-
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
+
+        if(!isPow2(alignment)) {
+            self->scopes_.at(scopeIndex(allocationScope)).failCount.fetch_add(1, std::memory_order_relaxed);
+            LERROR("Vulkan CPU allocation got non-pow2 alignment (size={}, alignment={}, scope={})", size, alignment,
+                   std::to_underlying(allocationScope));
+            return nullptr;
+        }
 
         if(!isKnownScope(allocationScope)) {
             LERROR("Vulkan CPU allocation with unknown scope (scope={})", std::to_underlying(allocationScope));
@@ -118,25 +138,34 @@ namespace vnd {
             return nullptr;
         }
 
-        void *const base = std::malloc(totalSize);
+        void *const base = alignedAllocate(totalSize, effectiveAlign);
         if(base == nullptr) {
             self->scopes_.at(scopeIndex(allocationScope)).failCount.fetch_add(1, std::memory_order_relaxed);
             LERROR("Vulkan CPU allocation failed (size={}, alignment={}, scope={})", size, alignment, std::to_underlying(allocationScope));
             return nullptr;
         }
 
-        void *userPtr = static_cast<char *>(base) + sizeof(AllocationHeader);
+        void *userPtr = static_cast<std::byte *>(base) + sizeof(AllocationHeader);
         std::size_t space = totalSize - sizeof(AllocationHeader);
 
-        [[maybe_unused]] void *const alignResult = std::align(effectiveAlign, size, userPtr, space);
-        assert(alignResult != nullptr);
+        void *const alignResult = std::align(effectiveAlign, size, userPtr, space);
+        if(alignResult == nullptr) {
+            self->scopes_.at(scopeIndex(allocationScope)).failCount.fetch_add(1, std::memory_order_relaxed);
+            LERROR("Vulkan CPU allocation std::align failed (size={}, alignment={}, scope={})", size, alignment,
+                   std::to_underlying(allocationScope));
+            alignedFree(base, effectiveAlign);
+            return nullptr;
+        }
 
-        auto *const header = reinterpret_cast<AllocationHeader *>(static_cast<char *>(userPtr) - sizeof(AllocationHeader));
+        auto *const header = reinterpret_cast<AllocationHeader *>(static_cast<std::byte *>(userPtr) - sizeof(AllocationHeader));
 
-        header->size = size;
-        header->alignment = alignment;
-        header->base = base;
+        header->magic = kAllocMagic;
+        header->requestedSize = size;
+        header->requestedAlignment = alignment;
+        header->effectiveAlignment = effectiveAlign;
+        header->totalSize = totalSize;
         header->scope = allocationScope;
+        header->base = base;
 
         self->totalLiveBytes_.fetch_add(size, std::memory_order_relaxed);
         self->totalCumulativeAllocatedBytes_.fetch_add(size, std::memory_order_relaxed);
@@ -162,13 +191,27 @@ namespace vnd {
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
-        const auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(static_cast<const std::byte *>(pOriginal) - sizeof(AllocationHeader));
+        const auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(static_cast<const std::byte *>(pOriginal) -
+                                                                                 sizeof(AllocationHeader));
 
-        const std::size_t oldSize = oldHeader->size;
+        if(oldHeader->magic != kAllocMagic) {
+            self->scopes_.at(scopeIndex(allocationScope)).failCount.fetch_add(1, std::memory_order_relaxed);
+            LERROR("Vulkan CPU realloc detected corrupted or foreign pointer");
+            return nullptr;
+        }
+
+        const std::size_t oldSize = oldHeader->requestedSize;
         const VkSystemAllocationScope oldScope = oldHeader->scope;
 
-        if(oldHeader->alignment != alignment) {
-            LERROR("Vulkan CPU realloc with mismatched alignment (old={}, new={}, old_scope={}, new_scope={})", oldHeader->alignment, alignment, std::to_underlying(oldScope), std::to_underlying(allocationScope));
+        if(!isPow2(alignment)) {
+            self->scopes_.at(scopeIndex(oldScope)).failCount.fetch_add(1, std::memory_order_relaxed);
+            LERROR("Vulkan CPU realloc got non-pow2 alignment (alignment={}, scope={})", alignment, std::to_underlying(allocationScope));
+            return nullptr;
+        }
+
+        if(oldHeader->requestedAlignment != alignment) {
+            LERROR("Vulkan CPU realloc with mismatched alignment (old={}, new={}, old_scope={}, new_scope={})",
+                   oldHeader->requestedAlignment, alignment, std::to_underlying(oldScope), std::to_underlying(allocationScope));
         }
 
         if(oldScope != allocationScope) {
@@ -198,9 +241,15 @@ namespace vnd {
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
-        const auto *const header = reinterpret_cast<const AllocationHeader *>(static_cast<char *>(pMemory) - sizeof(AllocationHeader));
+        const auto *const header = reinterpret_cast<const AllocationHeader *>(static_cast<const std::byte *>(pMemory) -
+                                                                              sizeof(AllocationHeader));
 
-        const std::size_t sz = header->size;
+        if(header->magic != kAllocMagic) {
+            LERROR("Vulkan CPU free detected corrupted or foreign pointer");
+            return;
+        }
+
+        const std::size_t sz = header->requestedSize;
         const VkSystemAllocationScope scope = header->scope;
 
         self->totalLiveBytes_.fetch_sub(sz, std::memory_order_relaxed);
@@ -209,7 +258,7 @@ namespace vnd {
         stats.freeCount.fetch_add(1, std::memory_order_relaxed);
         stats.liveBytes.fetch_sub(sz, std::memory_order_relaxed);
 
-        std::free(header->base);
+        alignedFree(header->base, header->effectiveAlignment);
     }
 
     VKAPI_ATTR void VKAPI_CALL VulkanAllocator::vklInternalAllocation(void *pUserData, std::size_t size,
