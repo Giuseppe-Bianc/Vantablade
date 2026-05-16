@@ -1,0 +1,20 @@
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 21-23,115,126
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 153-154,156,158-159,239,344,367,382,387,427
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 22,67
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 37,39,41,46,51,60-62,177,211,271,292,344,365-367
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "a8b0ea6dbfe0b3860572c553a62009b04881cdd0",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
