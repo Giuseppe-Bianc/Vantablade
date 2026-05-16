@@ -151,23 +151,34 @@ namespace vnd {
 
         auto *const self = static_cast<VulkanAllocator *>(pUserData);
 
-        auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(static_cast<const std::byte *>(pOriginal) -
-                                                                           sizeof(AllocationHeader));
+        const auto *const oldHeader = reinterpret_cast<const AllocationHeader *>(static_cast<const std::byte *>(pOriginal) - sizeof(AllocationHeader));
+
+        const std::size_t oldSize = oldHeader->size;
+        const VkSystemAllocationScope oldScope = oldHeader->scope;
 
         if(oldHeader->alignment != alignment) {
-            LERROR("Vulkan CPU realloc with mismatched alignment (old={}, new={}, scope={})", oldHeader->alignment, alignment,
+            LERROR("Vulkan CPU realloc with mismatched alignment (old={}, new={}, old_scope={}, new_scope={})", oldHeader->alignment, alignment, std::to_underlying(oldScope), std::to_underlying(allocationScope));
+        }
+
+        if(oldScope != allocationScope) {
+            LERROR("Vulkan CPU realloc with mismatched scope (old={}, new={})", std::to_underlying(oldScope),
                    std::to_underlying(allocationScope));
         }
 
-        self->scopes_.at(scopeIndex(allocationScope)).reallocCount.fetch_add(1, std::memory_order_relaxed);
+        // Contabilità corretta: il "realloc" è attribuito allo scope originale del blocco.
+        self->scopes_.at(scopeIndex(oldScope)).reallocCount.fetch_add(1, std::memory_order_relaxed);
 
-        const std::size_t oldSize = oldHeader->size;
         if(oldSize == size) { return pOriginal; }
 
+        // La nuova allocazione viene attribuita allo scope richiesto dalla chiamata corrente.
         void *const newPtr = vklAllocation(pUserData, size, alignment, allocationScope);
         if(newPtr == nullptr) { return nullptr; }
+
         std::memcpy(newPtr, pOriginal, std::min(oldSize, size));
+
+        // La free viene attribuita allo scope originale, perché vklFree usa header->scope.
         vklFree(pUserData, pOriginal);
+
         return newPtr;
     }
 
