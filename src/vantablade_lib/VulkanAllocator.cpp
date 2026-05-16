@@ -232,17 +232,31 @@ namespace vnd {
 
     static inline constexpr int labelWidth = 10;
 
-    void VulkanAllocator::dumpOneScope(VkSystemAllocationScope scope) const {
-        const auto snap = getScopeSnapshot(scope);
+    void VulkanAllocator::dumpScopeByIndex(std::size_t index, std::string_view label) const {
+        const auto &s = scopes_.at(index);
+        const ScopeSnapshot snap{
+            .liveBytes = s.liveBytes.load(std::memory_order_relaxed),
+            .peakBytes = s.peakBytes.load(std::memory_order_relaxed),
+            .allocCount = s.allocCount.load(std::memory_order_relaxed),
+            .freeCount = s.freeCount.load(std::memory_order_relaxed),
+            .reallocCount = s.reallocCount.load(std::memory_order_relaxed),
+            .failCount = s.failCount.load(std::memory_order_relaxed),
+            .internalAllocCount = s.internalAllocCount.load(std::memory_order_relaxed),
+            .internalFreeCount = s.internalFreeCount.load(std::memory_order_relaxed),
+            .internalLiveBytes = s.internalLiveBytes.load(std::memory_order_relaxed),
+            .internalPeakBytes = s.internalPeakBytes.load(std::memory_order_relaxed),
+        };
 
         const std::size_t net = (snap.allocCount >= snap.freeCount) ? (snap.allocCount - snap.freeCount)
                                                                     : (snap.freeCount - snap.allocCount);
-        LINFO("{:<{}} CPU live={:<9} peak={:<10} net={:<6} alloc={:<6} free={:<6} realloc={:<6} fail={:<6}", scopeName(scope), labelWidth,
+        LINFO("{:<{}} CPU live={:<9} peak={:<10} net={:<6} alloc={:<6} free={:<6} realloc={:<6} fail={:<6}", label, labelWidth,
               snap.liveBytes, snap.peakBytes, net, snap.allocCount, snap.freeCount, snap.reallocCount, snap.failCount);
 
         LINFO("{:<{}} INT live={:<9} peak={:<10} alloc={:<6} free={:<6}", "", labelWidth, snap.internalLiveBytes, snap.internalPeakBytes,
               snap.internalAllocCount, snap.internalFreeCount);
     }
+
+    void VulkanAllocator::dumpOneScope(VkSystemAllocationScope scope) const { dumpScopeByIndex(scopeIndex(scope), scopeName(scope)); }
 
     void VulkanAllocator::dumpReport() const {
         const std::size_t totalLive = getTotalLiveBytes();
@@ -266,14 +280,18 @@ namespace vnd {
         dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_CACHE);
         dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_DEVICE);
         dumpOneScope(VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE);
+        // Sentinel bucket: accumulates any allocations with out-of-range scope values.
+        // Should be zero in a well-behaved driver. Non-zero indicates a driver or layer bug.
+        dumpScopeByIndex(scopeCount, "[UNKNOWN]");
 
         const std::size_t s0 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_COMMAND).liveBytes;
         const std::size_t s1 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_OBJECT).liveBytes;
         const std::size_t s2 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_CACHE).liveBytes;
         const std::size_t s3 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_DEVICE).liveBytes;
         const std::size_t s4 = getScopeSnapshot(VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE).liveBytes;
+        const std::size_t s5 = scopes_.at(scopeCount).liveBytes.load(std::memory_order_relaxed);
 
-        const std::size_t scopesSum = s0 + s1 + s2 + s3 + s4;
+        const std::size_t scopesSum = s0 + s1 + s2 + s3 + s4 + s5;
         const std::size_t delta = (scopesSum >= totalLive) ? (scopesSum - totalLive) : (totalLive - scopesSum);
         const FileSizeReport scopesSumReport{
             .info = {.bytes = scopesSum},
