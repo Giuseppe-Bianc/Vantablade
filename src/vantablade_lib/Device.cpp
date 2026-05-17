@@ -370,8 +370,10 @@ void Device::createCommandPool() {
 
 void Device::createAllocator() {
     VmaVulkanFunctions vulkanFunctions{};
-    vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-    vulkanFunctions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
+    vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
+    vulkanFunctions.vkGetPhysicalDeviceProperties = vkGetPhysicalDeviceProperties;
+    vulkanFunctions.vkGetPhysicalDeviceMemoryProperties = vkGetPhysicalDeviceMemoryProperties;
 
     VmaAllocatorCreateFlags flags = 0;
     // Richiesto se bufferDeviceAddress è abilitato (Vulkan spec + VMA docs).
