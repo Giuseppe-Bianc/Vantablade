@@ -22,13 +22,10 @@ struct SwapChainSupportDetails {
 };
 
 struct QueueFamilyIndices {
-    uint32_t graphicsFamily{0};
-    uint32_t presentFamily{0};
-    bool graphicsFamilyHasValue{false};
-    bool presentFamilyHasValue{false};
+    std::optional<uint32_t> graphicsFamily;
+    std::optional<uint32_t> presentFamily;
 
-    // CONST: pure predicate — no mutation, noexcept guaranteed.
-    [[nodiscard]] bool isComplete() const noexcept { return graphicsFamilyHasValue && presentFamilyHasValue; }
+    [[nodiscard]] bool isComplete() const noexcept { return graphicsFamily.has_value() && presentFamily.has_value(); }
 };
 
 struct DebugUtilsFunctions {

@@ -270,7 +270,7 @@ void Device::createLogicalDevice() {
     const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    const std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
+    const std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     for(const uint32_t queueFamily : uniqueQueueFamilies) {
         VkDeviceQueueCreateInfo queueCreateInfo = {};
@@ -328,14 +328,14 @@ void Device::createLogicalDevice() {
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.pNext = &features2;
 
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.queueCreateInfoCount = C_UI32T(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+    createInfo.enabledExtensionCount = C_UI32T(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
     if(enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+        createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
@@ -347,8 +347,8 @@ void Device::createLogicalDevice() {
     psetObjectName(device_, "Main Device");
     psetObjectName(physicalDevice, "Main Physical Device");
 
-    vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
-    vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+    vkGetDeviceQueue(device_, indices.graphicsFamily.value(), 0, &graphicsQueue_);
+    vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
     psetObjectName(graphicsQueue_, "Graphics Queue");
     psetObjectName(presentQueue_, "Present Queue");
 
@@ -361,7 +361,7 @@ void Device::createCommandPool() {
 
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily;
+    poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
     poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
     VK_CHECK(vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool), "failed to create command pool!");
@@ -369,17 +369,25 @@ void Device::createCommandPool() {
 }
 
 void Device::createAllocator() {
-    VmaVulkanFunctions vulkanFunctions = {};
+    VmaVulkanFunctions vulkanFunctions{};
     vulkanFunctions.vkGetInstanceProcAddr = &vkGetInstanceProcAddr;
-    vulkanFunctions.vkGetDeviceProcAddr = &vkGetDeviceProcAddr;
+    vulkanFunctions.vkGetDeviceProcAddr   = &vkGetDeviceProcAddr;
 
-    VmaAllocatorCreateInfo allocatorCreateInfo = {};
+    VmaAllocatorCreateFlags flags = 0;
+    // Richiesto se bufferDeviceAddress è abilitato (Vulkan spec + VMA docs).
+    if(properties.apiVersion >= VK_API_VERSION_1_2) {
+        flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
+    }
+    // Opzionale ma raccomandato se VK_EXT_memory_budget è disponibile.
+    // flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+
+    VmaAllocatorCreateInfo allocatorCreateInfo{};
+    allocatorCreateInfo.flags            = flags;
     allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_4;
-    allocatorCreateInfo.physicalDevice = physicalDevice;
-    allocatorCreateInfo.device = device_;
-    allocatorCreateInfo.instance = instance;
+    allocatorCreateInfo.physicalDevice   = physicalDevice;
+    allocatorCreateInfo.device           = device_;
+    allocatorCreateInfo.instance         = instance;
     allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
-    allocatorCreateInfo.pAllocationCallbacks = nullptr;
 
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
@@ -526,16 +534,14 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice phdevice) const {
         const auto ci = C_UI32T(i);
         if(queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) {
             indices.graphicsFamily = ci;
-            indices.graphicsFamilyHasValue = true;
         }
 
-        VkBool32 presentSupport = false;  // NOLINT(*-implicit-bool-conversion)
+        VkBool32 presentSupport{VK_FALSE};
         vkGetPhysicalDeviceSurfaceSupportKHR(phdevice, ci, surface_, &presentSupport);
 
         // NOLINTNEXTLINE(*-implicit-bool-conversion)
         if(queueFamily.queueCount > 0 && presentSupport) {
             indices.presentFamily = ci;
-            indices.presentFamilyHasValue = true;
         }
 
         if(indices.isComplete()) { break; }

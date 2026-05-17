@@ -128,7 +128,7 @@ void Application::createCommandBuffers() {
 }
 
 void Application::freeCommandBuffers() {
-    vkFreeCommandBuffers(device_m.device(), device_m.getCommandPool(), static_cast<uint32_t>(commandBuffers.size()), commandBuffers.data());
+    vkFreeCommandBuffers(device_m.device(), device_m.getCommandPool(), C_UI32T(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
 }
 

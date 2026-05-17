@@ -156,7 +156,7 @@ void SwapChain::createSwapChain() {
     const QueueFamilyIndices indices = device.findPhysicalQueueFamilies();
 
     // SAFETY: std::array replaces C-style array for queue family indices.
-    const std::array<uint32_t, 2> queueFamilyIndices{indices.graphicsFamily, indices.presentFamily};
+    const std::array<uint32_t, 2> queueFamilyIndices{indices.graphicsFamily.value(), indices.presentFamily.value()};
 
     if(indices.graphicsFamily != indices.presentFamily) {
         createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;

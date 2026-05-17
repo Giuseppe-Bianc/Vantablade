@@ -196,7 +196,7 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo &configInfo) {
     configInfo.dynamicStateEnables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
     configInfo.dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
     configInfo.dynamicStateInfo.pDynamicStates = configInfo.dynamicStateEnables.data();
-    configInfo.dynamicStateInfo.dynamicStateCount = static_cast<uint32_t>(configInfo.dynamicStateEnables.size());
+    configInfo.dynamicStateInfo.dynamicStateCount = C_UI32T(configInfo.dynamicStateEnables.size());
     configInfo.dynamicStateInfo.flags = 0;
 }
 // NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise)
