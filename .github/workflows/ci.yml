@@ -172,52 +172,10 @@ jobs:
           gcovr --version  # Verify gcovr is installed correctly
 
       - name: Update CMake to latest version
-        shell: bash
-        run: |
-          cmake --version  # version BEFORE update
-          pip install --upgrade cmake --break-system-packages
-          # Retrieve the exact bin dir from the pip package and prepend it to PATH
-          # This works on Linux, macOS and Windows (Git Bash) without any OS-specific logic
-          CMAKE_BIN=$(python -c "import cmake; print(cmake.CMAKE_BIN_DIR)")
-          echo "$CMAKE_BIN" >> "$GITHUB_PATH"
-          echo "CMake bin dir added to PATH: $CMAKE_BIN"
+        uses: ./.github/actions/setup_cmake
 
-      - name: Install Vulkan SDK (Ubuntu)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libvulkan-dev \
-            libgl1-mesa-dev \
-            xorg-dev \
-            libxrandr-dev \
-            libxinerama-dev \
-            libxcursor-dev \
-            libxi-dev \
-            libxext-dev \
-            libwayland-dev \
-            libxkbcommon-dev
- 
-          VULKAN_VERSION=$(curl -s https://vulkan.lunarg.com/sdk/latest/linux.txt)
-          wget -q \
-            "https://sdk.lunarg.com/sdk/download/${VULKAN_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_VERSION}.tar.xz" \
-            -O /tmp/vulkansdk.tar.xz
-          mkdir -p /opt/vulkan-sdk
-          tar -xf /tmp/vulkansdk.tar.xz -C /opt/vulkan-sdk
- 
-          echo "VULKAN_SDK=/opt/vulkan-sdk/${VULKAN_VERSION}/x86_64" >> $GITHUB_ENV
-          echo "/opt/vulkan-sdk/${VULKAN_VERSION}/x86_64/bin" >> $GITHUB_PATH
-
-      - name: Install Vulkan SDK (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          choco install vulkan-sdk -y
-          $vulkanPath = (Get-ChildItem "C:\VulkanSDK" |
-            Sort-Object Name -Descending |
-            Select-Object -First 1).FullName
-          echo "VULKAN_SDK=$vulkanPath" >> $env:GITHUB_ENV
-          echo "$vulkanPath\Bin" >> $env:GITHUB_PATH
+      - name: Setup Vulkan SDK
+        uses: ./.github/actions/setup_vulkan
 
       - name: Configure CMake
         run: |

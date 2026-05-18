@@ -1,0 +1,16 @@
+name: 'setup_cmake'
+description: 'Updates CMake to the latest version'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Update CMake to latest version
+      shell: bash
+      run: |
+        cmake --version  # version BEFORE update
+        pip install --upgrade cmake --break-system-packages
+        # Retrieve the exact bin dir from the pip package and prepend it to PATH
+        # This works on Linux, macOS and Windows (Git Bash) without any OS-specific logic
+        CMAKE_BIN=$(python -c "import cmake; print(cmake.CMAKE_BIN_DIR)")
+        echo "$CMAKE_BIN" >> "$GITHUB_PATH"
+        echo "CMake bin dir added to PATH: $CMAKE_BIN"
