@@ -356,8 +356,7 @@ void SwapChain::createSyncObjects() {
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
     imagesInFlight.assign(imageCount(), VK_NULL_HANDLE);
 
-    // NOLINTNEXTLINE(*-diagnostic-missing-designated-field-initializers)
-    const VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr};
+    const VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr, .flags = 0};
     const VkFenceCreateInfo fenceInfo{
         .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = nullptr, .flags = VK_FENCE_CREATE_SIGNALED_BIT};
 
