@@ -162,7 +162,22 @@
  *
  * @note Available only when compiling with Clang; has no effect.
  */
-#define DISABLE_GCC_WARNINGS_PUSH(warning)
+#define JSAV_CLANG_EXPAND_1(a) JSAV_DO_PRAGMA(clang diagnostic ignored a)
+#define JSAV_CLANG_EXPAND_2(a, b) JSAV_CLANG_EXPAND_1(a) JSAV_CLANG_EXPAND_1(b)
+#define JSAV_CLANG_EXPAND_3(a, b, c) JSAV_CLANG_EXPAND_2(a, b) JSAV_CLANG_EXPAND_1(c)
+#define JSAV_CLANG_EXPAND_4(a, b, c, d) JSAV_CLANG_EXPAND_3(a, b, c) JSAV_CLANG_EXPAND_1(d)
+#define JSAV_CLANG_EXPAND_5(a, b, c, d, e) JSAV_CLANG_EXPAND_4(a, b, c, d) JSAV_CLANG_EXPAND_1(e)
+#define JSAV_CLANG_EXPAND_6(a, b, c, d, e, f) JSAV_CLANG_EXPAND_5(a, b, c, d, e) JSAV_CLANG_EXPAND_1(f)
+#define JSAV_CLANG_EXPAND_7(a, b, c, d, e, f, g) JSAV_CLANG_EXPAND_6(a, b, c, d, e, f) JSAV_CLANG_EXPAND_1(g)
+#define JSAV_CLANG_EXPAND_8(a, b, c, d, e, f, g, h) JSAV_CLANG_EXPAND_7(a, b, c, d, e, f, g) JSAV_CLANG_EXPAND_1(h)
+
+#define JSAV_CLANG_GET_9TH_ARG(_1, _2, _3, _4, _5, _6, _7, _8, NAME, ...) NAME
+#define JSAV_CLANG_EXPAND_CHOOSER(...)                                                                                                       \
+    JSAV_CLANG_GET_9TH_ARG(__VA_ARGS__, JSAV_CLANG_EXPAND_8, JSAV_CLANG_EXPAND_7, JSAV_CLANG_EXPAND_6, JSAV_CLANG_EXPAND_5, JSAV_CLANG_EXPAND_4, JSAV_CLANG_EXPAND_3, JSAV_CLANG_EXPAND_2, \
+                             JSAV_CLANG_EXPAND_1)
+#define JSAV_CLANG_FOR_EACH(...) JSAV_CLANG_EXPAND_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
+
+#define DISABLE_GCC_WARNINGS_PUSH(...) _Pragma("clang diagnostic push") JSAV_CLANG_FOR_EACH(__VA_ARGS__)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on Clang.
