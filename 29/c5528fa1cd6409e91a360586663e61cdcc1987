@@ -1,0 +1,20 @@
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 11-18,68-72,78-79,149-151,165,185-194
+shaders/simple_shader.vert
+  h_361662506da91f 3,7-10,13
+src/vantablade_lib/FPSCounter.cpp
+  h_361662506da91f 61
+shaders/simple_shader.frag
+  h_361662506da91f 5-8,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "29c5528fa1cd6409e91a360586663e61cdcc1987",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
