@@ -89,13 +89,9 @@ jobs:
 
     - name: Install Vulkan SDK (Ubuntu)
       run: |
-          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc \
-            | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-main.list \
-            https://packages.lunarg.com/vulkan/lunarg-vulkan-$(lsb_release -cs)-main.list
           sudo apt-get update
           sudo apt-get install -y \
-            vulkan-sdk \
+            libvulkan-dev \
             libgl1-mesa-dev \
             xorg-dev \
             libxrandr-dev \
@@ -105,6 +101,16 @@ jobs:
             libxext-dev \
             libwayland-dev \
             libxkbcommon-dev
+ 
+          VULKAN_VERSION=$(curl -s https://vulkan.lunarg.com/sdk/latest/linux.txt)
+          wget -q \
+            "https://sdk.lunarg.com/sdk/download/${VULKAN_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_VERSION}.tar.xz" \
+            -O /tmp/vulkansdk.tar.xz
+          mkdir -p /opt/vulkan-sdk
+          tar -xf /tmp/vulkansdk.tar.xz -C /opt/vulkan-sdk
+ 
+          echo "VULKAN_SDK=/opt/vulkan-sdk/${VULKAN_VERSION}/x86_64" >> $GITHUB_ENV
+          echo "/opt/vulkan-sdk/${VULKAN_VERSION}/x86_64/bin" >> $GITHUB_PATH
 
     - name: Update CMake to latest version
       shell: bash

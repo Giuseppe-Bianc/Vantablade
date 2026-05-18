@@ -43,6 +43,7 @@ target_link_libraries(vantablade_lib
         PUBLIC
         Vulkan::Vulkan
         glfw
+        glm::glm
         Vantablade::vantablade_core_lib)
 
 target_include_directories(vantablade_lib ${WARNING_GUARD}
