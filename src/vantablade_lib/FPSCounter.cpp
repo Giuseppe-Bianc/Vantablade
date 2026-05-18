@@ -58,7 +58,7 @@ void FPSCounter::updateFPS() noexcept {
         const auto ldframes = C_LD(frames);
 
         fps = ldframes / totalTime;
-        ms_per_frame = time_step.get_millis() / ldframes;
+        ms_per_frame = totalTime / ldframes;
 
         frames = 0;
         totalTime = 0.0L;
