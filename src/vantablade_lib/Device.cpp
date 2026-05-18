@@ -482,13 +482,13 @@ void Device::hasGflwRequiredInstanceExtensions() {
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
     std::unordered_set<std::string_view> available;
 
-#if defined(_DEBUG) || defined(DEBUG)
+#ifndef NDEBUG
     std::vector<std::string> availableExtensions;
 #endif
     available.reserve(extensionCount);
     for(const auto &[extensionName, specVersion] : extensions) {
-#if defined(_DEBUG) || defined(DEBUG)
-        availableExtensions.emplace_back(FORMAT("{} (v. {})", extensionName, specVersion));
+#ifndef NDEBUG
+    availableExtensions.emplace_back(FORMAT("{} (v. {})", extensionName, specVersion));
 #endif
         available.emplace(extensionName);
     }
