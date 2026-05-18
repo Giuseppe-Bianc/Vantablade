@@ -188,7 +188,7 @@ void Application::recordCommandBuffer(std::size_t imageIndex) {
         push.color = {0.0f, 0.0f, 0.2f + 0.2f * C_F(j)};
 
         vkCmdPushConstants(commandBuffers[C_ST(imageIndex)], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                   sizeof(SimplePushConstantData), &push);
+                           sizeof(SimplePushConstantData), &push);
         model->draw(commandBuffers[C_ST(imageIndex)]);
     }
 
