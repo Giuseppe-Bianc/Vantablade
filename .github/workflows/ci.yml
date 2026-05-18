@@ -13,7 +13,6 @@ env:
   CLANG_TIDY_VERSION: "21.1.8"
   VERBOSE: 1
 
-
 jobs:
   Test:
     name: ${{matrix.os}} ${{matrix.compiler}} ${{matrix.build_type}} ${{matrix.packaging_maintainer_mode == 'ON' && '(maintainer mode)' || ''}}
@@ -70,9 +69,9 @@ jobs:
           #   enable_ipo: Off
 
           # Set up preferred package generators, for given build configurations
-          - build_type: Release
-            packaging_maintainer_mode: On
-            package_generator: TBZ2
+          #- build_type: Release
+          #  packaging_maintainer_mode: On
+          #  package_generator: TBZ2
 
           # This exists solely to make sure a non-multiconfig build works
           - os: ubuntu-latest
@@ -119,7 +118,6 @@ jobs:
             enable_ipo: On
             build_shared: On
 
-
     steps:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
@@ -132,6 +130,9 @@ jobs:
             core.setFailed('There is a mismatch between configured llvm compiler and clang-tidy version chosen')
 
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
 
       - name: Setup Cache
         uses: ./.github/actions/setup_cache
@@ -146,8 +147,7 @@ jobs:
         with:
           envFile: '.github/constants.env'
 
-
-      - name: Setup Cpp
+      - name: Setup C++ Toolchain
         uses: aminya/setup-cpp@v1
         with:
           compiler: ${{ matrix.compiler }}
@@ -179,6 +179,23 @@ jobs:
           CMAKE_BIN=$(python -c "import cmake; print(cmake.CMAKE_BIN_DIR)")
           echo "$CMAKE_BIN" >> "$GITHUB_PATH"
           echo "CMake bin dir added to PATH: $CMAKE_BIN"
+      
+      - name: Install Vulkan SDK (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo add-apt-repository ppa:graphics-drivers/ppa
+          sudo apt upgrade
+          sudo apt install libgl1-mesa-dev xorg-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev
+
+          sudo apt install -y vulkan-tools libvulkan-dev mesa-vulkan-drivers glslang-tools  libvulkan-dev
+
+          echo "VULKAN_SDK=/usr" >> $GITHUB_ENV
+
+      - name: Install Vulkan SDK (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install vulkan-sdk
+          echo "VULKAN_SDK=C:\VulkanSDK" >> $GITHUB_ENV
 
       - name: Configure CMake
         run: |
@@ -211,20 +228,20 @@ jobs:
         run: |
           OpenCppCoverage.exe --sources "${{ github.workspace }}\include" --sources "${{ github.workspace }}\src" --modules "${{ github.workspace }}\build" --excluded_sources ".*\\_deps\\.*" --excluded_sources ".*\\vcpkg_installed\\.*" --excluded_sources ".*\\configured_files\\.*" --excluded_sources ".*\\.cmake\\.*" --export_type cobertura:coverage.xml --cover_children -- ctest -C ${{ matrix.build_type }} -j ${{ steps.cpu-cores.outputs.count }} --output-on-failure --no-compress-output
 
-      - name: CPack
-        if: matrix.package_generator != ''
-        working-directory: ./build
-        run: |
-          cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
+      #- name: CPack
+      #  if: matrix.package_generator != ''
+      #  working-directory: ./build
+      #  run: |
+      #    cpack -C ${{matrix.build_type}} -G ${{matrix.package_generator}}
 
-      - name: Publish Tagged Release
-        uses: softprops/action-gh-release@v3
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.package_generator != '' }}
-        with:
-          files: |
-            build/*-*${{ matrix.build_type }}*-*.*
+      #- name: Publish Tagged Release
+      #  uses: softprops/action-gh-release@v3
+      #  if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.package_generator != '' }}
+      #  with:
+      #    files: |
+      #      build/*-*${{ matrix.build_type }}*-*.*
 
-
+      # out/cobertura.xml
       - name: Upload coverage to Codecov
         if: ${{ !(matrix.os == 'ubuntu-latest' && matrix.build_type == 'release') }}
         uses: codecov/codecov-action@v6
@@ -233,4 +250,4 @@ jobs:
           flags: ${{ matrix.os }}-${{ matrix.build_type }}
           name: ${{ matrix.os }}-${{ matrix.build_type }}-coverage
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./build/coverage.xml
+          files: './build/coverage.xml
