@@ -11,8 +11,8 @@ class SwapChain {
 public:
     static inline constexpr std::size_t MAX_FRAMES_IN_FLIGHT = 2;
 
-    SwapChain(Device &deviceRef, VkExtent2D windowExtent);
-    SwapChain(Device &deviceRef, VkExtent2D windowExtent, std::shared_ptr<SwapChain> previous);
+    SwapChain(Device &deviceRef, VkExtent2D extent);
+    SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
 
     SwapChain(const SwapChain &) = delete;
