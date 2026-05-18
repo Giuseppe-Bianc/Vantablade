@@ -28,7 +28,9 @@
 #define JSAV_FOR_EACH_6(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_5(WHAT, __VA_ARGS__))
 #define JSAV_FOR_EACH_7(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_6(WHAT, __VA_ARGS__))
 #define JSAV_FOR_EACH_8(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_7(WHAT, __VA_ARGS__))
+
 #define JSAV_GET_FOR_EACH(_1, _2, _3, _4, _5, _6, _7, _8, NAME, ...) NAME
+
 #define JSAV_FOR_EACH(WHAT, ...)                                                                                                           \
     JSAV_EXPAND(JSAV_GET_FOR_EACH(__VA_ARGS__, JSAV_FOR_EACH_8, JSAV_FOR_EACH_7, JSAV_FOR_EACH_6, JSAV_FOR_EACH_5, JSAV_FOR_EACH_4,        \
                                   JSAV_FOR_EACH_3, JSAV_FOR_EACH_2, JSAV_FOR_EACH_1)(WHAT, __VA_ARGS__))
@@ -37,6 +39,7 @@
 #define JSAV_DO_PRAGMA_GCC(x) JSAV_DO_PRAGMA(GCC diagnostic ignored x)
 
 #ifdef _MSC_VER
+
 /**
  * @brief Temporarily disables specified MSVC compiler warnings.
  *
@@ -80,7 +83,7 @@
  *
  * @note Available only when compiling with MSVC; has no effect.
  */
-#define DISABLE_CLANG_WARNINGS_PUSH(warning)
+#define DISABLE_CLANG_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on MSVC.
@@ -114,7 +117,8 @@
  */
 #define DISABLE_GCC_WARNINGS_POP()
 
-#elifdef __clang__
+#elif defined(__clang__)
+
 /**
  * @brief Empty macro for cross-compiler compatibility on Clang.
  *
@@ -138,7 +142,7 @@
 #define DISABLE_WARNINGS_POP()
 
 /**
- * @brief Temporarily disables a specific Clang compiler warning.
+ * @brief Temporarily disables Clang warnings.
  *
  * @details Saves the current Clang diagnostic state and disables the
  *          specified warning until the corresponding call to DISABLE_CLANG_WARNINGS_POP().
@@ -180,7 +184,7 @@
  *
  * @note Available only when compiling with Clang; has no effect.
  */
-#define DISABLE_GCC_WARNINGS_PUSH(...) _Pragma("GCC diagnostic push") JSAV_FOR_EACH(JSAV_DO_PRAGMA_GCC, __VA_ARGS__)
+#define DISABLE_GCC_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on Clang.
@@ -192,7 +196,8 @@
  */
 #define DISABLE_GCC_WARNINGS_POP()
 
-#elifdef __GNUC__
+#elif defined(__GNUC__)
+
 /**
  * @brief Empty macro for cross-compiler compatibility on GCC.
  *
@@ -225,7 +230,7 @@
  *
  * @note Available only when compiling with GCC; has no effect.
  */
-#define DISABLE_CLANG_WARNINGS_PUSH(warning)
+#define DISABLE_CLANG_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on GCC.
@@ -238,7 +243,7 @@
 #define DISABLE_CLANG_WARNINGS_POP()
 
 /**
- * @brief Temporarily disables a specific GCC compiler warning.
+ * @brief Temporarily disables GCC warnings.
  *
  * @details Saves the current GCC diagnostic state and disables the
  *          specified warning until the corresponding call to DISABLE_GCC_WARNINGS_POP().
@@ -271,6 +276,7 @@
 #define DISABLE_GCC_WARNINGS_POP() _Pragma("GCC diagnostic pop")
 
 #else
+
 /**
  * @brief Empty macro for unsupported compilers.
  *
@@ -303,7 +309,7 @@
  *
  * @note Used as a fallback for unsupported compilers.
  */
-#define DISABLE_CLANG_WARNINGS_PUSH(warning)
+#define DISABLE_CLANG_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for unsupported compilers.
@@ -336,6 +342,7 @@
  * @note Used as a fallback for unsupported compilers.
  */
 #define DISABLE_GCC_WARNINGS_POP()
+
 #endif
 
 // NOLINTEND(*-macro-usage)
