@@ -185,13 +185,8 @@ jobs:
       - name: Install Vulkan SDK (Ubuntu)
         if: runner.os == 'Linux'
         run: |
-          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc \
-            | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
-          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-main.list \
-            https://packages.lunarg.com/vulkan/lunarg-vulkan-$(lsb_release -cs)-main.list
           sudo apt-get update
           sudo apt-get install -y \
-            vulkan-sdk \
             libgl1-mesa-dev \
             xorg-dev \
             libxrandr-dev \
@@ -201,14 +196,27 @@ jobs:
             libxext-dev \
             libwayland-dev \
             libxkbcommon-dev
-
-          echo "VULKAN_SDK=/usr" >> $GITHUB_ENV
+ 
+          VULKAN_VERSION=$(curl -s https://vulkan.lunarg.com/sdk/latest/linux.txt)
+          wget -q \
+            "https://sdk.lunarg.com/sdk/download/${VULKAN_VERSION}/linux/vulkansdk-linux-x86_64-${VULKAN_VERSION}.tar.xz" \
+            -O /tmp/vulkansdk.tar.xz
+          mkdir -p /opt/vulkan-sdk
+          tar -xf /tmp/vulkansdk.tar.xz -C /opt/vulkan-sdk
+ 
+          echo "VULKAN_SDK=/opt/vulkan-sdk/${VULKAN_VERSION}/x86_64" >> $GITHUB_ENV
+          echo "/opt/vulkan-sdk/${VULKAN_VERSION}/x86_64/bin" >> $GITHUB_PATH
 
       - name: Install Vulkan SDK (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
-          choco install vulkan-sdk
-          echo "VULKAN_SDK=C:\VulkanSDK" >> $GITHUB_ENV
+          choco install vulkan-sdk -y
+          $vulkanPath = (Get-ChildItem "C:\VulkanSDK" |
+            Sort-Object Name -Descending |
+            Select-Object -First 1).FullName
+          echo "VULKAN_SDK=$vulkanPath" >> $env:GITHUB_ENV
+          echo "$vulkanPath\Bin" >> $env:GITHUB_PATH
 
       - name: Configure CMake
         run: |
