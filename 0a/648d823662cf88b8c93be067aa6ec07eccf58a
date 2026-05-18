@@ -1,0 +1,25 @@
+include/Vantablade/glm_matld.hpp
+  s_baafb78b51063c::t_e18a36b1f98141 37
+  s_baafb78b51063c::t_71d6e2f1bef895 32-34,36,38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "0a648d823662cf88b8c93be067aa6ec07eccf58a",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_baafb78b51063c": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "ba2bb381-6295-4be4-9c0a-4bc0b9a4034c",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
