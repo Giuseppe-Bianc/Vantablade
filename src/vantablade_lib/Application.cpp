@@ -152,7 +152,7 @@ void Application::recordCommandBuffer(int imageIndex) {
     const VkCommandBufferBeginInfo beginInfo{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .pNext = nullptr, .flags = 0, .pInheritanceInfo = nullptr};
 
-    VK_CHECK(vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo), "failed to begin recording command buffer!");
+    VK_CHECK(vkBeginCommandBuffer(commandBuffers[C_ST(imageIndex)], &beginInfo), "failed to begin recording command buffer!");
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -167,7 +167,7 @@ void Application::recordCommandBuffer(int imageIndex) {
     renderPassInfo.clearValueCount = C_UI32T(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
-    vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(commandBuffers[C_ST(imageIndex)], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     VkViewport viewport{};
     viewport.x = 0.0f;
@@ -177,24 +177,24 @@ void Application::recordCommandBuffer(int imageIndex) {
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     const VkRect2D scissor{{0, 0}, swapChain->getSwapChainExtent()};
-    vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
-    vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
+    vkCmdSetViewport(commandBuffers[C_ST(imageIndex)], 0, 1, &viewport);
+    vkCmdSetScissor(commandBuffers[C_ST(imageIndex)], 0, 1, &scissor);
 
-    pipeline->bind(commandBuffers[imageIndex]);
-    model->bind(commandBuffers[imageIndex]);
+    pipeline->bind(commandBuffers[C_ST(imageIndex)]);
+    model->bind(commandBuffers[C_ST(imageIndex)]);
 
     for(int j = 0; j < 4; j++) {
         SimplePushConstantData push{};
-        push.offset = {-0.5f + frame * 0.02f, -0.4f + j * 0.25f};
-        push.color = {0.0f, 0.0f, 0.2f + 0.2f * j};
+        push.offset = {-0.5f + C_F(frame) * 0.02f, -0.4f + C_F(j) * 0.25f};
+        push.color = {0.0f, 0.0f, 0.2f + 0.2f * C_F(j)};
 
-        vkCmdPushConstants(commandBuffers[imageIndex], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+        vkCmdPushConstants(commandBuffers[C_ST(imageIndex)], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
                            sizeof(SimplePushConstantData), &push);
-        model->draw(commandBuffers[imageIndex]);
+        model->draw(commandBuffers[C_ST(imageIndex)]);
     }
 
-    vkCmdEndRenderPass(commandBuffers[imageIndex]);
-    VK_CHECK(vkEndCommandBuffer(commandBuffers[imageIndex]), "failed to record command buffer!");
+    vkCmdEndRenderPass(commandBuffers[C_ST(imageIndex)]);
+    VK_CHECK(vkEndCommandBuffer(commandBuffers[C_ST(imageIndex)]), "failed to record command buffer!");
 }
 
 void Application::drawFrame() {
