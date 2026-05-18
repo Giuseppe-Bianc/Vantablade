@@ -220,8 +220,10 @@
 #define JSAV_EXPAND_8(a, b, c, d, e, f, g, h) JSAV_EXPAND_7(a, b, c, d, e, f, g) JSAV_EXPAND_1(h)
 
 // Helper to pick expansion based on argument count. We rely on a limited arity.
-#define JSAV_GET_9TH_ARG(_1,_2,_3,_4,_5,_6,_7,_8,NAME,...) NAME
-#define JSAV_EXPAND_CHOOSER(...) JSAV_GET_9TH_ARG(__VA_ARGS__, JSAV_EXPAND_8, JSAV_EXPAND_7, JSAV_EXPAND_6, JSAV_EXPAND_5, JSAV_EXPAND_4, JSAV_EXPAND_3, JSAV_EXPAND_2, JSAV_EXPAND_1)
+#define JSAV_GET_9TH_ARG(_1, _2, _3, _4, _5, _6, _7, _8, NAME, ...) NAME
+#define JSAV_EXPAND_CHOOSER(...)                                                                                                           \
+    JSAV_GET_9TH_ARG(__VA_ARGS__, JSAV_EXPAND_8, JSAV_EXPAND_7, JSAV_EXPAND_6, JSAV_EXPAND_5, JSAV_EXPAND_4, JSAV_EXPAND_3, JSAV_EXPAND_2, \
+                     JSAV_EXPAND_1)
 #define JSAV_FOR_EACH(...) JSAV_EXPAND_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
 
 #define DISABLE_CLANG_WARNINGS_PUSH(...)
