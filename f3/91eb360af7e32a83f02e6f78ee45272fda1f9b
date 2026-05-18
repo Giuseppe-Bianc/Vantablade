@@ -1,0 +1,18 @@
+Dependencies.cmake
+  h_361662506da91f 104-111
+src/vantablade_lib/CMakeLists.txt
+  h_361662506da91f 47
+src/vantablade_lib/VmaImplementation.cpp
+  h_361662506da91f 23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "f391eb360af7e32a83f02e6f78ee45272fda1f9b",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
