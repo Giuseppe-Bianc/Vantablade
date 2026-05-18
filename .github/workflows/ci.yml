@@ -122,6 +122,7 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
+
       - name: Check for llvm version mismatches
         if: ${{ contains(matrix.compiler, 'llvm') && !contains(matrix.compiler, env.CLANG_TIDY_VERSION) }}
         uses: actions/github-script@v9
@@ -164,6 +165,7 @@ jobs:
 
           gcovr: true
           opencppcoverage: true
+
       - name: Update Gcov with pipx
         run: |
           pip install --upgrade gcovr --break-system-packages
@@ -179,15 +181,26 @@ jobs:
           CMAKE_BIN=$(python -c "import cmake; print(cmake.CMAKE_BIN_DIR)")
           echo "$CMAKE_BIN" >> "$GITHUB_PATH"
           echo "CMake bin dir added to PATH: $CMAKE_BIN"
-      
+
       - name: Install Vulkan SDK (Ubuntu)
         if: runner.os == 'Linux'
         run: |
-          sudo add-apt-repository ppa:graphics-drivers/ppa
-          sudo apt upgrade
-          sudo apt install libgl1-mesa-dev xorg-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxext-dev libwayland-dev libxkbcommon-dev
-
-          sudo apt install -y vulkan-tools libvulkan-dev mesa-vulkan-drivers glslang-tools  libvulkan-dev
+          wget -qO- https://packages.lunarg.com/lunarg-signing-key-pub.asc \
+            | sudo tee /etc/apt/trusted.gpg.d/lunarg.asc
+          sudo wget -qO /etc/apt/sources.list.d/lunarg-vulkan-main.list \
+            https://packages.lunarg.com/vulkan/lunarg-vulkan-$(lsb_release -cs)-main.list
+          sudo apt-get update
+          sudo apt-get install -y \
+            vulkan-sdk \
+            libgl1-mesa-dev \
+            xorg-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxext-dev \
+            libwayland-dev \
+            libxkbcommon-dev
 
           echo "VULKAN_SDK=/usr" >> $GITHUB_ENV
 
