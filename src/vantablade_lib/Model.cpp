@@ -5,7 +5,7 @@
 // NOLINTBEGIN(*-include-cleaner, *-signed-bitwise)
 #include "Vantablade/Model.hpp"
 #include "Vantablade/vulkanCheck.hpp"
-#include <vma/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 
 Model::Model(Device &device, const std::vector<Vertex> &vertices) : device_m{device} { createVertexBuffers(vertices); }
 
