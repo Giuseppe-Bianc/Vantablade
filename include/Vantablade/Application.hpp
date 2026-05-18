@@ -9,7 +9,7 @@
 #include "Window.hpp"
 #include "Device.hpp"
 #include "Pipeline.hpp"
-#include "Swapchain.hpp"
+#include "SwapChain.hpp"
 #include "Model.hpp"
 // clang-format on
 
