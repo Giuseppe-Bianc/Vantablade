@@ -18,6 +18,22 @@
 // Helper that stringifies its argument for use with _Pragma.
 #define JSAV_DO_PRAGMA(x) _Pragma(#x)
 
+// Variadic utility macros to support applying a pragma to multiple arguments.
+#define JSAV_EXPAND(x) x
+#define JSAV_FOR_EACH_1(WHAT, X) WHAT(X)
+#define JSAV_FOR_EACH_2(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_1(WHAT, __VA_ARGS__))
+#define JSAV_FOR_EACH_3(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_2(WHAT, __VA_ARGS__))
+#define JSAV_FOR_EACH_4(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_3(WHAT, __VA_ARGS__))
+#define JSAV_FOR_EACH_5(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_4(WHAT, __VA_ARGS__))
+#define JSAV_FOR_EACH_6(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_5(WHAT, __VA_ARGS__))
+#define JSAV_FOR_EACH_7(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_6(WHAT, __VA_ARGS__))
+#define JSAV_FOR_EACH_8(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_7(WHAT, __VA_ARGS__))
+#define JSAV_GET_FOR_EACH(_1,_2,_3,_4,_5,_6,_7,_8,NAME,...) NAME
+#define JSAV_FOR_EACH(WHAT, ...) JSAV_EXPAND(JSAV_GET_FOR_EACH(__VA_ARGS__, JSAV_FOR_EACH_8, JSAV_FOR_EACH_7, JSAV_FOR_EACH_6, JSAV_FOR_EACH_5, JSAV_FOR_EACH_4, JSAV_FOR_EACH_3, JSAV_FOR_EACH_2, JSAV_FOR_EACH_1)(WHAT, __VA_ARGS__))
+
+#define JSAV_DO_PRAGMA_CLANG(x) JSAV_DO_PRAGMA(clang diagnostic ignored x)
+#define JSAV_DO_PRAGMA_GCC(x) JSAV_DO_PRAGMA(GCC diagnostic ignored x)
+
 #ifdef _MSC_VER
 /**
  * @brief Temporarily disables specified MSVC compiler warnings.
@@ -84,7 +100,7 @@
  *
  * @note Available only when compiling with MSVC; has no effect.
  */
-#define DISABLE_GCC_WARNINGS_PUSH(warning)
+#define DISABLE_GCC_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on MSVC.
@@ -138,7 +154,7 @@
  * DISABLE_CLANG_WARNINGS_POP()
  * @endcode
  */
-#define DISABLE_CLANG_WARNINGS_PUSH(warning) _Pragma("clang diagnostic push") JSAV_DO_PRAGMA(clang diagnostic ignored warning)
+#define DISABLE_CLANG_WARNINGS_PUSH(...) _Pragma("clang diagnostic push") JSAV_FOR_EACH(JSAV_DO_PRAGMA_CLANG, __VA_ARGS__)
 
 /**
  * @brief Restores the previously saved Clang diagnostic state.
@@ -162,7 +178,7 @@
  *
  * @note Available only when compiling with Clang; has no effect.
  */
-#define DISABLE_GCC_WARNINGS_PUSH(warning)
+#define DISABLE_GCC_WARNINGS_PUSH(...) _Pragma("GCC diagnostic push") JSAV_FOR_EACH(JSAV_DO_PRAGMA_GCC, __VA_ARGS__)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on Clang.
@@ -238,7 +254,7 @@
  * DISABLE_GCC_WARNINGS_POP()
  * @endcode
  */
-#define DISABLE_GCC_WARNINGS_PUSH(warning) _Pragma("GCC diagnostic push") JSAV_DO_PRAGMA(GCC diagnostic ignored warning)
+#define DISABLE_GCC_WARNINGS_PUSH(...) _Pragma("GCC diagnostic push") JSAV_FOR_EACH(JSAV_DO_PRAGMA_GCC, __VA_ARGS__)
 
 /**
  * @brief Restores the previously saved GCC diagnostic state.
@@ -307,7 +323,7 @@
  *
  * @note Used as a fallback for unsupported compilers.
  */
-#define DISABLE_GCC_WARNINGS_PUSH(warning)
+#define DISABLE_GCC_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for unsupported compilers.
