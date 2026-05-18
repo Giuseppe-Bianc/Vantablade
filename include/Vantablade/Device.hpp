@@ -191,7 +191,7 @@ template <typename T> inline void Device::psetObjectName(T handle, const char *n
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
         .pNext = nullptr,
         .objectType = objectType,
-        .objectHandle = static_cast<uint64_t>(nhandle),
+        .objectHandle = C_UI64T(nhandle),
         .pObjectName = name,
     };
     debugFuncs.setObjectName(device_, &nameInfo);

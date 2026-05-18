@@ -154,6 +154,9 @@ void SwapChain::createSwapChain() {
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     const QueueFamilyIndices indices = device.findPhysicalQueueFamilies();
+    if(!indices.graphicsFamily.has_value() || !indices.presentFamily.has_value()) {
+        throw std::runtime_error("Incomplete queue family indices");
+    }
 
     // SAFETY: std::array replaces C-style array for queue family indices.
     const std::array<uint32_t, 2> queueFamilyIndices{indices.graphicsFamily.value(), indices.presentFamily.value()};

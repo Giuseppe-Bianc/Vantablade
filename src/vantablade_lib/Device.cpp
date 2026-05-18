@@ -10,7 +10,7 @@
 #include "Vantablade/VulkanLogInfoCallback.hpp"
 
 DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
-#include <vma/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 DISABLE_WARNINGS_POP()
 
 template <typename Fn> Fn Device::loadInstanceProc(VkInstance inst, const char *name) noexcept {
@@ -268,6 +268,10 @@ void Device::pickPhysicalDevice() {
 
 void Device::createLogicalDevice() {
     const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+
+    if(!indices.graphicsFamily.has_value() || !indices.presentFamily.has_value()) {
+        throw std::runtime_error("Incomplete queue family indices");
+    }
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     const std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value()};
