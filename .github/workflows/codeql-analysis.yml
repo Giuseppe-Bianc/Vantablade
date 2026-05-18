@@ -38,17 +38,12 @@ jobs:
       matrix:
         include:
           - language: c-cpp
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Learn more about CodeQL language support at https://git.io/codeql-language-support
-        compiler:
-          # you can specify the version after `-` like "llvm-13.0.0".
-          - gcc-15
-        generator:
-          - "Ninja Multi-Config"
-        build_type:
-          - Debug
-        packaging_maintainer_mode:
-          - ON
+            # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
+            # Learn more about CodeQL language support at https://git.io/codeql-language-support
+            compiler: gcc-15
+            generator: "Ninja Multi-Config"
+            build_type: Debug
+            packaging_maintainer_mode: ON
 
 
     steps:
