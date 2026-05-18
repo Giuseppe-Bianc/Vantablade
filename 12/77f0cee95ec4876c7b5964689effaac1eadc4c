@@ -1,0 +1,24 @@
+include/VantabladeCore/disableWarn.hpp
+  s_d173fd0de23457::t_4551e6d03be537 165-180
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "1277f0cee95ec4876c7b5964689effaac1eadc4c",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d173fd0de23457": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "28fe8995-8e38-4d22-abab-734e49d0aa31",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
