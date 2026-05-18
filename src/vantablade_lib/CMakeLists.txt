@@ -44,6 +44,7 @@ target_link_libraries(vantablade_lib
         Vulkan::Vulkan
         glfw
         glm::glm
+        GPUOpen::VulkanMemoryAllocator
         Vantablade::vantablade_core_lib)
 
 target_include_directories(vantablade_lib ${WARNING_GUARD}

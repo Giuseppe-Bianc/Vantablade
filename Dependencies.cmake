@@ -88,7 +88,7 @@ function(Vantablade_setup_dependencies)
             "GLFW_BUILD_DOCS OFF"
     )
   endif()
-    if (NOT TARGET glm::glm)
+  if (NOT TARGET glm::glm)
     CPMAddPackage(
             NAME glm
             GIT_REPOSITORY https://github.com/g-truc/glm.git
@@ -101,5 +101,13 @@ function(Vantablade_setup_dependencies)
             "GLM_ENABLE_SIMD_AVX2 ON"
     )
   endif ()
+  if(NOT TARGET GPUOpen::VulkanMemoryAllocator)
+    CPMAddPackage(
+      NAME VulkanMemoryAllocator
+      GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+      GIT_TAG v3.3.0
+      SYSTEM YES
+    )
+  endif()
 
 endfunction()

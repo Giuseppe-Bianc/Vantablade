@@ -20,7 +20,7 @@ DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
 #define VMA_DEBUG_MIN_BUFFER_IMAGE_GRANULARITY 1
 #endif
 
-#include "VMA/vk_mem_alloc.h"
+#include <vk_mem_alloc.h>
 
 DISABLE_WARNINGS_POP()
 
