@@ -29,7 +29,13 @@ DISABLE_WARNINGS_PUSH(
         26482 26485 26490 26491 26493 26494 26495
         26496 26497 26498 26800 26814 26818 26826)
 
+// Use comma-separated arguments for GCC/Clang to expand into multiple _Pragma calls,
+// but keep a single concatenated argument for MSVC which expects one parameter.
+#ifdef _MSC_VER
 DISABLE_GCC_WARNINGS_PUSH("-Wduplicated-branches" "-Wuseless-cast")
+#else
+DISABLE_GCC_WARNINGS_PUSH("-Wduplicated-branches", "-Wuseless-cast")
+#endif
 
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
