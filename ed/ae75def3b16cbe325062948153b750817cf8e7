@@ -1,0 +1,14 @@
+.github/workflows/codeql-analysis.yml
+  h_361662506da91f 140
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "edae75def3b16cbe325062948153b750817cf8e7",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
