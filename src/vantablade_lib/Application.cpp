@@ -77,8 +77,7 @@ void Application::createPipelineLayout() {
                                                         .pSetLayouts = nullptr,
                                                         .pushConstantRangeCount = 1,
                                                         .pPushConstantRanges = &pushConstantRange};
-    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
-             "failed to create pipeline layout!");
+    VK_CHECK(vkCreatePipelineLayout(device_m.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout), "failed to create pipeline layout!");
     device_m.setObjectName(pipelineLayout, "Main PipelineLayout");
 }
 

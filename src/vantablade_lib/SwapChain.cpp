@@ -341,8 +341,7 @@ void SwapChain::createDepthResources() {
         viewInfo.subresourceRange.baseArrayLayer = 0;
         viewInfo.subresourceRange.layerCount = 1;
 
-        VK_CHECK(vkCreateImageView(device.device(), &viewInfo, nullptr, &depthImageViews[i]),
-                 "failed to create texture image view!");
+        VK_CHECK(vkCreateImageView(device.device(), &viewInfo, nullptr, &depthImageViews[i]), "failed to create texture image view!");
         const auto viewName = FORMAT("Depth ImageView[{}]", i);  // aggiunta
         device.setObjectName(depthImageViews[i], viewName.c_str());
     }

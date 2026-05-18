@@ -377,18 +377,16 @@ void Device::createAllocator() {
 
     VmaAllocatorCreateFlags flags = 0;
     // Richiesto se bufferDeviceAddress è abilitato (Vulkan spec + VMA docs).
-    if(properties.apiVersion >= VK_API_VERSION_1_2) {
-        flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
-    }
+    if(properties.apiVersion >= VK_API_VERSION_1_2) { flags |= VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT; }
     // Opzionale ma raccomandato se VK_EXT_memory_budget è disponibile.
     // flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
 
     VmaAllocatorCreateInfo allocatorCreateInfo{};
-    allocatorCreateInfo.flags            = flags;
+    allocatorCreateInfo.flags = flags;
     allocatorCreateInfo.vulkanApiVersion = VK_API_VERSION_1_4;
-    allocatorCreateInfo.physicalDevice   = physicalDevice;
-    allocatorCreateInfo.device           = device_;
-    allocatorCreateInfo.instance         = instance;
+    allocatorCreateInfo.physicalDevice = physicalDevice;
+    allocatorCreateInfo.device = device_;
+    allocatorCreateInfo.instance = instance;
     allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
@@ -434,8 +432,7 @@ void Device::setupDebugMessenger() {
     if(!enableValidationLayers) { return; }
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
-    VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger),
-             "failed to set up debug messenger!");
+    VK_CHECK(CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger), "failed to set up debug messenger!");
     loadDebugUtilsFunctions();
 }
 
@@ -488,7 +485,7 @@ void Device::hasGflwRequiredInstanceExtensions() {
     available.reserve(extensionCount);
     for(const auto &[extensionName, specVersion] : extensions) {
 #ifndef NDEBUG
-    availableExtensions.emplace_back(FORMAT("{} (v. {})", extensionName, specVersion));
+        availableExtensions.emplace_back(FORMAT("{} (v. {})", extensionName, specVersion));
 #endif
         available.emplace(extensionName);
     }
@@ -534,17 +531,13 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice phdevice) const {
 
     for(const auto &[i, queueFamily] : std::views::enumerate(queueFamilies)) {
         const auto ci = C_UI32T(i);
-        if(queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) {
-            indices.graphicsFamily = ci;
-        }
+        if(queueFamily.queueCount > 0 && (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) != 0u) { indices.graphicsFamily = ci; }
 
         VkBool32 presentSupport{VK_FALSE};
         vkGetPhysicalDeviceSurfaceSupportKHR(phdevice, ci, surface_, &presentSupport);
 
         // NOLINTNEXTLINE(*-implicit-bool-conversion)
-        if(queueFamily.queueCount > 0 && presentSupport) {
-            indices.presentFamily = ci;
-        }
+        if(queueFamily.queueCount > 0 && presentSupport) { indices.presentFamily = ci; }
 
         if(indices.isComplete()) { break; }
     }

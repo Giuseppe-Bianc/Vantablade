@@ -109,7 +109,9 @@ public:
 
     template <typename T> void setObjectName(T handle, const char *name) noexcept { psetObjectName(handle, name); }
     // Command buffer labels
-    void cmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept { pcmdBeginLabel(cb, name, color); }
+    void cmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
+        pcmdBeginLabel(cb, name, color);
+    }
     void cmdEndLabel(VkCommandBuffer cb) const noexcept { pcmdEndLabel(cb); }
     void cmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
         pcmdInsertLabel(cb, name, color);

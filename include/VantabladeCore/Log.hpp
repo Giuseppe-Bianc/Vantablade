@@ -86,9 +86,9 @@ DISABLE_WARNINGS_PUSH(
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 
 DISABLE_CLANG_WARNINGS_PUSH("-Wunused-result")
-#include <spdlog/async.h>  // async_logger, init_thread_pool, thread_pool
+#include <spdlog/async.h>                     // async_logger, init_thread_pool, thread_pool
+#include <spdlog/sinks/rotating_file_sink.h>  // <-- add this
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/rotating_file_sink.h>   // <-- add this
 #include <spdlog/spdlog.h>
 DISABLE_CLANG_WARNINGS_POP()
 
@@ -336,7 +336,8 @@ inline void setup_logger() {
     // const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
     // stderr_sink->set_level(spdlog::level::warn);
     // sinks.push_back(stderr_sink);
-    const auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(std::string(LOG_FILE_PATH), LOG_FILE_MAX_SIZE,LOG_FILE_MAX_FILES);
+    const auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(std::string(LOG_FILE_PATH), LOG_FILE_MAX_SIZE,
+                                                                                  LOG_FILE_MAX_FILES);
     file_sink->set_level(spdlog::level::trace);
     file_sink->set_pattern(R"([%Y-%m-%d %T.%e] [%l] [%t] [%s:%#] %v)");
     sinks.push_back(file_sink);
@@ -413,7 +414,8 @@ inline void setup_logger_async() {
     // const auto stderr_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
     // stderr_sink->set_level(spdlog::level::warn);
     // sinks.push_back(stderr_sink);
-    const auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(std::string(LOG_FILE_PATH), LOG_FILE_MAX_SIZE,LOG_FILE_MAX_FILES);
+    const auto file_sink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(std::string(LOG_FILE_PATH), LOG_FILE_MAX_SIZE,
+                                                                                  LOG_FILE_MAX_FILES);
     file_sink->set_level(spdlog::level::trace);
     file_sink->set_pattern(R"([%Y-%m-%d %T.%e] [%l] [%t] [%s:%#] %v)");
     sinks.push_back(file_sink);
@@ -509,7 +511,7 @@ inline void setup_logger_async() {
     do {                                                                                                                                   \
         spdlog::set_error_handler(my_error_handler);                                                                                       \
         try {                                                                                                                              \
-            setup_logger_async();                                                                                                                \
+            setup_logger_async();                                                                                                          \
         } catch(const spdlog::spdlog_ex &ex) {                                                                                             \
             std::cerr << "Logger initialization failed: " << ex.what() << '\n';                                                            \
         } catch(const std::exception &e) { std::cerr << "Unhandled exception: " << e.what() << '\n'; } catch(...) {                        \

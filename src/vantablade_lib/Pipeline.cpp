@@ -123,8 +123,7 @@ void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule 
     createInfo.codeSize = code.size();
     createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());  // NOLINT(*-pro-type-reinterpret-cast)
 
-    VK_CHECK(vkCreateShaderModule(device_m.device(), &createInfo, nullptr, shaderModule),
-             "failed to create shader module");
+    VK_CHECK(vkCreateShaderModule(device_m.device(), &createInfo, nullptr, shaderModule), "failed to create shader module");
 }
 
 void Pipeline::bind(VkCommandBuffer commandBuffer) const {
