@@ -1,0 +1,26 @@
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 289-306,310-324
+src/vantablade_lib/SwapChain.cpp
+  s_47a64aaf039d8b::t_91242ffd57212e 359
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "d9ce1c6a9d59d964df33f954a2c738fbdf5bcc45",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_47a64aaf039d8b": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "ac55a39b-c258-478f-be96-3a45b14c062e",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
