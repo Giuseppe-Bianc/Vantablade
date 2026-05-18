@@ -252,9 +252,9 @@ void Device::pickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    for(const auto &device : devices) {
-        if(isDeviceSuitable(device)) {
-            physicalDevice = device;
+    for(const auto &device_s : devices) {
+        if(isDeviceSuitable(device_s)) {
+            physicalDevice = device_s;
             break;
         }
     }

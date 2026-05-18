@@ -153,7 +153,7 @@ private:
     [[nodiscard]] bool isDeviceSuitable(VkPhysicalDevice device) const;
     [[nodiscard]] std::vector<const char *> getRequiredExtensions() const;
     [[nodiscard]] static bool checkValidationLayerSupport();
-    [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device) const;
+    [[nodiscard]] QueueFamilyIndices findQueueFamilies(VkPhysicalDevice phdevice) const;
     static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
     void hasGflwRequiredInstanceExtensions();
     [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
