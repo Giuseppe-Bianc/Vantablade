@@ -1,0 +1,30 @@
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 191
+  s_8fa16743ac01b7::t_8b1eefad228f54 210
+  s_8fa16743ac01b7::t_431ed9b40eabb7 147
+include/Vantablade/Application.hpp
+  s_8fa16743ac01b7::t_b5612dd4360f33 35
+src/vantablade_lib/Device.cpp
+  s_8fa16743ac01b7::t_8a1b61b742462b 177,187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "6341a4c12c9b154a5058b666a16b00e6c2fa8b2a",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_8fa16743ac01b7": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "19159377-01ad-4001-bad7-c5ed26a8e47c",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
