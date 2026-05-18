@@ -174,7 +174,7 @@ void Device::createInstance() {
 
     auto extensions = getRequiredExtensions();
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
     extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #endif
 
@@ -184,7 +184,7 @@ void Device::createInstance() {
     createInfo.enabledExtensionCount = C_UI32T(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
-#if defined(__APPLE__)
+#ifdef __APPLE__
     createInfo.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 #endif
 

@@ -32,7 +32,7 @@ private:
     void freeCommandBuffers();
     void drawFrame();
     void recreateSwapChain();
-    void recordCommandBuffer(int imageIndex);
+    void recordCommandBuffer(std::size_t imageIndex);
 
     Window window{wwidth, wheight, wtile};
     Device device_m{window};

@@ -144,7 +144,7 @@ void Application::freeCommandBuffers() {
     commandBuffers.clear();
 }
 
-void Application::recordCommandBuffer(int imageIndex) {
+void Application::recordCommandBuffer(std::size_t imageIndex) {
     static int frame = 30;
     frame = (frame + 1) % 100;
 
@@ -188,7 +188,7 @@ void Application::recordCommandBuffer(int imageIndex) {
         push.color = {0.0f, 0.0f, 0.2f + 0.2f * C_F(j)};
 
         vkCmdPushConstants(commandBuffers[C_ST(imageIndex)], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                           sizeof(SimplePushConstantData), &push);
+                   sizeof(SimplePushConstantData), &push);
         model->draw(commandBuffers[C_ST(imageIndex)]);
     }
 
@@ -207,7 +207,7 @@ void Application::drawFrame() {
 
     VK_CHECK_SWAPCHAIN(acquireResult, "failed to acquire swap chain image!");
 
-    recordCommandBuffer(NC_I(imageIndex));
+    recordCommandBuffer(imageIndex);
     auto submitResult = swapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
     if(submitResult == VK_ERROR_OUT_OF_DATE_KHR || submitResult == VK_SUBOPTIMAL_KHR || window.wasWindowResized()) {
         window.resetWindowResizedFlag();
