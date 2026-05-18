@@ -1,0 +1,14 @@
+include/VantabladeCore/disableWarn.hpp
+  h_361662506da91f 31,33,42,86,120,145,199-200,233,246,279,312,345
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "a2b55244b8440b8b2c9b3c1ea973a7677451ce6c",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
