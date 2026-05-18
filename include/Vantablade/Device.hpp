@@ -109,18 +109,18 @@ public:
 
     template <typename T> void setObjectName(T handle, const char *name) noexcept { psetObjectName(handle, name); }
     // Command buffer labels
-    void cmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept { pcmdBeginLabel(cb, name, color); }
-    void cmdEndLabel(VkCommandBuffer cb) noexcept { pcmdEndLabel(cb); }
-    void cmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) noexcept {
+    void cmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept { pcmdBeginLabel(cb, name, color); }
+    void cmdEndLabel(VkCommandBuffer cb) const noexcept { pcmdEndLabel(cb); }
+    void cmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
         pcmdInsertLabel(cb, name, color);
     }
 
     // Queue labels
-    void queueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+    void queueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept {
         pqueueBeginLabel(queue, name, color);
     }
-    void queueEndLabel(VkQueue queue) noexcept { pqueueEndLabel(queue); }
-    void queueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) noexcept {
+    void queueEndLabel(VkQueue queue) const noexcept { pqueueEndLabel(queue); }
+    void queueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept {
         pqueueInsertLabel(queue, name, color);
     }
 
