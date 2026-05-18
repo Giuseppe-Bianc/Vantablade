@@ -28,8 +28,10 @@
 #define JSAV_FOR_EACH_6(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_5(WHAT, __VA_ARGS__))
 #define JSAV_FOR_EACH_7(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_6(WHAT, __VA_ARGS__))
 #define JSAV_FOR_EACH_8(WHAT, X, ...) WHAT(X) JSAV_EXPAND(JSAV_FOR_EACH_7(WHAT, __VA_ARGS__))
-#define JSAV_GET_FOR_EACH(_1,_2,_3,_4,_5,_6,_7,_8,NAME,...) NAME
-#define JSAV_FOR_EACH(WHAT, ...) JSAV_EXPAND(JSAV_GET_FOR_EACH(__VA_ARGS__, JSAV_FOR_EACH_8, JSAV_FOR_EACH_7, JSAV_FOR_EACH_6, JSAV_FOR_EACH_5, JSAV_FOR_EACH_4, JSAV_FOR_EACH_3, JSAV_FOR_EACH_2, JSAV_FOR_EACH_1)(WHAT, __VA_ARGS__))
+#define JSAV_GET_FOR_EACH(_1, _2, _3, _4, _5, _6, _7, _8, NAME, ...) NAME
+#define JSAV_FOR_EACH(WHAT, ...)                                                                                                           \
+    JSAV_EXPAND(JSAV_GET_FOR_EACH(__VA_ARGS__, JSAV_FOR_EACH_8, JSAV_FOR_EACH_7, JSAV_FOR_EACH_6, JSAV_FOR_EACH_5, JSAV_FOR_EACH_4,        \
+                                  JSAV_FOR_EACH_3, JSAV_FOR_EACH_2, JSAV_FOR_EACH_1)(WHAT, __VA_ARGS__))
 
 #define JSAV_DO_PRAGMA_CLANG(x) JSAV_DO_PRAGMA(clang diagnostic ignored x)
 #define JSAV_DO_PRAGMA_GCC(x) JSAV_DO_PRAGMA(GCC diagnostic ignored x)
