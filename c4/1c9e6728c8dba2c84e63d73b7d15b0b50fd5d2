@@ -1,0 +1,14 @@
+.github/workflows/auto-clang-format.yml
+  h_361662506da91f 3-13,20-26,32,34-36,41-51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "c41c9e6728c8dba2c84e63d73b7d15b0b50fd5d2",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
