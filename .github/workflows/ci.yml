@@ -250,4 +250,4 @@ jobs:
           flags: ${{ matrix.os }}-${{ matrix.build_type }}
           name: ${{ matrix.os }}-${{ matrix.build_type }}-coverage
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: './build/coverage.xml
+          files: ./build/coverage.xml
