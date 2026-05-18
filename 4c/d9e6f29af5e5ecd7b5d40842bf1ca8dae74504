@@ -1,0 +1,16 @@
+src/vantablade_lib/CMakeLists.txt
+  h_361662506da91f 46
+.github/workflows/codeql-analysis.yml
+  h_361662506da91f 94,104-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "4cd9e6f29af5e5ecd7b5d40842bf1ca8dae74504",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
