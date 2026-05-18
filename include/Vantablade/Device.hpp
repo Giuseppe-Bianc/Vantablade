@@ -182,13 +182,16 @@ template <typename T> inline void Device::psetObjectName(T handle, const char *n
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
     constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast, *-no-int-to-ptr)
-    const auto nhandle = static_cast<uint64_t>(reinterpret_cast<uintptr_t>(handle));
+    // Avoid -Wuseless-cast on some platforms by temporarily suppressing the warning
+    DISABLE_GCC_WARNINGS_PUSH("-Wuseless-cast")
+    const auto nhandle = reinterpret_cast<std::uintptr_t>(handle);
+    DISABLE_GCC_WARNINGS_POP()
 
     const VkDebugUtilsObjectNameInfoEXT nameInfo{
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
         .pNext = nullptr,
         .objectType = objectType,
-        .objectHandle = nhandle,
+        .objectHandle = static_cast<uint64_t>(nhandle),
         .pObjectName = name,
     };
     debugFuncs.setObjectName(device_, &nameInfo);

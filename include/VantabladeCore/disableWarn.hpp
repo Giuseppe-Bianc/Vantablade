@@ -15,6 +15,7 @@
  * @note This is an internal helper macro; it should not be used directly
  *       in user code.
  */
+// Helper that stringifies its argument for use with _Pragma.
 #define JSAV_DO_PRAGMA(x) _Pragma(#x)
 
 #ifdef _MSC_VER
@@ -95,7 +96,7 @@
  */
 #define DISABLE_GCC_WARNINGS_POP()
 
-#elifdef __clang__
+#elif defined(__clang__)
 /**
  * @brief Empty macro for cross-compiler compatibility on Clang.
  *
@@ -173,7 +174,7 @@
  */
 #define DISABLE_GCC_WARNINGS_POP()
 
-#elifdef __GNUC__
+#elif defined(__GNUC__)
 /**
  * @brief Empty macro for cross-compiler compatibility on GCC.
  *
@@ -206,7 +207,24 @@
  *
  * @note Available only when compiling with GCC; has no effect.
  */
-#define DISABLE_CLANG_WARNINGS_PUSH(warning)
+// Helper macros to expand a variadic list of warnings into multiple _Pragma calls.
+// Supports up to 8 warnings; adjust as needed.
+// Expand variadic args into GCC diagnostic pragmas (up to 8 args supported).
+#define JSAV_EXPAND_1(a) JSAV_DO_PRAGMA(GCC diagnostic ignored a)
+#define JSAV_EXPAND_2(a, b) JSAV_EXPAND_1(a) JSAV_EXPAND_1(b)
+#define JSAV_EXPAND_3(a, b, c) JSAV_EXPAND_2(a, b) JSAV_EXPAND_1(c)
+#define JSAV_EXPAND_4(a, b, c, d) JSAV_EXPAND_3(a, b, c) JSAV_EXPAND_1(d)
+#define JSAV_EXPAND_5(a, b, c, d, e) JSAV_EXPAND_4(a, b, c, d) JSAV_EXPAND_1(e)
+#define JSAV_EXPAND_6(a, b, c, d, e, f) JSAV_EXPAND_5(a, b, c, d, e) JSAV_EXPAND_1(f)
+#define JSAV_EXPAND_7(a, b, c, d, e, f, g) JSAV_EXPAND_6(a, b, c, d, e, f) JSAV_EXPAND_1(g)
+#define JSAV_EXPAND_8(a, b, c, d, e, f, g, h) JSAV_EXPAND_7(a, b, c, d, e, f, g) JSAV_EXPAND_1(h)
+
+// Helper to pick expansion based on argument count. We rely on a limited arity.
+#define JSAV_GET_9TH_ARG(_1,_2,_3,_4,_5,_6,_7,_8,NAME,...) NAME
+#define JSAV_EXPAND_CHOOSER(...) JSAV_GET_9TH_ARG(__VA_ARGS__, JSAV_EXPAND_8, JSAV_EXPAND_7, JSAV_EXPAND_6, JSAV_EXPAND_5, JSAV_EXPAND_4, JSAV_EXPAND_3, JSAV_EXPAND_2, JSAV_EXPAND_1)
+#define JSAV_FOR_EACH(...) JSAV_EXPAND_CHOOSER(__VA_ARGS__)(__VA_ARGS__)
+
+#define DISABLE_CLANG_WARNINGS_PUSH(...)
 
 /**
  * @brief Empty macro for cross-compiler compatibility on GCC.
@@ -237,7 +255,7 @@
  * DISABLE_GCC_WARNINGS_POP()
  * @endcode
  */
-#define DISABLE_GCC_WARNINGS_PUSH(warning) _Pragma("GCC diagnostic push") JSAV_DO_PRAGMA(GCC diagnostic ignored warning)
+#define DISABLE_GCC_WARNINGS_PUSH(...) _Pragma("GCC diagnostic push") JSAV_FOR_EACH(__VA_ARGS__)
 
 /**
  * @brief Restores the previously saved GCC diagnostic state.
