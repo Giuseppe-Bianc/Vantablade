@@ -375,10 +375,13 @@ void SwapChain::createSyncObjects() {
 
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) const {
-    for(const auto &availableFormat : availableFormats) {
-        if(availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
-            return availableFormat;
-        }
+    const auto it = std::ranges::find_if(availableFormats,
+                                         [](const VkSurfaceFormatKHR &availableFormat) {
+                                             return availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+                                                    availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+                                         });
+    if(it != availableFormats.end()) {
+        return *it;
     }
     return availableFormats[0];
 }

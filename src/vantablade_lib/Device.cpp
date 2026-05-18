@@ -288,6 +288,7 @@ void Device::createLogicalDevice() {
     // 1. Query supported features into a temporary chain
     VkPhysicalDeviceVulkan14Features supported14{};
     supported14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
+    supported14.pNext = nullptr;
 
     VkPhysicalDeviceVulkan13Features supported13{};
     supported13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
@@ -385,6 +386,7 @@ void Device::createLogicalDevice() {
 
 void Device::createCommandPool() {
     const QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
+    if(!queueFamilyIndices.graphicsFamily.has_value()) { throw std::runtime_error("failed to find graphics queue family!"); }
 
     VkCommandPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
