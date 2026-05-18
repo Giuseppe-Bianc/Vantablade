@@ -1,0 +1,14 @@
+.github/workflows/ci.yml
+  h_361662506da91f 199-208,212,214-219
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9ce643fe650cdf1253c5bd51c93ffdd6f4829efc",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
