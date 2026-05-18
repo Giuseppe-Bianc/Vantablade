@@ -1,0 +1,32 @@
+.github/actions/setup_cmake/action.yml
+  h_361662506da91f 1-16
+.github/workflows/ci.yml
+  s_3bb2f3e98789b7::t_5dba07f86bcab9 177-178
+  h_361662506da91f 175
+.github/actions/setup_vulkan/action.yml
+  h_361662506da91f 1-43
+.github/workflows/codeql-analysis.yml
+  h_361662506da91f 90
+  s_3bb2f3e98789b7::t_252a3f7349be53 91,94
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "96d20f5ae3fc9015d935e31efa1e7b51608c090c",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_3bb2f3e98789b7": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "d59e23b5-bf67-49a5-a726-2c17b23cf687",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
