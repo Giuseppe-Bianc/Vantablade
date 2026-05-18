@@ -1,0 +1,14 @@
+src/vantablade_lib/FPSCounter.cpp
+  h_361662506da91f 84-88
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.8",
+  "base_commit_sha": "9dd16c0c687fca74df05aa076b7c5ecf6f7fe518",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
