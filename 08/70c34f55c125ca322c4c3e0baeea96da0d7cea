@@ -1,0 +1,16 @@
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 10
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "0870c34f55c125ca322c4c3e0baeea96da0d7cea",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
