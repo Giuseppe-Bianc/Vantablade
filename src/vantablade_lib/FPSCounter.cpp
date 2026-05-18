@@ -81,13 +81,11 @@ void FPSCounter::formatTimeInto(std::string &out, const long double inputTimeMil
 
     const auto durationmils = duration<long double, std::milli>(inputTimeMilli);
 
-    const auto durationMs = floor<milliseconds>(durationmils);
-    const auto remainderAfterMs = durationmils - durationMs;
-
-    const auto durationUs = floor<microseconds>(remainderAfterMs);
-    const auto remainderAfterUs = remainderAfterMs - durationUs;
-
-    const auto durationNs = round<nanoseconds>(remainderAfterUs);
+    const auto durationMs = duration_cast<milliseconds>(durationmils);
+    auto remainder = durationmils - durationMs;
+    const auto durationUs = floor<microseconds>(remainder);
+    remainder -= durationUs;
+    const auto durationNs = round<nanoseconds>(remainder);
 
     // PERF: reuse out buffer. FORMAT likely allocates, so we assign into an existing string.
     out = FORMAT("{}ms,{}us,{}ns", C_LD(durationMs.count()), C_LD(durationUs.count()), C_LD(durationNs.count()));
