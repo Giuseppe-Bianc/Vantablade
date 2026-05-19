@@ -52,6 +52,33 @@ namespace DebugColors {
     static inline constexpr DebugLabelColor None = {0.0f, 0.0f, 0.0f, 0.0f};
 }  // namespace DebugColors
 
+// In Device.hpp oppure come tipo interno privato
+
+struct DeviceFeatureChain {
+    VkPhysicalDeviceVulkan14Features f14{};
+    VkPhysicalDeviceVulkan13Features f13{};
+    VkPhysicalDeviceVulkan12Features f12{};
+    VkPhysicalDeviceVulkan11Features f11{};
+    VkPhysicalDeviceFeatures2 f2{};
+
+    DeviceFeatureChain() noexcept {
+        f14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
+        f14.pNext = nullptr;
+
+        f13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+        f13.pNext = &f14;
+
+        f12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+        f12.pNext = &f13;
+
+        f11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+        f11.pNext = &f12;
+
+        f2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+        f2.pNext = &f11;
+    }
+};
+
 class Device {
 public:
     // PERF: compile-time constant promoted from per-instance non-static member.

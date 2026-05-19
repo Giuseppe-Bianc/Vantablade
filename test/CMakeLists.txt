@@ -36,7 +36,7 @@ target_link_libraries(
   tests
   PRIVATE Vantablade::Vantablade_warnings
           Vantablade::Vantablade_options
-          Vantablade::vantablade_core_lib
+          Vantablade::vantablade_lib
           Catch2::Catch2WithMain)
 
 Vantablade_configure_linker(tests)
@@ -70,7 +70,7 @@ target_link_libraries(
   constexpr_tests
   PRIVATE Vantablade::Vantablade_warnings
           Vantablade::Vantablade_options
-          Vantablade::vantablade_core_lib
+          Vantablade::vantablade_lib
           Catch2::Catch2WithMain)
 
 Vantablade_configure_linker(constexpr_tests)
@@ -95,7 +95,7 @@ target_link_libraries(
   relaxed_constexpr_tests
   PRIVATE Vantablade::Vantablade_warnings
           Vantablade::Vantablade_options
-          Vantablade::vantablade_core_lib
+          Vantablade::vantablade_lib
           Catch2::Catch2WithMain)
 target_compile_definitions(relaxed_constexpr_tests PRIVATE -DCATCH_CONFIG_RUNTIME_STATIC_REQUIRE)
 
