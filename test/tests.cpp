@@ -17,7 +17,6 @@ using Catch::Matchers::EndsWith;
 using Catch::Matchers::Message;
 using Catch::Matchers::StartsWith;
 
-
 #define REQ_FORMAT(type, string) REQUIRE(FORMAT("{}", type) == (string));
 #define REQ_FFORMAT(type, string) REQUIRE(FFORMAT("{}", type) == (string))
 #define MSG_FORMAT(...) Message(FORMAT(__VA_ARGS__))
@@ -178,7 +177,6 @@ namespace {
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
     [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }
 }  // namespace
-
 
 TEST_CASE("my_error_handler(const std::string&) tests", "[error_handler]") {
     SECTION("Basic error handling") {
