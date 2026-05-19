@@ -1,0 +1,22 @@
+include/Vantablade/Device.hpp
+  h_361662506da91f 55-81
+test/tests.cpp
+  h_361662506da91f 3
+test/constexpr_tests.cpp
+  h_361662506da91f 3
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 271-272,275,279-282,285,288-295,298-300,307,388-389,391
+test/CMakeLists.txt
+  h_361662506da91f 39,73,98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "918023939d9406b830eccee2cb47fe1a1bee3ddc",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
