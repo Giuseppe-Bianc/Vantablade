@@ -172,7 +172,7 @@ void Device::createInstance() {
 
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "LittleVulkanEngine App";
+    appInfo.pApplicationName = Vantablade::cmake::project_name.data();
     appInfo.applicationVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
     appInfo.pEngineName = "No Engine";
     appInfo.engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
@@ -258,12 +258,8 @@ void Device::pickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    for(const auto &device_s : devices) {
-        if(isDeviceSuitable(device_s)) {
-            physicalDevice = device_s;
-            break;
-        }
-    }
+    const auto it = std::ranges::find_if(devices, [this](const VkPhysicalDevice &d) { return isDeviceSuitable(d); });
+    if(it != devices.end()) { physicalDevice = *it; }
 
     if(physicalDevice == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
 
@@ -441,15 +437,21 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
     }
 
     // Check for required features using VkPhysicalDeviceFeatures2
+    VkPhysicalDeviceVulkan14Features features14{};
+    features14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
+    features14.pNext = nullptr;
     VkPhysicalDeviceVulkan13Features features13{};
     features13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
-    features13.pNext = nullptr;
+    features13.pNext = &features14;
     VkPhysicalDeviceVulkan12Features features12{};
     features12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
     features12.pNext = &features13;
+    VkPhysicalDeviceVulkan11Features features11{};
+    features11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+    features11.pNext = &features12;
     VkPhysicalDeviceFeatures2 features2{};
     features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    features2.pNext = &features12;
+    features2.pNext = &features11;
 
     vkGetPhysicalDeviceFeatures2(device, &features2);
 
