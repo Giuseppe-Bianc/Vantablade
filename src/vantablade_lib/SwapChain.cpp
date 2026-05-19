@@ -137,16 +137,16 @@ void SwapChain::createSwapChain() {
     const VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
     const VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+    uint32_t mimageCount = swapChainSupport.capabilities.minImageCount + 1;
 
-    if(swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
-        imageCount = swapChainSupport.capabilities.maxImageCount;
+    if(swapChainSupport.capabilities.maxImageCount > 0 && mimageCount > swapChainSupport.capabilities.maxImageCount) {
+        mimageCount = swapChainSupport.capabilities.maxImageCount;
     }
 
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
     createInfo.surface = device.surface();
-    createInfo.minImageCount = imageCount;
+    createInfo.minImageCount = mimageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
     createInfo.imageExtent = extent;
@@ -181,11 +181,11 @@ void SwapChain::createSwapChain() {
 
     device.setObjectName(swapChain, "Main SwapChain");
 
-    VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, nullptr), "failed to query swapchain image count!");
+    VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &mimageCount, nullptr), "failed to query swapchain image count!");
 
-    swapChainImages.resize(imageCount);
+    swapChainImages.resize(mimageCount);
 
-    VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &imageCount, swapChainImages.data()),
+    VK_CHECK(vkGetSwapchainImagesKHR(device.device(), swapChain, &mimageCount, swapChainImages.data()),
              "failed to retrieve swapchain images!");
     for(const auto &[i, image] : std::views::enumerate(swapChainImages)) {
         const auto name = FORMAT("SwapChain Image[{}]", i);
@@ -373,8 +373,7 @@ void SwapChain::createSyncObjects() {
     }
 }
 
-// NOLINTNEXTLINE(*-convert-member-functions-to-static)
-VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) const {
+VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
     const auto it = std::ranges::find_if(availableFormats, [](const VkSurfaceFormatKHR &availableFormat) {
         return availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     });
@@ -382,7 +381,6 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
     return availableFormats[0];
 }
 
-// NOLINTNEXTLINE(*-convert-member-functions-to-static)
 VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) {
     auto isAvailable = [&](VkPresentModeKHR mode) { return std::ranges::find(availablePresentModes, mode) != availablePresentModes.end(); };
 

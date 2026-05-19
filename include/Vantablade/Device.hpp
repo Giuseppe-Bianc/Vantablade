@@ -178,7 +178,10 @@ private:
 };
 
 template <typename T> inline void Device::psetObjectName(T handle, const char *name) noexcept {
-    if(!enableValidationLayers || debugFuncs.setObjectName == nullptr) { return; }
+    if constexpr(!enableValidationLayers) {
+        return;
+    }
+    if(debugFuncs.setObjectName == nullptr) { return; }
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
     constexpr VkObjectType objectType = vkutil::vulkanObjectType<T>();
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast, *-no-int-to-ptr)

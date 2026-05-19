@@ -19,7 +19,7 @@ template <typename Fn> Fn Device::loadInstanceProc(VkInstance inst, const char *
 }
 
 void Device::loadDebugUtilsFunctions() noexcept {
-    if(!enableValidationLayers) { return; }
+    if constexpr(!enableValidationLayers) { return; }
     const vnd::AutoTimer time{"load Debug Utils Functions"};
 
     debugFuncs.setObjectName = loadInstanceProc<PFN_vkSetDebugUtilsObjectNameEXT>(instance, "vkSetDebugUtilsObjectNameEXT");
@@ -55,35 +55,41 @@ void Device::loadDebugUtilsFunctions() noexcept {
 }
 
 void Device::pcmdBeginLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
-    if(!enableValidationLayers || debugFuncs.cmdBeginLabel == nullptr) { return; }
+    if constexpr(!enableValidationLayers) { return; }
+    if(debugFuncs.cmdBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdBeginLabel(cb, &label);
 }
 
 void Device::pcmdEndLabel(VkCommandBuffer cb) const noexcept {
-    if(!enableValidationLayers || debugFuncs.cmdEndLabel == nullptr) { return; }
+    if constexpr(!enableValidationLayers) { return; }
+    if(debugFuncs.cmdEndLabel == nullptr) { return; }
     debugFuncs.cmdEndLabel(cb);
 }
 
 void Device::pcmdInsertLabel(VkCommandBuffer cb, const char *name, std::span<const float, 4> color) const noexcept {
-    if(!enableValidationLayers || debugFuncs.cmdInsertLabel == nullptr) { return; }
+    if constexpr(!enableValidationLayers) { return; }
+    if(debugFuncs.cmdInsertLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.cmdInsertLabel(cb, &label);
 }
 
 void Device::pqueueBeginLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept {
-    if(!enableValidationLayers || debugFuncs.queueBeginLabel == nullptr) { return; }
+    if constexpr(!enableValidationLayers) { return; }
+    if(debugFuncs.queueBeginLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueBeginLabel(queue, &label);
 }
 
 void Device::pqueueEndLabel(VkQueue queue) const noexcept {
-    if(!enableValidationLayers || debugFuncs.queueEndLabel == nullptr) { return; }
+    if constexpr(!enableValidationLayers) { return; }
+    if(debugFuncs.queueEndLabel == nullptr) { return; }
     debugFuncs.queueEndLabel(queue);
 }
 
 void Device::pqueueInsertLabel(VkQueue queue, const char *name, std::span<const float, 4> color) const noexcept {
-    if(!enableValidationLayers || debugFuncs.queueInsertLabel == nullptr) { return; }
+    if constexpr(!enableValidationLayers) { return; }
+    if(debugFuncs.queueInsertLabel == nullptr) { return; }
     const auto label = makeLabel(name, color);
     debugFuncs.queueInsertLabel(queue, &label);
 }
@@ -435,9 +441,15 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
     }
 
     // Check for required features using VkPhysicalDeviceFeatures2
-    VkPhysicalDeviceVulkan13Features features13{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES, .pNext = nullptr};
-    VkPhysicalDeviceVulkan12Features features12{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES, .pNext = &features13};
-    VkPhysicalDeviceFeatures2 features2{.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2, .pNext = &features12};
+    VkPhysicalDeviceVulkan13Features features13{};
+    features13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+    features13.pNext = nullptr;
+    VkPhysicalDeviceVulkan12Features features12{};
+    features12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    features12.pNext = &features13;
+    VkPhysicalDeviceFeatures2 features2{};
+    features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+    features2.pNext = &features12;
 
     vkGetPhysicalDeviceFeatures2(device, &features2);
 
