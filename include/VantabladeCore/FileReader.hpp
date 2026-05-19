@@ -10,8 +10,6 @@
 #include "headersCore.hpp"
 #include "timer/Timer.hpp"
 
-#define INDEPT
-
 namespace vnd {
 
     /**
@@ -68,7 +66,7 @@ namespace vnd {
         const auto rawFileSize = fs::file_size(filePath);
         const auto fileSize = C_ST(rawFileSize);
 
-#ifndef NDEBUG
+#ifdef INDEPT
         // Optional timer for performance measurement.
         const AutoTimer timer(FORMAT("Reading file {}", filename));
 #endif

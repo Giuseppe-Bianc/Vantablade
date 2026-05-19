@@ -1,5 +1,6 @@
 #pragma once
 
+#include "fs/fs.hpp"
 #include "Application.hpp"
 #include "Monitor.hpp"
 #include "VulkanLogInfoCallback.hpp"
