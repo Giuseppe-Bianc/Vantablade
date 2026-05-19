@@ -203,7 +203,7 @@ void Device::createInstance() {
 
     const void *pNextChain = nullptr;
 
-    if constexpr (enableValidationLayers) {
+    if constexpr(enableValidationLayers) {
         createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
