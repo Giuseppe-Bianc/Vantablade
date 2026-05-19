@@ -1,0 +1,16 @@
+test/constexpr_tests.cpp
+  h_361662506da91f 1,5
+test/tests.cpp
+  h_361662506da91f 1-2,5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "bbd09132226d892cd1c21cbc5ae0f97828f0fc5e",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
