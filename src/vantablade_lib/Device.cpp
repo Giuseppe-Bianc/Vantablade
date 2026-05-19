@@ -203,8 +203,7 @@ void Device::createInstance() {
 
     const void *pNextChain = nullptr;
 
-#ifdef NDEBUG
-    if(enableValidationLayers) [[unlikely]] {
+    if constexpr (enableValidationLayers) {
         createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
 
@@ -218,28 +217,9 @@ void Device::createInstance() {
         // Chain: InstanceCreateInfo -> ValidationFeatures -> DebugMessengerCreateInfo
         validationFeatures.pNext = &debugCreateInfo;
         pNextChain = &validationFeatures;
-    } else [[likely]] {
+    } else {
         createInfo.enabledLayerCount = 0;
     }
-#else
-    if(enableValidationLayers) [[likely]] {
-        createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-
-        populateDebugMessengerCreateInfo(debugCreateInfo);
-        validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-        validationFeatures.enabledValidationFeatureCount = C_UI32T(enables.size());
-        validationFeatures.pEnabledValidationFeatures = enables.data();
-        /*validationFeatures.disabledValidationFeatureCount = C_UI32T(disables.size());
-        validationFeatures.pDisabledValidationFeatures = disables.data();*/
-
-        // Chain: InstanceCreateInfo -> ValidationFeatures -> DebugMessengerCreateInfo
-        validationFeatures.pNext = &debugCreateInfo;
-        pNextChain = &validationFeatures;
-    } else [[unlikely]] {
-        createInfo.enabledLayerCount = 0;
-    }
-#endif
     createInfo.pNext = pNextChain;
 
     VK_CHECK(vkCreateInstance(&createInfo, nullptr, &instance), "failed to create instance!");
