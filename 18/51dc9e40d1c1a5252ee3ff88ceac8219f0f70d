@@ -1,0 +1,20 @@
+test/CMakeLists.txt
+  h_361662506da91f 1,34-35,46-48,70-71,81,95,106
+CMakeLists.txt
+  h_361662506da91f 1,13
+test/tests.cpp
+  h_361662506da91f 2,4-13,15-1289
+include/Vantablade/vantablade.hpp
+  h_361662506da91f 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.9",
+  "base_commit_sha": "1851dc9e40d1c1a5252ee3ff88ceac8219f0f70d",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
