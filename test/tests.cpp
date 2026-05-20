@@ -2,6 +2,7 @@
 // NOLINTBEGIN(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness)
 // clang-format on
 #include "testsConstants.hpp"
+#include <Vantablade/Device.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
@@ -1369,8 +1370,16 @@ TEST_CASE("FileSizeInfo_AllIECPrefixLevels_FormatCorrectly", "[FileSizeInfo]") {
 TEST_CASE("Vulkan object strings stay stable", "[vulkan][strings]") {
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_UNKNOWN)} == "UNKNOWN");
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_INSTANCE)} == "INSTANCE");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_MICROMAP_EXT)} == "MICROMAP_EXT");
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_PIPELINE_LAYOUT)} == "PIPELINE_LAYOUT");
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_SWAPCHAIN_KHR)} == "SWAPCHAIN_KHR");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_TENSOR_ARM)} == "TENSOR_ARM");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_TENSOR_VIEW_ARM)} == "TENSOR_VIEW_ARM");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_PIPELINE_BINARY_KHR)} == "PIPELINE_BINARY_KHR");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_DATA_GRAPH_PIPELINE_SESSION_ARM)} == "DATA_GRAPH_PIPELINE_SESSION_ARM");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_EXTERNAL_COMPUTE_QUEUE_NV)} == "EXTERNAL_COMPUTE_QUEUE_NV");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_EXT)} == "INDIRECT_COMMANDS_LAYOUT_EXT");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT)} == "INDIRECT_EXECUTION_SET_EXT");
     REQUIRE(std::string_view{VkObjectString(static_cast<VkObjectType>(-1))} == "UNHANDLED");
 }
 
@@ -1408,6 +1417,73 @@ TEST_CASE("Vulkan flag string helpers preserve ordering and empty inputs", "[vul
         REQUIRE_THAT(VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
                                                            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
                      ContainsSubstring("[PERFORMANCE]"));
+        REQUIRE_THAT(VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT),
+                     ContainsSubstring("[DEVICE_ADDRESS_BINDING]"));
+    }
+}
+
+TEST_CASE("Queue family completeness requires graphics and present queues", "[vulkan][queues]") {
+    const QueueFamilyIndices none{};
+    REQUIRE_FALSE(none.isComplete());
+
+    QueueFamilyIndices graphics_only{};
+    graphics_only.graphicsFamily = 0u;
+    REQUIRE_FALSE(graphics_only.isComplete());
+
+    QueueFamilyIndices complete{};
+    complete.graphicsFamily = 0u;
+    complete.presentFamily = 1u;
+    REQUIRE(complete.isComplete());
+}
+
+TEST_CASE("Debug utils function table defaults to unloaded state", "[vulkan][debug_utils]") {
+    const DebugUtilsFunctions funcs{};
+
+    REQUIRE(funcs.setObjectName == nullptr);
+    REQUIRE(funcs.cmdBeginLabel == nullptr);
+    REQUIRE(funcs.cmdEndLabel == nullptr);
+    REQUIRE(funcs.cmdInsertLabel == nullptr);
+    REQUIRE(funcs.queueBeginLabel == nullptr);
+    REQUIRE(funcs.queueEndLabel == nullptr);
+    REQUIRE(funcs.queueInsertLabel == nullptr);
+}
+
+TEST_CASE("Device feature chain preserves promoted Vulkan feature ordering", "[vulkan][features]") {
+    const DeviceFeatureChain chain{};
+
+    REQUIRE(chain.f2.sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2);
+    REQUIRE(chain.f11.sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES);
+    REQUIRE(chain.f12.sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES);
+    REQUIRE(chain.f13.sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES);
+    REQUIRE(chain.f14.sType == VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES);
+
+    REQUIRE(chain.f2.pNext == &chain.f11);
+    REQUIRE(chain.f11.pNext == &chain.f12);
+    REQUIRE(chain.f12.pNext == &chain.f13);
+    REQUIRE(chain.f13.pNext == &chain.f14);
+    REQUIRE(chain.f14.pNext == nullptr);
+}
+
+TEST_CASE("Device info helpers keep Vulkan telemetry readable", "[vulkan][device_info]") {
+    SECTION("uuid_to_string formats pipeline cache UUIDs canonically") {
+        constexpr std::array<uint8_t, VK_UUID_SIZE> uuid{
+            0x12u, 0x34u, 0x56u, 0x78u, 0x9au, 0xbcu, 0xdeu, 0xf0u, 0x12u, 0x34u, 0x56u, 0x78u, 0x9au, 0xbcu, 0xdeu, 0xf0u,
+        };
+
+        REQUIRE(uuid_to_string(uuid) == "12345678-9abc-def0-1234-56789abcdef0");
+    }
+
+    SECTION("formatDeviceSize shows SI and IEC interpretations") {
+        const auto formatted = formatDeviceSize(1'048'576u);
+
+        REQUIRE_THAT(formatted, ContainsSubstring("Bytes: 1048576"));
+        REQUIRE_THAT(formatted, ContainsSubstring("SI(1.05 MB)"));
+        REQUIRE_THAT(formatted, ContainsSubstring("IEC(1.00 MiB)"));
+    }
+
+    SECTION("getDeviceType maps known and unknown physical device types") {
+        REQUIRE(std::string_view{getDeviceType(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)} == "DISCRETE_GPU");
+        REQUIRE(std::string_view{getDeviceType(static_cast<VkPhysicalDeviceType>(0x7fffffff))} == "Unhandled VkPhysicalDeviceType");
     }
 }
 
