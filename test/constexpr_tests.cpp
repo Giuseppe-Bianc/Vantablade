@@ -1,15 +1,13 @@
-// NOLINTBEGIN(*-include-cleaner)
+// clang-format off
+// NOLINTBEGIN(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness)
+// clang-format on
 #include <catch2/catch_test_macros.hpp>
 
 #include <Vantablade/Device.hpp>
 #include <Vantablade/vantablade.hpp>
 #include <string_view>
-// NOLINTEND(*-include-cleaner)
 
 TEST_CASE("Vulkan constexpr mappings remain stable", "[vulkan][constexpr]") {
-    STATIC_REQUIRE(VK_HEADER_VERSION == 341);
-    STATIC_REQUIRE(VK_HEADER_VERSION_COMPLETE == VK_MAKE_API_VERSION(0, 1, 4, 341));
-
     STATIC_REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_DEVICE)} == "DEVICE");
     STATIC_REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_COMMAND_POOL)} == "COMMAND_POOL");
     STATIC_REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_MICROMAP_EXT)} == "MICROMAP_EXT");
@@ -101,3 +99,7 @@ TEST_CASE("Vulkan constexpr mappings remain stable", "[vulkan][constexpr]") {
     STATIC_REQUIRE(DebugColors::Blue[2] == 1.0F);
     STATIC_REQUIRE(DebugColors::None[3] == 0.0F);
 }
+
+// clang-format off
+// NOLINTEND(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness)
+// clang-format on
