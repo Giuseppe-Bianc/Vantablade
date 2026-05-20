@@ -1379,10 +1379,10 @@ TEST_CASE("Single Vulkan flag bit helpers provide stable fallbacks", "[vulkan][s
     REQUIRE(std::string_view{VkMemoryPropertyFlagBitsString(VK_MEMORY_PROPERTY_HOST_CACHED_BIT)} == "HOST_CACHED");
     REQUIRE(std::string_view{VkQueueFlagBitsString(VK_QUEUE_TRANSFER_BIT)} == "TRANSFER");
 
-    REQUIRE(std::string_view{VkDebugUtilsMessageTypeFlagBitsEXTString(static_cast<VkDebugUtilsMessageTypeFlagBitsEXT>(0x40000000u))}
-            == "Unhandled VkDebugUtilsMessageTypeFlagBitsEXT");
-    REQUIRE(std::string_view{VkMemoryPropertyFlagBitsString(static_cast<VkMemoryPropertyFlagBits>(0x40000000u))}
-            == "Unhandled VkMemoryPropertyFlagBits");
+    REQUIRE(std::string_view{VkDebugUtilsMessageTypeFlagBitsEXTString(static_cast<VkDebugUtilsMessageTypeFlagBitsEXT>(0x40000000u))} ==
+            "Unhandled VkDebugUtilsMessageTypeFlagBitsEXT");
+    REQUIRE(std::string_view{VkMemoryPropertyFlagBitsString(static_cast<VkMemoryPropertyFlagBits>(0x40000000u))} ==
+            "Unhandled VkMemoryPropertyFlagBits");
     REQUIRE(std::string_view{VkQueueFlagBitsString(static_cast<VkQueueFlagBits>(0x40000000u))} == "Unhandled VkQueueFlagBits");
 }
 
@@ -1462,9 +1462,8 @@ TEST_CASE("Vulkan validation callback logging formats debug payloads", "[vulkan]
     };
     const auto callback_data = makeCallbackData(queue_labels, cmd_labels, objects);
 
-    const auto output = captureSpdlogMessages([&] {
-        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT);
-    });
+    const auto output = captureSpdlogMessages(
+        [&] { logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT); });
 
     REQUIRE_THAT(output, ContainsSubstring("--- Queue Labels ---"));
     REQUIRE_THAT(output, ContainsSubstring("[0] Label: graphics-queue"));
@@ -1481,9 +1480,8 @@ TEST_CASE("Vulkan validation callback logging formats debug payloads", "[vulkan]
 TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "[vulkan][logging]") {
     const auto callback_data = makeCallbackData({}, {}, {});
 
-    const auto output = captureSpdlogMessages([&] {
-        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT);
-    });
+    const auto output = captureSpdlogMessages(
+        [&] { logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT); });
 
     REQUIRE(output.empty());
 }
