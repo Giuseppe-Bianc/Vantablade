@@ -12,6 +12,7 @@
 #include <future>
 #include <memory>
 #include <spdlog/sinks/null_sink.h>
+#include <spdlog/sinks/ostream_sink.h>
 #include <spdlog/spdlog.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -190,6 +191,71 @@ namespace {
         spdlog::set_default_logger(logger);
         return 0;
     }();
+
+    struct DefaultLoggerGuard {
+        std::shared_ptr<spdlog::logger> previous;
+
+        explicit DefaultLoggerGuard(std::shared_ptr<spdlog::logger> replacement) : previous(spdlog::default_logger()) {
+            spdlog::set_default_logger(std::move(replacement));
+        }
+
+        ~DefaultLoggerGuard() {
+            if(previous) { spdlog::set_default_logger(previous); }
+        }
+
+        DefaultLoggerGuard(const DefaultLoggerGuard &) = delete;
+        DefaultLoggerGuard &operator=(const DefaultLoggerGuard &) = delete;
+        DefaultLoggerGuard(DefaultLoggerGuard &&) = delete;
+        DefaultLoggerGuard &operator=(DefaultLoggerGuard &&) = delete;
+    };
+
+    template <typename Fn> [[nodiscard]] std::string captureSpdlogMessages(Fn &&fn) {
+        std::ostringstream stream;
+        const auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(stream, true);
+        sink->set_pattern("%v");
+
+        const auto logger_name = FORMAT("captured_vulkan_tests_{}", reinterpret_cast<std::uintptr_t>(&stream));
+        const auto logger = std::make_shared<spdlog::logger>(logger_name, sink);
+        logger->set_level(spdlog::level::trace);
+        logger->flush_on(spdlog::level::trace);
+
+        const DefaultLoggerGuard logger_guard{logger};
+        std::forward<Fn>(fn)();
+        logger->flush();
+
+        return stream.str();
+    }
+
+    [[nodiscard]] VkDebugUtilsLabelEXT makeDebugLabel(const char *name, const std::array<float, 4> &color = {0.0F, 0.0F, 0.0F, 0.0F}) {
+        VkDebugUtilsLabelEXT label{};
+        label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+        label.pLabelName = name;
+        std::ranges::copy(color, label.color);
+        return label;
+    }
+
+    [[nodiscard]] VkDebugUtilsObjectNameInfoEXT makeObjectInfo(VkObjectType type, uint64_t handle, const char *name) {
+        VkDebugUtilsObjectNameInfoEXT object{};
+        object.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+        object.objectType = type;
+        object.objectHandle = handle;
+        object.pObjectName = name;
+        return object;
+    }
+
+    [[nodiscard]] VkDebugUtilsMessengerCallbackDataEXT makeCallbackData(std::span<const VkDebugUtilsLabelEXT> queue_labels,
+                                                                        std::span<const VkDebugUtilsLabelEXT> cmd_labels,
+                                                                        std::span<const VkDebugUtilsObjectNameInfoEXT> objects) {
+        VkDebugUtilsMessengerCallbackDataEXT callback_data{};
+        callback_data.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CALLBACK_DATA_EXT;
+        callback_data.queueLabelCount = C_UI32T(queue_labels.size());
+        callback_data.pQueueLabels = queue_labels.data();
+        callback_data.cmdBufLabelCount = C_UI32T(cmd_labels.size());
+        callback_data.pCmdBufLabels = cmd_labels.data();
+        callback_data.objectCount = C_UI32T(objects.size());
+        callback_data.pObjects = objects.data();
+        return callback_data;
+    }
 }  // namespace
 
 TEST_CASE("my_error_handler(const std::string&) tests", "[error_handler]") {
@@ -1308,6 +1374,18 @@ TEST_CASE("Vulkan object strings stay stable", "[vulkan][strings]") {
     REQUIRE(std::string_view{VkObjectString(static_cast<VkObjectType>(-1))} == "UNHANDLED");
 }
 
+TEST_CASE("Single Vulkan flag bit helpers provide stable fallbacks", "[vulkan][strings]") {
+    REQUIRE(std::string_view{VkDebugUtilsMessageTypeFlagBitsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)} == "[VALIDATION] ");
+    REQUIRE(std::string_view{VkMemoryPropertyFlagBitsString(VK_MEMORY_PROPERTY_HOST_CACHED_BIT)} == "HOST_CACHED");
+    REQUIRE(std::string_view{VkQueueFlagBitsString(VK_QUEUE_TRANSFER_BIT)} == "TRANSFER");
+
+    REQUIRE(std::string_view{VkDebugUtilsMessageTypeFlagBitsEXTString(static_cast<VkDebugUtilsMessageTypeFlagBitsEXT>(0x40000000u))}
+            == "Unhandled VkDebugUtilsMessageTypeFlagBitsEXT");
+    REQUIRE(std::string_view{VkMemoryPropertyFlagBitsString(static_cast<VkMemoryPropertyFlagBits>(0x40000000u))}
+            == "Unhandled VkMemoryPropertyFlagBits");
+    REQUIRE(std::string_view{VkQueueFlagBitsString(static_cast<VkQueueFlagBits>(0x40000000u))} == "Unhandled VkQueueFlagBits");
+}
+
 TEST_CASE("Vulkan flag string helpers preserve ordering and empty inputs", "[vulkan][flags]") {
     SECTION("VkMemoryPropertyFlagsString") {
         REQUIRE(VkMemoryPropertyFlagsString(0) == "");
@@ -1373,6 +1451,41 @@ TEST_CASE("VK_CHECK_SWAPCHAIN accepts only success or suboptimal", "[vulkan][che
 
         REQUIRE_THROWS_WITH(fail(), ContainsSubstring("swapchain out of date"));
     }
+}
+
+TEST_CASE("Vulkan validation callback logging formats debug payloads", "[vulkan][logging]") {
+    const std::array queue_labels{makeDebugLabel("graphics-queue")};
+    const std::array cmd_labels{makeDebugLabel(nullptr, {1.0F, 0.5F, 0.25F, 1.0F})};
+    const std::array objects{
+        makeObjectInfo(VK_OBJECT_TYPE_QUEUE, 0x1234u, nullptr),
+        makeObjectInfo(VK_OBJECT_TYPE_BUFFER, 0x55u, "vertex-buffer"),
+    };
+    const auto callback_data = makeCallbackData(queue_labels, cmd_labels, objects);
+
+    const auto output = captureSpdlogMessages([&] {
+        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT);
+    });
+
+    REQUIRE_THAT(output, ContainsSubstring("--- Queue Labels ---"));
+    REQUIRE_THAT(output, ContainsSubstring("[0] Label: graphics-queue"));
+    REQUIRE_THAT(output, ContainsSubstring("--- Command Buffer Labels ---"));
+    REQUIRE_THAT(output, ContainsSubstring("[0] Label: Unknown { RGBA: 1"));
+    REQUIRE_THAT(output, ContainsSubstring("--- Related Objects ---"));
+    REQUIRE_THAT(output, ContainsSubstring(string_VkObjectType(VK_OBJECT_TYPE_QUEUE)));
+    REQUIRE_THAT(output, ContainsSubstring("Name: Unknown"));
+    REQUIRE_THAT(output, ContainsSubstring(string_VkObjectType(VK_OBJECT_TYPE_BUFFER)));
+    REQUIRE_THAT(output, ContainsSubstring("0x0000000000000055"));
+    REQUIRE_THAT(output, ContainsSubstring("Name: vertex-buffer"));
+}
+
+TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "[vulkan][logging]") {
+    const auto callback_data = makeCallbackData({}, {}, {});
+
+    const auto output = captureSpdlogMessages([&] {
+        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT);
+    });
+
+    REQUIRE(output.empty());
 }
 
 // clang-format off
