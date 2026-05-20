@@ -1,0 +1,28 @@
+include/Vantablade/Device.hpp
+  s_405cba6d117401::t_45f259dd14b484 228
+test/tests.cpp
+  h_361662506da91f 5,1373,1376-1382,1420-1421,1425-1486
+test/constexpr_tests.cpp
+  s_405cba6d117401::t_45f259dd14b484 4,10-12,15,18-25,27,29-32,34-36,39-42,44,46-47,49-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "a6b3bcf2ba262062fe045f7199c5ae4a391621ab",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_405cba6d117401": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e44d1-2e90-74f1-a21d-ede1e1f76229",
+        "model": "gpt-5.4"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
