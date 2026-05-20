@@ -1,0 +1,27 @@
+test/tests.cpp
+  s_82ac1f56cd57f2::t_3ba6fb3f90b5c9 1303-1393
+  s_82ac1f56cd57f2::t_5a526e9ad2004a 13-15,184-192,1396
+test/constexpr_tests.cpp
+  s_82ac1f56cd57f2::t_910dd360d1fee4 5-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.10",
+  "base_commit_sha": "1cc4af589a925641478fc2de6d315741badbe07d",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_82ac1f56cd57f2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4462-b6da-78f2-ba41-9be0fee1e0fa",
+        "model": "gpt-5.4-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
