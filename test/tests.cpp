@@ -1311,41 +1311,35 @@ TEST_CASE("Vulkan object strings stay stable", "[vulkan][strings]") {
 TEST_CASE("Vulkan flag string helpers preserve ordering and empty inputs", "[vulkan][flags]") {
     SECTION("VkMemoryPropertyFlagsString") {
         REQUIRE(VkMemoryPropertyFlagsString(0) == "");
-        REQUIRE(VkMemoryPropertyFlagsString(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
-                == "DEVICE_LOCAL | HOST_VISIBLE");
+        REQUIRE(VkMemoryPropertyFlagsString(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) ==
+                "DEVICE_LOCAL | HOST_VISIBLE");
     }
 
     SECTION("VkQueueFlagsString") {
         REQUIRE(VkQueueFlagsString(0) == "");
-        REQUIRE(VkQueueFlagsString(VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT)
-                == "GRAPHICS | COMPUTE | TRANSFER");
+        REQUIRE(VkQueueFlagsString(VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT) ==
+                "GRAPHICS | COMPUTE | TRANSFER");
     }
 
     SECTION("VkDebugUtilsMessageTypeFlagsEXTString") {
         REQUIRE(VkDebugUtilsMessageTypeFlagsEXTString(0) == "");
         REQUIRE(VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) == "[GENERAL] ");
-        REQUIRE_THAT(
-            VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                                  VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
-            ContainsSubstring("[GENERAL]"));
-        REQUIRE_THAT(
-            VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                                  VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
-            ContainsSubstring("[PERFORMANCE]"));
+        REQUIRE_THAT(VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                                           VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
+                     ContainsSubstring("[GENERAL]"));
+        REQUIRE_THAT(VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                                           VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
+                     ContainsSubstring("[PERFORMANCE]"));
     }
 }
 
 TEST_CASE("VK_CHECK reports Vulkan failures with diagnostics", "[vulkan][check]") {
     SECTION("VK_CHECK accepts VK_SUCCESS") {
-        REQUIRE_NOTHROW(([&] {
-            VK_CHECK(VK_SUCCESS, "VK_CHECK should not throw for success");
-        }()));
+        REQUIRE_NOTHROW(([&] { VK_CHECK(VK_SUCCESS, "VK_CHECK should not throw for success"); }()));
     }
 
     SECTION("VK_CHECK throws on failure") {
-        const auto fail = [] {
-            VK_CHECK(VK_ERROR_INITIALIZATION_FAILED, "device bootstrap failed");
-        };
+        const auto fail = [] { VK_CHECK(VK_ERROR_INITIALIZATION_FAILED, "device bootstrap failed"); };
 
         REQUIRE_THROWS_WITH(fail(), ContainsSubstring("device bootstrap failed"));
         REQUIRE_THROWS_WITH(fail(), ContainsSubstring("VK_ERROR_INITIALIZATION_FAILED"));
@@ -1354,15 +1348,11 @@ TEST_CASE("VK_CHECK reports Vulkan failures with diagnostics", "[vulkan][check]"
 
 TEST_CASE("VK_CHECK_SYNC_OBJECTS requires every call to succeed", "[vulkan][check]") {
     SECTION("VK_CHECK_SYNC_OBJECTS accepts three successes") {
-        REQUIRE_NOTHROW(([&] {
-            VK_CHECK_SYNC_OBJECTS(VK_SUCCESS, VK_SUCCESS, VK_SUCCESS, "sync objects should not throw");
-        }()));
+        REQUIRE_NOTHROW(([&] { VK_CHECK_SYNC_OBJECTS(VK_SUCCESS, VK_SUCCESS, VK_SUCCESS, "sync objects should not throw"); }()));
     }
 
     SECTION("VK_CHECK_SYNC_OBJECTS reports the failing result") {
-        const auto fail = [] {
-            VK_CHECK_SYNC_OBJECTS(VK_SUCCESS, VK_TIMEOUT, VK_SUCCESS, "sync object wait failed");
-        };
+        const auto fail = [] { VK_CHECK_SYNC_OBJECTS(VK_SUCCESS, VK_TIMEOUT, VK_SUCCESS, "sync object wait failed"); };
 
         REQUIRE_THROWS_WITH(fail(), ContainsSubstring("sync object wait failed"));
         REQUIRE_THROWS_WITH(fail(), ContainsSubstring("VK_TIMEOUT"));
@@ -1371,21 +1361,15 @@ TEST_CASE("VK_CHECK_SYNC_OBJECTS requires every call to succeed", "[vulkan][chec
 
 TEST_CASE("VK_CHECK_SWAPCHAIN accepts only success or suboptimal", "[vulkan][check]") {
     SECTION("VK_CHECK_SWAPCHAIN accepts VK_SUCCESS") {
-        REQUIRE_NOTHROW(([&] {
-            VK_CHECK_SWAPCHAIN(VK_SUCCESS, "swapchain should not throw");
-        }()));
+        REQUIRE_NOTHROW(([&] { VK_CHECK_SWAPCHAIN(VK_SUCCESS, "swapchain should not throw"); }()));
     }
 
     SECTION("VK_CHECK_SWAPCHAIN accepts VK_SUBOPTIMAL_KHR") {
-        REQUIRE_NOTHROW(([&] {
-            VK_CHECK_SWAPCHAIN(VK_SUBOPTIMAL_KHR, "swapchain should not throw");
-        }()));
+        REQUIRE_NOTHROW(([&] { VK_CHECK_SWAPCHAIN(VK_SUBOPTIMAL_KHR, "swapchain should not throw"); }()));
     }
 
     SECTION("VK_CHECK_SWAPCHAIN throws on hard failure") {
-        const auto fail = [] {
-            VK_CHECK_SWAPCHAIN(VK_ERROR_OUT_OF_DATE_KHR, "swapchain out of date");
-        };
+        const auto fail = [] { VK_CHECK_SWAPCHAIN(VK_ERROR_OUT_OF_DATE_KHR, "swapchain out of date"); };
 
         REQUIRE_THROWS_WITH(fail(), ContainsSubstring("swapchain out of date"));
     }
