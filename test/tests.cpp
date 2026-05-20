@@ -10,6 +10,9 @@
 #include <catch2/matchers/catch_matchers_string.hpp>
 #include <cstdio>
 #include <future>
+#include <memory>
+#include <spdlog/sinks/null_sink.h>
+#include <spdlog/spdlog.h>
 #ifndef _WIN32
 #include <unistd.h>
 #endif
@@ -178,6 +181,15 @@ namespace {
 
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
     [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }
+
+    // Keep Vulkan logging deterministic in the test process without touching the filesystem.
+    [[maybe_unused]] const auto vulkan_log_bootstrap = [] {
+        const auto sink = std::make_shared<spdlog::sinks::null_sink_mt>();
+        const auto logger = std::make_shared<spdlog::logger>("vulkan_tests", sink);
+        logger->set_level(spdlog::level::trace);
+        spdlog::set_default_logger(logger);
+        return 0;
+    }();
 }  // namespace
 
 TEST_CASE("my_error_handler(const std::string&) tests", "[error_handler]") {
@@ -1285,6 +1297,97 @@ TEST_CASE("FileSizeInfo_AllIECPrefixLevels_FormatCorrectly", "[FileSizeInfo]") {
         REQUIRE(fs.suffix == "B");
         REQUIRE(fs.value == 0.0L);
         REQUIRE(std::format("{}", fs) == "0.00 B");
+    }
+}
+
+TEST_CASE("Vulkan object strings stay stable", "[vulkan][strings]") {
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_UNKNOWN)} == "UNKNOWN");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_INSTANCE)} == "INSTANCE");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_PIPELINE_LAYOUT)} == "PIPELINE_LAYOUT");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_SWAPCHAIN_KHR)} == "SWAPCHAIN_KHR");
+    REQUIRE(std::string_view{VkObjectString(static_cast<VkObjectType>(-1))} == "UNHANDLED");
+}
+
+TEST_CASE("Vulkan flag string helpers preserve ordering and empty inputs", "[vulkan][flags]") {
+    SECTION("VkMemoryPropertyFlagsString") {
+        REQUIRE(VkMemoryPropertyFlagsString(0) == "");
+        REQUIRE(VkMemoryPropertyFlagsString(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT)
+                == "DEVICE_LOCAL | HOST_VISIBLE");
+    }
+
+    SECTION("VkQueueFlagsString") {
+        REQUIRE(VkQueueFlagsString(0) == "");
+        REQUIRE(VkQueueFlagsString(VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT | VK_QUEUE_TRANSFER_BIT)
+                == "GRAPHICS | COMPUTE | TRANSFER");
+    }
+
+    SECTION("VkDebugUtilsMessageTypeFlagsEXTString") {
+        REQUIRE(VkDebugUtilsMessageTypeFlagsEXTString(0) == "");
+        REQUIRE(VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) == "[GENERAL] ");
+        REQUIRE_THAT(
+            VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                                  VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
+            ContainsSubstring("[GENERAL]"));
+        REQUIRE_THAT(
+            VkDebugUtilsMessageTypeFlagsEXTString(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                                                  VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT),
+            ContainsSubstring("[PERFORMANCE]"));
+    }
+}
+
+TEST_CASE("VK_CHECK reports Vulkan failures with diagnostics", "[vulkan][check]") {
+    SECTION("VK_CHECK accepts VK_SUCCESS") {
+        REQUIRE_NOTHROW(([&] {
+            VK_CHECK(VK_SUCCESS, "VK_CHECK should not throw for success");
+        }()));
+    }
+
+    SECTION("VK_CHECK throws on failure") {
+        const auto fail = [] {
+            VK_CHECK(VK_ERROR_INITIALIZATION_FAILED, "device bootstrap failed");
+        };
+
+        REQUIRE_THROWS_WITH(fail(), ContainsSubstring("device bootstrap failed"));
+        REQUIRE_THROWS_WITH(fail(), ContainsSubstring("VK_ERROR_INITIALIZATION_FAILED"));
+    }
+}
+
+TEST_CASE("VK_CHECK_SYNC_OBJECTS requires every call to succeed", "[vulkan][check]") {
+    SECTION("VK_CHECK_SYNC_OBJECTS accepts three successes") {
+        REQUIRE_NOTHROW(([&] {
+            VK_CHECK_SYNC_OBJECTS(VK_SUCCESS, VK_SUCCESS, VK_SUCCESS, "sync objects should not throw");
+        }()));
+    }
+
+    SECTION("VK_CHECK_SYNC_OBJECTS reports the failing result") {
+        const auto fail = [] {
+            VK_CHECK_SYNC_OBJECTS(VK_SUCCESS, VK_TIMEOUT, VK_SUCCESS, "sync object wait failed");
+        };
+
+        REQUIRE_THROWS_WITH(fail(), ContainsSubstring("sync object wait failed"));
+        REQUIRE_THROWS_WITH(fail(), ContainsSubstring("VK_TIMEOUT"));
+    }
+}
+
+TEST_CASE("VK_CHECK_SWAPCHAIN accepts only success or suboptimal", "[vulkan][check]") {
+    SECTION("VK_CHECK_SWAPCHAIN accepts VK_SUCCESS") {
+        REQUIRE_NOTHROW(([&] {
+            VK_CHECK_SWAPCHAIN(VK_SUCCESS, "swapchain should not throw");
+        }()));
+    }
+
+    SECTION("VK_CHECK_SWAPCHAIN accepts VK_SUBOPTIMAL_KHR") {
+        REQUIRE_NOTHROW(([&] {
+            VK_CHECK_SWAPCHAIN(VK_SUBOPTIMAL_KHR, "swapchain should not throw");
+        }()));
+    }
+
+    SECTION("VK_CHECK_SWAPCHAIN throws on hard failure") {
+        const auto fail = [] {
+            VK_CHECK_SWAPCHAIN(VK_ERROR_OUT_OF_DATE_KHR, "swapchain out of date");
+        };
+
+        REQUIRE_THROWS_WITH(fail(), ContainsSubstring("swapchain out of date"));
     }
 }
 
