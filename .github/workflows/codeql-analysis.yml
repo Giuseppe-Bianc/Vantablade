@@ -44,7 +44,7 @@ jobs:
             generator: "Ninja Multi-Config"
             build_type: Debug
             packaging_maintainer_mode: ON
-            build-mode: autobuild
+            build-mode: manual
 
 
     steps:
