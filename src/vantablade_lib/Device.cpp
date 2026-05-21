@@ -166,8 +166,8 @@ Device::~Device() {
 }
 
 void Device::createInstance() {
-    if(enableValidationLayers && !checkValidationLayerSupport()) {
-        throw std::runtime_error("Validation layers requested but not available.");
+    if constexpr(enableValidationLayers) {
+        if(!checkValidationLayerSupport()) { throw std::runtime_error("Validation layers requested but not available."); }
     }
 
     VkApplicationInfo appInfo{};
