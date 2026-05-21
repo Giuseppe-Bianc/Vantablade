@@ -1,0 +1,16 @@
+test/testsConstants.hpp
+  h_361662506da91f 9-10
+test/tests.cpp
+  h_361662506da91f 12-13,28-29,1579-1638
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "50035baee663dec22f9ced2c4a72b8328244a048",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
