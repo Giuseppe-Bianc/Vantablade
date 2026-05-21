@@ -27,6 +27,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/SwapChain.hpp
         Model.cpp
         ../../include/Vantablade/Model.hpp
+        GameObject.cpp
+        ../../include/Vantablade/GameObject.hpp
 )
 
 

@@ -11,6 +11,7 @@
 #include "Pipeline.hpp"
 #include "SwapChain.hpp"
 #include "Model.hpp"
+#include "GameObject.hpp"
 // clang-format on
 
 class Application {
@@ -25,7 +26,7 @@ public:
 
 private:
     void mainLoop();
-    void loadModels();
+    void loadGameObjects();
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
@@ -33,6 +34,7 @@ private:
     void drawFrame();
     void recreateSwapChain();
     void recordCommandBuffer(std::size_t imageIndex);
+    void renderGameObjects(VkCommandBuffer commandBuffer);
 
     Window window{wwidth, wheight, wtile};
     Device device_m{window};
@@ -40,5 +42,5 @@ private:
     std::unique_ptr<Pipeline> pipeline;
     VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
     std::vector<VkCommandBuffer> commandBuffers;
-    std::unique_ptr<Model> model;
+    std::vector<GameObject> gameObjects;
 };

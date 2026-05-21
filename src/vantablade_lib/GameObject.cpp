@@ -3,4 +3,4 @@
 * Copyright (c) 2026 All rights reserved.
 */
 
-#include "GameObject.hpp"
+#include "../../include/Vantablade/GameObject.hpp"
