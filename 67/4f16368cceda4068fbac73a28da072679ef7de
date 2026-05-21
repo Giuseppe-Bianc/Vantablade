@@ -1,0 +1,16 @@
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 144,374
+include/Vantablade/Device.hpp
+  h_361662506da91f 193
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "674f16368cceda4068fbac73a28da072679ef7de",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
