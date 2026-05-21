@@ -155,7 +155,6 @@ void Application::freeCommandBuffers() {
 }
 
 void Application::recordCommandBuffer(std::size_t imageIndex) {
-
     const VkCommandBufferBeginInfo beginInfo{
         .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO, .pNext = nullptr, .flags = 0, .pInheritanceInfo = nullptr};
 

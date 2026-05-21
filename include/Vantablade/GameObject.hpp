@@ -23,7 +23,6 @@ struct Transform2dComponent {
     }
 };
 
-
 class GameObject {
 public:
     using id_t = unsigned int;
