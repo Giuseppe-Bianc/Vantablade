@@ -182,8 +182,9 @@ namespace {
     // Helper: repeat a character n times.
     // NOLINTNEXTLINE(*-diagnostic-unused-function)
     [[nodiscard]] std::string repeat_char(char c, std::size_t count) {
+        // NOLINTNEXTLINE(*-return-braced-init-list)
         return std::string(count, c);
-    }  // NOLINT(modernize-return-braced-init-list)
+    }
 
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
     // NOLINTNEXTLINE(*-diagnostic-unused-function)
