@@ -9,6 +9,8 @@
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
+#include <catch2/catch_approx.hpp>
+
 #include <cstdio>
 #include <future>
 #include <memory>
@@ -23,6 +25,8 @@ using Catch::Matchers::ContainsSubstring;
 using Catch::Matchers::EndsWith;
 using Catch::Matchers::Message;
 using Catch::Matchers::StartsWith;
+using Catch::Approx;
+
 
 #define REQ_FORMAT(type, string) REQUIRE(FORMAT("{}", type) == (string));
 #define REQ_FFORMAT(type, string) REQUIRE(FFORMAT("{}", type) == (string))
@@ -1571,6 +1575,66 @@ TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "
 
     REQUIRE(output.empty());
 }
+
+TEST_CASE("Transform2dComponent: default values and mat2 identity-scale", "[Transform2dComponent]") {
+    Transform2dComponent t;
+    // Ensure deterministic test values
+    t.rotation = 0.0f;
+    t.scale = {1.0f, 1.0f};
+
+    REQUIRE(t.translation.x == Approx(0.0f));
+    REQUIRE(t.translation.y == Approx(0.0f));
+
+    const glm::mat2 m = t.mat2();
+
+    // glm::mat2 is column-major: m[col][row]
+    REQUIRE(m[0][0] == Approx(1.0f));
+    REQUIRE(m[0][1] == Approx(0.0f));
+    REQUIRE(m[1][0] == Approx(0.0f));
+    REQUIRE(m[1][1] == Approx(1.0f));
+}
+
+TEST_CASE("Transform2dComponent: rotation 90deg with non-uniform scale", "[Transform2dComponent]") {
+    Transform2dComponent t;
+    t.rotation = glm::half_pi<float>(); // 90 degrees
+    t.scale = {2.0f, 3.0f};
+
+    const float c = glm::cos(t.rotation);
+    const float s = glm::sin(t.rotation);
+
+    const glm::mat2 m = t.mat2();
+
+    // expected columns:
+    // col0 = scale.x * (c, s)
+    // col1 = scale.y * (-s, c)
+    REQUIRE(m[0][0] == Approx(c * t.scale.x));
+    REQUIRE(m[0][1] == Approx(s * t.scale.x));
+    REQUIRE(m[1][0] == Approx(-s * t.scale.y));
+    REQUIRE(m[1][1] == Approx(c * t.scale.y));
+
+    // For 90deg (c ~ 0, s ~ 1) with scale {2,3} we expect:
+    REQUIRE(m[0][0] == Approx(0.0f).margin(1e-6f));
+    REQUIRE(m[0][1] == Approx(2.0f).margin(1e-6f));
+    REQUIRE(m[1][0] == Approx(-3.0f).margin(1e-6f));
+    REQUIRE(m[1][1] == Approx(0.0f).margin(1e-6f));
+}
+
+TEST_CASE("Transform2dComponent: arbitrary rotation and scale consistency", "[Transform2dComponent]") {
+    Transform2dComponent t;
+    t.rotation = glm::radians(30.0f);
+    t.scale = {0.5f, 4.0f};
+
+    const float c = glm::cos(t.rotation);
+    const float s = glm::sin(t.rotation);
+
+    const glm::mat2 m = t.mat2();
+
+    REQUIRE(m[0][0] == Approx(c * t.scale.x));
+    REQUIRE(m[0][1] == Approx(s * t.scale.x));
+    REQUIRE(m[1][0] == Approx(-s * t.scale.y));
+    REQUIRE(m[1][1] == Approx(c * t.scale.y));
+}
+
 
 // clang-format off
 // NOLINTEND(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness, *-signed-bitwise, *-pro-type-reinterpret-cast)

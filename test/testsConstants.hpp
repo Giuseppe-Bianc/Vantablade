@@ -6,6 +6,8 @@
 #pragma once
 
 #include <Vantablade/vantablade.hpp>
+
+#include <Vantablade/GameObject.hpp>
 using namespace std::literals::string_view_literals;
 
 /*static inline constexpr std::size_t t_line = 5;
