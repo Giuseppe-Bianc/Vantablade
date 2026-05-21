@@ -141,7 +141,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 // NOLINTEND(*-use-internal-linkage)
 
 // class member functions
-Device::Device(Window &window) : window{window} {
+Device::Device(Window &window) : window_m{window} {
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -371,7 +371,7 @@ void Device::createAllocator() {
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
 
-void Device::createSurface() { window.createWindowSurface(instance, &surface_, nullptr); }
+void Device::createSurface() { window_m.createWindowSurface(instance, &surface_, nullptr); }
 
 bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
     const QueueFamilyIndices indices = findQueueFamilies(device);

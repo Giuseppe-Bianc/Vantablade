@@ -190,7 +190,7 @@ private:
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
     DebugUtilsFunctions debugFuncs{};
     VkPhysicalDevice physicalDevice{VK_NULL_HANDLE};
-    Window &window;
+    Window &window_m;
     VkCommandPool commandPool{VK_NULL_HANDLE};
 
     VkDevice device_{VK_NULL_HANDLE};
