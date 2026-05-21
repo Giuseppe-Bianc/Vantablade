@@ -179,16 +179,16 @@ namespace {
         }
     };
 
-    // Helper: repeat a character n times.
+    /*// Helper: repeat a character n times.
     // NOLINTNEXTLINE(*-diagnostic-unused-function)
     [[nodiscard]] std::string repeat_char(char c, std::size_t count) {
         // NOLINTNEXTLINE(*-return-braced-init-list)
         return std::string(count, c);
-    }
+    }*/
 
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
-    // NOLINTNEXTLINE(*-diagnostic-unused-function)
-    [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }
+    /*// NOLINTNEXTLINE(*-diagnostic-unused-function)
+    [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }*/
 
     // Keep Vulkan logging deterministic in the test process without touching the filesystem.
     [[maybe_unused]] const auto vulkan_log_bootstrap = [] {
