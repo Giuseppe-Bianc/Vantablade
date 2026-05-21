@@ -13,7 +13,7 @@
 #include <future>
 #include <memory>
 #include <spdlog/sinks/null_sink.h>
-#include <spdlog/sinks/ostream_sink.h>
+#include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -215,23 +215,6 @@ namespace {
         DefaultLoggerGuard(DefaultLoggerGuard &&) = delete;
         DefaultLoggerGuard &operator=(DefaultLoggerGuard &&) = delete;
     };
-
-    template <typename Fn> [[nodiscard]] std::string captureSpdlogMessages(Fn &&fn) {
-        std::ostringstream stream;
-        const auto sink = std::make_shared<spdlog::sinks::ostream_sink_mt>(stream, true);
-        sink->set_pattern("%v");
-
-        const auto logger_name = FORMAT("captured_vulkan_tests_{}", reinterpret_cast<std::uintptr_t>(&stream));
-        const auto logger = std::make_shared<spdlog::logger>(logger_name, sink);
-        logger->set_level(spdlog::level::trace);
-        logger->flush_on(spdlog::level::trace);
-
-        const DefaultLoggerGuard logger_guard{logger};
-        std::forward<Fn>(fn)();
-        logger->flush();
-
-        return stream.str();
-    }
 
     [[nodiscard]] VkDebugUtilsLabelEXT makeDebugLabel(const char *name, const std::array<float, 4> &color = {0.0F, 0.0F, 0.0F, 0.0F}) {
         VkDebugUtilsLabelEXT label{};
@@ -1559,8 +1542,14 @@ TEST_CASE("Vulkan validation callback logging formats debug payloads", "[vulkan]
     };
     const auto callback_data = makeCallbackData(queue_labels, cmd_labels, objects);
 
-    const auto output = captureSpdlogMessages(
-        [&] { logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT); });
+    const auto output = CaptureStdout::run([&] {
+        const auto sink = std::make_shared<spdlog::sinks::stdout_sink_mt>();
+        const auto logger = std::make_shared<spdlog::logger>("capture", sink);
+        logger->set_level(spdlog::level::trace);
+        logger->set_pattern("%v");
+        DefaultLoggerGuard guard(logger);
+        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT);
+    });
 
     REQUIRE_THAT(output, ContainsSubstring("--- Queue Labels ---"));
     REQUIRE_THAT(output, ContainsSubstring("[0] Label: graphics-queue"));
@@ -1577,8 +1566,9 @@ TEST_CASE("Vulkan validation callback logging formats debug payloads", "[vulkan]
 TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "[vulkan][logging]") {
     const auto callback_data = makeCallbackData({}, {}, {});
 
-    const auto output = captureSpdlogMessages(
-        [&] { logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT); });
+    const auto output = CaptureStdout::run([&] {
+        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT);
+    });
 
     REQUIRE(output.empty());
 }
