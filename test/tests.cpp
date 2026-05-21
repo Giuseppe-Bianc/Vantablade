@@ -1566,9 +1566,8 @@ TEST_CASE("Vulkan validation callback logging formats debug payloads", "[vulkan]
 TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "[vulkan][logging]") {
     const auto callback_data = makeCallbackData({}, {}, {});
 
-    const auto output = CaptureStdout::run([&] {
-        logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT);
-    });
+    const auto output = CaptureStdout::run(
+        [&] { logDebugValidationLayerInfo(&callback_data, VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT); });
 
     REQUIRE(output.empty());
 }
