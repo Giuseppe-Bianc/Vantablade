@@ -1,5 +1,5 @@
 // clang-format off
-// NOLINTBEGIN(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness)
+// NOLINTBEGIN(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness, *-signed-bitwise, *-pro-type-reinterpret-cast)
 // clang-format on
 #include "testsConstants.hpp"
 #include <Vantablade/Device.hpp>
@@ -56,7 +56,7 @@ namespace {
     // ─────────────────────────────────────────────────────────────
     // Helper: strip ANSI escape codes from a string for testing
     // ─────────────────────────────────────────────────────────────
-    [[nodiscard]] std::string strip_ansi(std::string_view input) {
+    /*[[nodiscard]] std::string strip_ansi(std::string_view input) {
         std::string result;
         result.reserve(input.size());
         bool in_escape{false};
@@ -73,7 +73,7 @@ namespace {
         }
 
         return result;
-    }
+    }*/
 
     // SAFETY: SavedFd wraps the duplicated (backup) file descriptor.
     struct SavedFd {
@@ -179,7 +179,7 @@ namespace {
     };
 
     // Helper: repeat a character n times.
-    [[nodiscard]] std::string repeat_char(char c, std::size_t count) { return std::string(count, c); }
+    [[nodiscard]] std::string repeat_char(char c, std::size_t count) { return std::string(count, c); } // NOLINT(modernize-return-braced-init-list)
 
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
     [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }
@@ -1563,5 +1563,5 @@ TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "
 }
 
 // clang-format off
-// NOLINTEND(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness)
+// NOLINTEND(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness, *-signed-bitwise, *-pro-type-reinterpret-cast)
 // clang-format on
