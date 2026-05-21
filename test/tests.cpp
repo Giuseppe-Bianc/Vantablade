@@ -56,6 +56,7 @@ namespace {
     // ─────────────────────────────────────────────────────────────
     // Helper: strip ANSI escape codes from a string for testing
     // ─────────────────────────────────────────────────────────────
+    // NOLINTNEXTLINE(*-diagnostic-unneeded-internal-declaration)
     [[nodiscard]] std::string strip_ansi(std::string_view input) {
         std::string result;
         result.reserve(input.size());
@@ -179,11 +180,13 @@ namespace {
     };
 
     // Helper: repeat a character n times.
+    // NOLINTNEXTLINE(*-diagnostic-unused-function)
     [[nodiscard]] std::string repeat_char(char c, std::size_t count) {
         return std::string(count, c);
     }  // NOLINT(modernize-return-braced-init-list)
 
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
+    // NOLINTNEXTLINE(*-diagnostic-unused-function)
     [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }
 
     // Keep Vulkan logging deterministic in the test process without touching the filesystem.
@@ -233,6 +236,7 @@ namespace {
         VkDebugUtilsLabelEXT label{};
         label.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
         label.pLabelName = name;
+        // NOLINTNEXTLINE(*-no-array-decay)
         std::ranges::copy(color, label.color);
         return label;
     }
