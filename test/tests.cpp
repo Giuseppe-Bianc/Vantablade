@@ -179,7 +179,9 @@ namespace {
     };
 
     // Helper: repeat a character n times.
-    [[nodiscard]] std::string repeat_char(char c, std::size_t count) { return std::string(count, c); } // NOLINT(modernize-return-braced-init-list)
+    [[nodiscard]] std::string repeat_char(char c, std::size_t count) {
+        return std::string(count, c);
+    }  // NOLINT(modernize-return-braced-init-list)
 
     // Helper: convert a string_view to a span<const std::byte> for low-level tests.
     [[nodiscard]] auto to_bytes(std::string_view sv) { return std::as_bytes(std::span{sv}); }
