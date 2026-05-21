@@ -1,0 +1,24 @@
+test/tests.cpp
+  s_771790ddaefbf0::t_15b807ad42b558 1499-1501,1505,1507-1508,1514-1518,1522-1524,1526-1527,1533-1535,1539-1541,1545,1547
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "0fbdf42f58f7a84a3282ef605539225ffbe11a4d",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_771790ddaefbf0": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "23c6483e-abec-4663-9cbd-e5cbb3212866",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
