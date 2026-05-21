@@ -56,7 +56,7 @@ namespace {
     // ─────────────────────────────────────────────────────────────
     // Helper: strip ANSI escape codes from a string for testing
     // ─────────────────────────────────────────────────────────────
-    /*[[nodiscard]] std::string strip_ansi(std::string_view input) {
+    [[nodiscard]] std::string strip_ansi(std::string_view input) {
         std::string result;
         result.reserve(input.size());
         bool in_escape{false};
@@ -73,7 +73,7 @@ namespace {
         }
 
         return result;
-    }*/
+    }
 
     // SAFETY: SavedFd wraps the duplicated (backup) file descriptor.
     struct SavedFd {
