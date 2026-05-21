@@ -1,0 +1,35 @@
+test/tests.cpp
+  s_21c0c0bb143c12::t_0c5523078fec99 1546-1550
+  s_21c0c0bb143c12::t_62885a47e011d7 16
+  s_8089fdc2a7008c::t_2e243987798cb6 1545,1552,1569,1571
+  s_8089fdc2a7008c::t_8d371d228cf64f 1551,1570
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "cfa9ea1ecfe9dfe13fdbbfab1ffd971bd1e1a905",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_21c0c0bb143c12": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "d30775e1-a40c-421e-b3c5-ba97baa0398b",
+        "model": "gemini-3-flash-preview"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_8089fdc2a7008c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e4acd-bf14-76e1-ac9c-0312f6f7ee21",
+        "model": "gpt-5.4"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
