@@ -1370,7 +1370,7 @@ TEST_CASE("Vulkan object strings stay stable", "[vulkan][strings]") {
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_EXTERNAL_COMPUTE_QUEUE_NV)} == "EXTERNAL_COMPUTE_QUEUE_NV");
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_INDIRECT_COMMANDS_LAYOUT_EXT)} == "INDIRECT_COMMANDS_LAYOUT_EXT");
     REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_INDIRECT_EXECUTION_SET_EXT)} == "INDIRECT_EXECUTION_SET_EXT");
-    REQUIRE(std::string_view{VkObjectString(static_cast<VkObjectType>(-1))} == "UNHANDLED");
+    REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_MAX_ENUM)} == "UNHANDLED");
 }
 
 TEST_CASE("Single Vulkan flag bit helpers provide stable fallbacks", "[vulkan][strings]") {
