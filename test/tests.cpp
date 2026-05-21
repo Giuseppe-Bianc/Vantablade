@@ -3,13 +3,13 @@
 // clang-format on
 #include "testsConstants.hpp"
 #include <Vantablade/Device.hpp>
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_exception.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
-#include <catch2/catch_approx.hpp>
 
 #include <cstdio>
 #include <future>
@@ -21,12 +21,11 @@
 #include <unistd.h>
 #endif
 
+using Catch::Approx;
 using Catch::Matchers::ContainsSubstring;
 using Catch::Matchers::EndsWith;
 using Catch::Matchers::Message;
 using Catch::Matchers::StartsWith;
-using Catch::Approx;
-
 
 #define REQ_FORMAT(type, string) REQUIRE(FORMAT("{}", type) == (string));
 #define REQ_FFORMAT(type, string) REQUIRE(FFORMAT("{}", type) == (string))
@@ -1596,7 +1595,7 @@ TEST_CASE("Transform2dComponent: default values and mat2 identity-scale", "[Tran
 
 TEST_CASE("Transform2dComponent: rotation 90deg with non-uniform scale", "[Transform2dComponent]") {
     Transform2dComponent t;
-    t.rotation = glm::half_pi<float>(); // 90 degrees
+    t.rotation = glm::half_pi<float>();  // 90 degrees
     t.scale = {2.0f, 3.0f};
 
     const float c = glm::cos(t.rotation);
@@ -1634,7 +1633,6 @@ TEST_CASE("Transform2dComponent: arbitrary rotation and scale consistency", "[Tr
     REQUIRE(m[1][0] == Approx(-s * t.scale.y));
     REQUIRE(m[1][1] == Approx(c * t.scale.y));
 }
-
 
 // clang-format off
 // NOLINTEND(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness, *-signed-bitwise, *-pro-type-reinterpret-cast)
