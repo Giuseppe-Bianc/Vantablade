@@ -1,0 +1,14 @@
+include/Vantablade/SwapChain.hpp
+  h_361662506da91f 17-19,55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "556152b0c03e341dfdf7f043d6406ddcb1d008b8",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
