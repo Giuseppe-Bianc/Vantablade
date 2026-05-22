@@ -10,7 +10,6 @@
 #define GLM_FORCE_SILENT_WARNINGS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_SIZE_T_LENGTH
-#define GLM_FORCE_PURE
 #define GLM_FORCE_EXPLICIT_CTOR
 #define GLM_FORCE_UNRESTRICTED_GENTYPE
 #define GLM_FORCE_PRECISION_HIGHP_DOUBLE
@@ -44,7 +43,6 @@ DISABLE_GCC_WARNINGS_PUSH("-Wduplicated-branches", "-Wuseless-cast")
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/random.hpp>
 #include <glm/gtx/norm.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/hash.hpp>
 #include <glm/gtx/euler_angles.hpp>

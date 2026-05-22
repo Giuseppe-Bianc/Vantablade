@@ -24,7 +24,6 @@ static inline constexpr auto aspectRatiof = C_F(wfactor) / C_F(hfactor);
 static inline constexpr auto ui32tmax = std::numeric_limits<uint32_t>::max();
 static inline constexpr auto uint64Max = std::numeric_limits<uint64_t>::max();
 static inline constexpr auto fepsilon = std::numeric_limits<long double>::epsilon();
-static inline constexpr auto glm2pi = glm::two_pi<long double>();
 // static inline const auto currentP = fs::current_path();
 
 [[nodiscard]] static constexpr auto calcolaCentro(int width, int w) noexcept { return (width - w) / 2; }
