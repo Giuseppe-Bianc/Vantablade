@@ -11,7 +11,6 @@
 
 Application::Application() { loadGameObjects(); }
 
-Application::~Application() {}
 
 void Application::run() {
     // initWindow();

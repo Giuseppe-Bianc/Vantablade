@@ -48,7 +48,7 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Creating pipeline"};
 #endif
-    assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
+    assert(pipelineLayout != VK_NULL_HANDLE && "Cannot create pipeline before pipeline layout");
 
     PipelineConfigInfo pipelineConfig{};
     Pipeline::defaultPipelineConfigInfo(pipelineConfig);

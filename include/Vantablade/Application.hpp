@@ -16,7 +16,7 @@
 class Application {
 public:
     Application();
-    ~Application();
+    ~Application() = default;
 
     Application(const Application &) = delete;
     Application &operator=(const Application &) = delete;

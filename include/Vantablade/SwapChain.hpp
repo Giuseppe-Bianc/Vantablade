@@ -14,10 +14,6 @@ public:
     SwapChain(Device &deviceRef, VkExtent2D extent);
     SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
-    bool compareSwapFormats(const SwapChain &swapChainin) const {
-        return swapChainin.swapChainDepthFormat == swapChainDepthFormat && swapChainin.swapChainImageFormat == swapChainImageFormat;
-    }
-
     SwapChain(const SwapChain &) = delete;
     SwapChain &operator=(const SwapChain &) = delete;
 
@@ -37,6 +33,10 @@ public:
 
     [[nodiscard]] VkResult acquireNextImage(uint32_t *imageIndex);
     [[nodiscard]] VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
+
+    bool compareSwapFormats(const SwapChain &other) const {
+        return other.swapChainDepthFormat == swapChainDepthFormat && other.swapChainImageFormat == swapChainImageFormat;
+    }
 
 private:
     void init();
