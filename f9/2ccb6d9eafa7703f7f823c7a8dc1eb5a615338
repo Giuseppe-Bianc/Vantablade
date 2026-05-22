@@ -1,0 +1,24 @@
+specs/001-dockable-gui/spec.md
+  s_36ea05580b363b::t_e80660d4531578 102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "f92ccb6d9eafa7703f7f823c7a8dc1eb5a615338",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_36ea05580b363b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "378a9189-2d0f-456f-bcc4-05b5ddf46ed3",
+        "model": "nemotron-3-super"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
