@@ -11,7 +11,6 @@
 
 Application::Application() { loadGameObjects(); }
 
-
 void Application::run() {
     // initWindow();
     // initVulkan();
