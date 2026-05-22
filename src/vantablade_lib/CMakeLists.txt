@@ -29,6 +29,10 @@ add_library(vantablade_lib
         ../../include/Vantablade/Model.hpp
         GameObject.cpp
         ../../include/Vantablade/GameObject.hpp
+        Renderer.cpp
+        ../../include/Vantablade/Renderer.hpp
+        SimpleRenderSystem.cpp
+        ../../include/Vantablade/SimpleRenderSystem.hpp
 )
 
 

@@ -252,7 +252,6 @@ void SwapChain::createRenderPass() {
     VkSubpassDependency dependency{};
     dependency.dstSubpass = 0;
     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -301,6 +300,7 @@ void SwapChain::createFramebuffers() {
 
 void SwapChain::createDepthResources() {
     const VkFormat depthFormat = findDepthFormat();
+    swapChainDepthFormat = depthFormat;
     const VkExtent2D extent = getSwapChainExtent();
     const std::size_t count = imageCount();
 

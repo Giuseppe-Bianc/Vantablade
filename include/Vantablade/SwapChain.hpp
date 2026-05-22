@@ -14,6 +14,9 @@ public:
     SwapChain(Device &deviceRef, VkExtent2D extent);
     SwapChain(Device &deviceRef, VkExtent2D extent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
+    bool compareSwapFormats(const SwapChain &swapChainin) const {
+        return swapChainin.swapChainDepthFormat == swapChainDepthFormat && swapChainin.swapChainImageFormat == swapChainImageFormat;
+    }
 
     SwapChain(const SwapChain &) = delete;
     SwapChain &operator=(const SwapChain &) = delete;
@@ -49,6 +52,7 @@ private:
     [[nodiscard]] VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const;
 
     VkFormat swapChainImageFormat{VK_FORMAT_UNDEFINED};
+    VkFormat swapChainDepthFormat{VK_FORMAT_UNDEFINED};
     VkExtent2D swapChainExtent{0, 0};
 
     std::vector<VkFramebuffer> swapChainFramebuffers;
