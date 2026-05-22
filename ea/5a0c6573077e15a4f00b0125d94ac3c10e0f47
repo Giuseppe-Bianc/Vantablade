@@ -1,0 +1,14 @@
+include/Vantablade/GameObject.hpp
+  h_361662506da91f 16,19-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "ea5a0c6573077e15a4f00b0125d94ac3c10e0f47",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
