@@ -6,15 +6,12 @@
 // *-magic-numbers)
 #include "Vantablade/Application.hpp"
 #include "Vantablade/FPSCounter.hpp"
-#include "Vantablade/vulkanCheck.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
+#include "Vantablade/vulkanCheck.hpp"
 
-Application::Application() {
-    loadGameObjects();
-}
+Application::Application() { loadGameObjects(); }
 
-Application::~Application() {
-}
+Application::~Application() {}
 
 void Application::run() {
     // initWindow();
@@ -50,7 +47,7 @@ void Application::mainLoop() {
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
-        if (auto commandBuffer = renderer_m.beginFrame()) {
+        if(auto commandBuffer = renderer_m.beginFrame()) {
             renderer_m.beginSwapChainRenderPass(commandBuffer);
             simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
             renderer_m.endSwapChainRenderPass(commandBuffer);
