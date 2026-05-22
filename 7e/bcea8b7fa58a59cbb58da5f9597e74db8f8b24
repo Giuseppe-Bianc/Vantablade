@@ -1,0 +1,27 @@
+specs/001-dockable-gui/spec.md
+  s_b78dceffd9cc0f::t_cfca3097b9a737 71-72,96-99
+  s_b78dceffd9cc0f::t_2417e5cefe3b00 100
+specs/001-dockable-gui/checklists/requirements.md
+  s_b78dceffd9cc0f::t_1ae1a2c00e8d0a 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "7ebcea8b7fa58a59cbb58da5f9597e74db8f8b24",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_b78dceffd9cc0f": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "c847c421-ccf8-4f97-b602-477274872c41",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
