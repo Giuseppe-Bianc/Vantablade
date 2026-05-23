@@ -1,0 +1,28 @@
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 54
+include/Vantablade/GameObject.hpp
+  h_361662506da91f 11-14,16-26,48
+shaders/simple_shader.frag
+  h_361662506da91f 3-4,8,13
+src/vantablade_lib/SimpleRenderSystem.cpp
+  h_361662506da91f 11,13-14,67-68,72
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 21-72,74-77,82-87
+shaders/simple_shader.vert
+  h_361662506da91f 3,6-7,9-10,15-16
+test/tests.cpp
+  h_361662506da91f 1578-1579,1587,1589,1597,1604,1622,1629,1635
+include/Vantablade/Model.hpp
+  h_361662506da91f 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "5afdf0a149d6076de6f43134439efd7bb725adc4",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
