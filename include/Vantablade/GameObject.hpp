@@ -8,17 +8,22 @@
 #include "Model.hpp"
 #include "headers.hpp"
 
-struct Transform2dComponent {
-    glm::vec2 translation{};  // (position offset)
-    glm::vec2 scale{1.f, 1.f};
-    float rotation;
+struct TransformComponent {
+    glm::vec3 translation{};  // (position offset)
+    glm::vec3 scale{1.f, 1.f, 1.f};
+    glm::vec3 rotation;
 
-    [[nodiscard]] glm::mat2 mat2() const {
-        const float s = glm::sin(rotation);
-        const float c = glm::cos(rotation);
-        const glm::mat2 rotMatrix{{c, s}, {-s, c}};
-        const glm::mat2 scaleMat{{scale.x, 0.0f}, {0.0f, scale.y}};
-        return rotMatrix * scaleMat;
+    [[nodiscard]] glm::mat4 mat4() const {
+        /*glm::mat4 t = glm::translate(glm::mat4(1.f), translation);
+        glm::mat4 r = glm::yawPitchRoll(rotation.y, rotation.x, rotation.z);
+        glm::mat4 s = glm::scale(glm::mat4(1.f), scale);
+        return t * r * s;*/
+        glm::mat4 transform = glm::translate(glm::mat4(1.f), translation);
+        transform = glm::rotate(transform, rotation.y, glm::vec3{0.f, 1.f, 0.f});
+        transform = glm::rotate(transform, rotation.x, glm::vec3{1.f, 0.f, 0.f});
+        transform = glm::rotate(transform, rotation.z, glm::vec3{0.f, 0.f, 1.f});
+        transform = glm::scale(transform, scale);
+        return transform;
     }
 };
 
@@ -40,7 +45,7 @@ public:
 
     std::shared_ptr<Model> model{};
     glm::vec3 color{};
-    Transform2dComponent transform2d{};
+    TransformComponent transform{};
 
 private:
     GameObject(id_t objId) : id{objId} {}
