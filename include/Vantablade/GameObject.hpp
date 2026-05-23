@@ -19,9 +19,7 @@ struct TransformComponent {
         glm::mat4 s = glm::scale(glm::mat4(1.f), scale);
         return t * r * s;*/
         glm::mat4 transform = glm::translate(glm::mat4(1.f), translation);
-        transform = glm::rotate(transform, rotation.y, glm::vec3{0.f, 1.f, 0.f});
-        transform = glm::rotate(transform, rotation.x, glm::vec3{1.f, 0.f, 0.f});
-        transform = glm::rotate(transform, rotation.z, glm::vec3{0.f, 0.f, 1.f});
+        transform *= glm::eulerAngleYXZ(rotation.x, rotation.y, rotation.z);
         transform = glm::scale(transform, scale);
         return transform;
     }

@@ -5,6 +5,8 @@
 
 #include <Vantablade/Device.hpp>
 #include <Vantablade/vantablade.hpp>
+
+#include <type_traits>
 #include <string_view>
 
 TEST_CASE("Vulkan constexpr mappings remain stable", "[vulkan][constexpr]") {
@@ -98,6 +100,15 @@ TEST_CASE("Vulkan constexpr mappings remain stable", "[vulkan][constexpr]") {
     STATIC_REQUIRE(DebugColors::Green[1] == 1.0F);
     STATIC_REQUIRE(DebugColors::Blue[2] == 1.0F);
     STATIC_REQUIRE(DebugColors::None[3] == 0.0F);
+}
+
+TEST_CASE("TransformComponent remains a simple value type at compile time", "[TransformComponent][constexpr]") {
+    STATIC_REQUIRE(std::is_aggregate_v<TransformComponent>);
+    STATIC_REQUIRE(std::is_default_constructible_v<TransformComponent>);
+    STATIC_REQUIRE(std::is_copy_constructible_v<TransformComponent>);
+    STATIC_REQUIRE(std::is_move_constructible_v<TransformComponent>);
+    STATIC_REQUIRE(std::is_standard_layout_v<TransformComponent>);
+    STATIC_REQUIRE(std::is_trivially_destructible_v<TransformComponent>);
 }
 
 // clang-format off

@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <future>
 #include <memory>
+#include <numbers>
 #include <spdlog/sinks/null_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
@@ -1575,64 +1576,104 @@ TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "
     REQUIRE(output.empty());
 }
 
-/*TEST_CASE("Transform2dComponent: default values and mat4 identity-scale", "[Transform2dComponent]") {
-    TransformComponent t;
-    // Ensure deterministic test values
-    t.rotation = 0.0f;
-    t.scale = {1.0f, 1.0f};
-
-    REQUIRE(t.translation.x == Approx(0.0f));
-    REQUIRE(t.translation.y == Approx(0.0f));
-
-    const glm::mat4 m = t.mat4();
-
-    // glm::mat4 is column-major: m[col][row]
-    REQUIRE(m[0][0] == Approx(1.0f));
-    REQUIRE(m[0][1] == Approx(0.0f));
-    REQUIRE(m[1][0] == Approx(0.0f));
-    REQUIRE(m[1][1] == Approx(1.0f));
+namespace {
+    [[nodiscard]] void requireMat4Approx(const glm::mat4 &actual, const glm::mat4 &expected, const float margin = 1e-5f) {
+        for(int column = 0; column < 4; ++column) {
+            for(int row = 0; row < 4; ++row) {
+                REQUIRE(actual[column][row] == Approx(expected[column][row]).margin(margin));
+            }
+        }
+    }
 }
 
-TEST_CASE("Transform2dComponent: rotation 90deg with non-uniform scale", "[Transform2dComponent]") {
-    TransformComponent t;
-    t.rotation = glm::half_pi<float>();  // 90 degrees
-    t.scale = {2.0f, 3.0f};
+TEST_CASE("TransformComponent::mat4 produces stable transforms", "[TransformComponent][mat4]") {
+    SECTION("Default construction yields identity transform") {
+        const TransformComponent transform{};
+        const glm::mat4 expected{1.0f};
 
-    const float c = glm::cos(t.rotation);
-    const float s = glm::sin(t.rotation);
+        requireMat4Approx(transform.mat4(), expected);
+    }
 
-    const glm::mat4 m = t.mat4();
+    SECTION("Pure translation is preserved in the last column") {
+        TransformComponent transform{};
+        transform.translation = {3.5f, -2.0f, 7.25f};
 
-    // expected columns:
-    // col0 = scale.x * (c, s)
-    // col1 = scale.y * (-s, c)
-    REQUIRE(m[0][0] == Approx(c * t.scale.x));
-    REQUIRE(m[0][1] == Approx(s * t.scale.x));
-    REQUIRE(m[1][0] == Approx(-s * t.scale.y));
-    REQUIRE(m[1][1] == Approx(c * t.scale.y));
+        const glm::mat4 actual = transform.mat4();
 
-    // For 90deg (c ~ 0, s ~ 1) with scale {2,3} we expect:
-    REQUIRE(m[0][0] == Approx(0.0f).margin(1e-6f));
-    REQUIRE(m[0][1] == Approx(2.0f).margin(1e-6f));
-    REQUIRE(m[1][0] == Approx(-3.0f).margin(1e-6f));
-    REQUIRE(m[1][1] == Approx(0.0f).margin(1e-6f));
+        REQUIRE(actual[3][0] == Approx(transform.translation.x));
+        REQUIRE(actual[3][1] == Approx(transform.translation.y));
+        REQUIRE(actual[3][2] == Approx(transform.translation.z));
+        REQUIRE(actual[3][3] == Approx(1.0f));
+        requireMat4Approx(actual, glm::translate(glm::mat4{1.0f}, transform.translation));
+    }
+
+    SECTION("Non-uniform scale affects each basis axis independently") {
+        TransformComponent transform{};
+        transform.scale = {2.0f, 3.0f, 4.0f};
+
+        const glm::mat4 actual = transform.mat4();
+
+        REQUIRE(actual[0][0] == Approx(2.0f));
+        REQUIRE(actual[1][1] == Approx(3.0f));
+        REQUIRE(actual[2][2] == Approx(4.0f));
+        REQUIRE(actual[3][3] == Approx(1.0f));
+        REQUIRE(actual[0][1] == Approx(0.0f));
+        REQUIRE(actual[0][2] == Approx(0.0f));
+        REQUIRE(actual[1][0] == Approx(0.0f));
+        REQUIRE(actual[1][2] == Approx(0.0f));
+        REQUIRE(actual[2][0] == Approx(0.0f));
+        REQUIRE(actual[2][1] == Approx(0.0f));
+    }
+
+    SECTION("Quarter turn around the Z axis rotates X and Y axes as expected") {
+        TransformComponent transform{};
+        transform.rotation = {0.0f, 0.0f, std::numbers::pi_v<float> / 2.0f};
+
+        const glm::mat4 actual = transform.mat4();
+
+        REQUIRE(actual[0][0] == Approx(0.0f).margin(1e-5f));
+        REQUIRE(actual[0][1] == Approx(1.0f).margin(1e-5f));
+        REQUIRE(actual[1][0] == Approx(-1.0f).margin(1e-5f));
+        REQUIRE(actual[1][1] == Approx(0.0f).margin(1e-5f));
+        REQUIRE(actual[2][2] == Approx(1.0f).margin(1e-5f));
+        REQUIRE(actual[3][3] == Approx(1.0f).margin(1e-5f));
+    }
+
+    SECTION("Negative scale keeps translation intact and flips axes") {
+        TransformComponent transform{};
+        transform.translation = {-8.0f, 4.0f, 1.0f};
+        transform.scale = {-1.0f, 2.5f, -3.0f};
+
+        const glm::mat4 actual = transform.mat4();
+
+        REQUIRE(actual[0][0] == Approx(-1.0f));
+        REQUIRE(actual[1][1] == Approx(2.5f));
+        REQUIRE(actual[2][2] == Approx(-3.0f));
+        REQUIRE(actual[3][0] == Approx(-8.0f));
+        REQUIRE(actual[3][1] == Approx(4.0f));
+        REQUIRE(actual[3][2] == Approx(1.0f));
+        REQUIRE(actual[3][3] == Approx(1.0f));
+    }
+
+    SECTION("Combined transform composes translation, rotation and scale deterministically") {
+        TransformComponent transform{};
+        transform.translation = {1.0f, 2.0f, 3.0f};
+        transform.rotation = {0.0f, 0.0f, std::numbers::pi_v<float> / 2.0f};
+        transform.scale = {0.5f, 1.5f, 2.0f};
+
+        const glm::mat4 actual = transform.mat4();
+
+        REQUIRE(actual[0][0] == Approx(0.0f).margin(1e-5f));
+        REQUIRE(actual[0][1] == Approx(0.5f).margin(1e-5f));
+        REQUIRE(actual[1][0] == Approx(-1.5f).margin(1e-5f));
+        REQUIRE(actual[1][1] == Approx(0.0f).margin(1e-5f));
+        REQUIRE(actual[2][2] == Approx(2.0f).margin(1e-5f));
+        REQUIRE(actual[3][0] == Approx(1.0f));
+        REQUIRE(actual[3][1] == Approx(2.0f));
+        REQUIRE(actual[3][2] == Approx(3.0f));
+        REQUIRE(actual[3][3] == Approx(1.0f));
+    }
 }
-
-TEST_CASE("Transform2dComponent: arbitrary rotation and scale consistency", "[Transform2dComponent]") {
-    TransformComponent t;
-    t.rotation = glm::radians(30.0f);
-    t.scale = {0.5f, 4.0f};
-
-    const float c = glm::cos(t.rotation);
-    const float s = glm::sin(t.rotation);
-
-    const glm::mat4 m = t.mat4();
-
-    REQUIRE(m[0][0] == Approx(c * t.scale.x));
-    REQUIRE(m[0][1] == Approx(s * t.scale.x));
-    REQUIRE(m[1][0] == Approx(-s * t.scale.y));
-    REQUIRE(m[1][1] == Approx(c * t.scale.y));
-}*/
 
 // clang-format off
 // NOLINTEND(*-include-cleaner, *-avoid-magic-numbers, *-magic-numbers, *-unchecked-optional-access, *-avoid-do-while, *-use-anonymous-namespace, *-qualified-auto, *-suspicious-stringview-data-usage, *-err58-cpp, *-function-cognitive-complexity, *-macro-usage, *-unnecessary-copy-initialization, *-uppercase-literal-suffix, *-uppercase-literal-suffix, *-container-size-empty, *-move-const-arg, *-move-const-arg, *-pass-by-value, *-diagnostic-self-assign-overloaded, *-unused-using-decls, *-identifier-length, *-pro-bounds-constant-array-index, *-owning-memory, cert-err33-c, *-avoid-c-arrays, *-unsafe-functions, *-pro-bounds-array-to-pointer-decay, *-use-concise-preprocessor-directives, *-const-correctness, *-signed-bitwise, *-pro-type-reinterpret-cast)
