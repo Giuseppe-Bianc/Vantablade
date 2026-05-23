@@ -1,0 +1,29 @@
+test/tests.cpp
+  s_52b7fab566fe83::t_91ca078ade0aac 17,1579-1587,1589-1592,1594-1595,1597-1599,1601,1603-1608,1610-1612,1614,1616-1626,1628-1630,1632,1634-1656,1658-1660,1662-1665,1671-1676
+  s_52b7fab566fe83::t_6034505425937e 1661,1666-1670
+include/Vantablade/GameObject.hpp
+  h_361662506da91f 22
+test/constexpr_tests.cpp
+  s_52b7fab566fe83::t_91ca078ade0aac 8-9,105-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.0",
+  "base_commit_sha": "2a98795623165eb4cb997ac507d118a51aefabc7",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_52b7fab566fe83": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "9d664b86-94eb-4db4-8287-b19b29acc20c",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
