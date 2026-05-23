@@ -1579,12 +1579,10 @@ TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "
 namespace {
     [[nodiscard]] void requireMat4Approx(const glm::mat4 &actual, const glm::mat4 &expected, const float margin = 1e-5f) {
         for(int column = 0; column < 4; ++column) {
-            for(int row = 0; row < 4; ++row) {
-                REQUIRE(actual[column][row] == Approx(expected[column][row]).margin(margin));
-            }
+            for(int row = 0; row < 4; ++row) { REQUIRE(actual[column][row] == Approx(expected[column][row]).margin(margin)); }
         }
     }
-}
+}  // namespace
 
 TEST_CASE("TransformComponent::mat4 produces stable transforms", "[TransformComponent][mat4]") {
     SECTION("Default construction yields identity transform") {

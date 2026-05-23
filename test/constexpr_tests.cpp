@@ -6,8 +6,8 @@
 #include <Vantablade/Device.hpp>
 #include <Vantablade/vantablade.hpp>
 
-#include <type_traits>
 #include <string_view>
+#include <type_traits>
 
 TEST_CASE("Vulkan constexpr mappings remain stable", "[vulkan][constexpr]") {
     STATIC_REQUIRE(std::string_view{VkObjectString(VK_OBJECT_TYPE_DEVICE)} == "DEVICE");
