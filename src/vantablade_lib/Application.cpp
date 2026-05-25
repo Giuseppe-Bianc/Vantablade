@@ -107,14 +107,35 @@ void Application::mainLoop() {
         {
             ImGui::Begin("Renderer");
 
+            if(ImGui::CollapsingHeader("Device")) {
+                const auto &p = device_m.properties;
+
+                const auto apiVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.apiVersion), VK_API_VERSION_MINOR(p.apiVersion),
+                                           VK_API_VERSION_PATCH(p.apiVersion));
+
+                const auto driverVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.driverVersion), VK_API_VERSION_MINOR(p.driverVersion),
+                                              VK_API_VERSION_PATCH(p.driverVersion));
+
+                const auto vendor = FORMAT("{} (ID: {:#010x})", getVendorName(p.vendorID), p.vendorID);
+                const auto deviceId = FORMAT("{}({:#010x})", p.deviceID, p.deviceID);
+                const auto uuid = uuid_to_string(std::span<const uint8_t, 16>{p.pipelineCacheUUID, 16});
+
+                ImGui::Text("Device Name:       %s", p.deviceName);
+                ImGui::Text("API Version:       %s", apiVer.c_str());
+                ImGui::Text("Driver Version:    %s", driverVer.c_str());
+                ImGui::Text("Vendor:            %s", vendor.c_str());
+                ImGui::Text("Device ID:         %s", deviceId.c_str());
+                ImGui::Text("Device Type:       %s", getDeviceType(p.deviceType));
+                ImGui::Text("Pipeline UUID:     %s", uuid.c_str());
+            }
+            ImGui::Separator();
             const auto fpsLine = FORMAT("{:.3LF} fps/{}", fps.getFPS(), fps.getMsPerFrameString());
             const auto maxLine = FORMAT("Max: {:.3LF} fps", fps.getMaxFPS());
             ImGui::Text("%s", fpsLine.c_str());
             ImGui::Text("%s", maxLine.c_str());
 
             ImGui::Separator();
-            ImGui::Text("Device: %s", device_m.properties.deviceName);
-            ImGui::Text("Objects: %zu", gameObjects.size());
+            ImGui::Text("rendere Objects: %zu", gameObjects.size());
 
             ImGui::End();
         }
