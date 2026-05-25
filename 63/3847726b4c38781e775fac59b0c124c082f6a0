@@ -1,0 +1,25 @@
+specs/001-imgui-layer-improvement/tasks.md
+  s_386364242c3b4a::t_13e24a1e65f038 1-8,10-41,43-72,74-94,96-99,101-105,107-116,118-122,124-125
+  h_361662506da91f 9,42,73,95,100,106,117,123
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "633847726b4c38781e775fac59b0c124c082f6a0",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_386364242c3b4a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2f519e5d-deef-4f6f-8e1d-02a3472f38a4",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
