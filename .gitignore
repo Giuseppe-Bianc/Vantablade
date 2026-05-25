@@ -51,3 +51,4 @@ obj/
 *.env*
 *.tmpCLAUDE.local.md
 CLAUDE.local.md
+imgui.ini
