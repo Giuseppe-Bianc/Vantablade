@@ -1,0 +1,34 @@
+src/vantablade_lib/ImGuiLayer.cpp
+  h_361662506da91f 1-204
+include/Vantablade/FPSCounter.hpp
+  h_361662506da91f 22-25
+include/Vantablade/Renderer.hpp
+  h_361662506da91f 37
+Dependencies.cmake
+  h_361662506da91f 113-139
+include/Vantablade/Device.hpp
+  h_361662506da91f 112-114
+include/Vantablade/Application.hpp
+  h_361662506da91f 14,35-37
+src/vantablade_lib/FPSCounter.cpp
+  h_361662506da91f 99-103
+src/vantablade_lib/CMakeLists.txt
+  h_361662506da91f 36-37,56
+include/Vantablade/ImGuiLayer.hpp
+  h_361662506da91f 1-49
+src/vantablade_lib/Renderer.cpp
+  h_361662506da91f 16-17
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 12-13,15-21,104,107-129,133-137,141-142,144,147
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "4fe66ce887ff6de36ea6d3ff432818ef104499f8",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
