@@ -12,12 +12,7 @@
 #include <imgui.h>
 
 Application::Application() {
-    imguiLayer_m = std::make_unique<ImGuiLayer>(
-        device_m,
-        window,
-        renderer_m.getSwapChainRenderPass(),
-        renderer_m.getSwapChainImageCount()
-    );
+    imguiLayer_m = std::make_unique<ImGuiLayer>(device_m, window, renderer_m.getSwapChainRenderPass(), renderer_m.getSwapChainImageCount());
     imguiLayer_m->onAttach();
     loadGameObjects();
 }
