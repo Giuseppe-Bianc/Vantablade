@@ -9,7 +9,18 @@
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
-Application::Application() { loadGameObjects(); }
+#include <imgui.h>
+
+Application::Application() {
+    imguiLayer_m = std::make_unique<ImGuiLayer>(
+        device_m,
+        window,
+        renderer_m.getSwapChainRenderPass(),
+        renderer_m.getSwapChainImageCount()
+    );
+    imguiLayer_m->onAttach();
+    loadGameObjects();
+}
 
 void Application::run() {
     // initWindow();
@@ -90,17 +101,49 @@ void Application::loadGameObjects() {
 void Application::mainLoop() {
     FPSCounter fps{window.getGLFWWindow(), wtile};
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
+
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
+
+        // --- ImGui new frame --------------------------------------------
+        imguiLayer_m->begin();
+
+        // --- Renderer stats panel ---------------------------------------
+        {
+            ImGui::Begin("Renderer");
+
+            const auto fpsLine = FORMAT("{:.3LF} fps/{}", fps.getFPS(), fps.getMsPerFrameString());
+            const auto maxLine = FORMAT("Max: {:.3LF} fps", fps.getMaxFPS());
+            ImGui::Text("%s", fpsLine.c_str());
+            ImGui::Text("%s", maxLine.c_str());
+
+            ImGui::Separator();
+            ImGui::Text("Device: %s", device_m.properties.deviceName);
+            ImGui::Text("Objects: %zu", gameObjects.size());
+
+            ImGui::End();
+        }
+
+        // Add further panels here — each in its own ImGui::Begin/End block.
+
+        // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
             renderer_m.beginSwapChainRenderPass(commandBuffer);
             simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+
+            // ImGui draw calls recorded into the same command buffer,
+            // inside the active render pass.
+            imguiLayer_m->end(commandBuffer);
+
             renderer_m.endSwapChainRenderPass(commandBuffer);
             renderer_m.endFrame();
         }
-        fps.frameInTitle(false, true);
+
+        fps.tick();
     }
+
     VK_CHECK(vkDeviceWaitIdle(device_m.device()), "failed to wait for device idle!");
 }
+
 // NOLINTEND(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers,
 // *-magic-numbers)

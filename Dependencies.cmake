@@ -110,4 +110,31 @@ function(Vantablade_setup_dependencies)
     )
   endif()
 
+  if(NOT TARGET imgui)
+    CPMAddPackage(
+      NAME imgui
+      URL "https://github.com/ocornut/imgui/archive/refs/tags/v1.91.9.zip"
+      DOWNLOAD_ONLY YES
+    )
+    if(imgui_ADDED)
+      find_package(Vulkan REQUIRED)
+
+      add_library(imgui STATIC
+        "${imgui_SOURCE_DIR}/imgui.cpp"
+        "${imgui_SOURCE_DIR}/imgui_draw.cpp"
+        "${imgui_SOURCE_DIR}/imgui_tables.cpp"
+        "${imgui_SOURCE_DIR}/imgui_widgets.cpp"
+        "${imgui_SOURCE_DIR}/imgui_demo.cpp"
+        "${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp"
+        "${imgui_SOURCE_DIR}/backends/imgui_impl_vulkan.cpp"
+      )
+      target_include_directories(imgui PUBLIC
+        "${imgui_SOURCE_DIR}"
+        "${imgui_SOURCE_DIR}/backends"
+      )
+      target_link_libraries(imgui PUBLIC glfw Vulkan::Vulkan)
+      set_target_properties(imgui PROPERTIES FOLDER "ThirdParty")
+      add_library(imgui::imgui ALIAS imgui)
+    endif()
+  endif()
 endfunction()

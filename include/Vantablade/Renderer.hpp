@@ -34,6 +34,7 @@ public:
     void endFrame();
     void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
     void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+    [[nodiscard]] uint32_t getSwapChainImageCount() const;
 
 private:
     void createCommandBuffers();

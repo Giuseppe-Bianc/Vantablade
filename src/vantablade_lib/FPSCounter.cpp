@@ -96,4 +96,9 @@ long double FPSCounter::getFPS() const noexcept { return fps; }
 
 long double FPSCounter::getMsPerFrame() const noexcept { return ms_per_frame; }
 
+void FPSCounter::tick() {
+    updateFPS();
+    ensureMsPerFrameStringUpToDate();
+}
+
 // NOLINTEND(*-include-cleaner, *-avoid-magic-numbers,*-magic-numbers)

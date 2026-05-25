@@ -13,6 +13,8 @@ Renderer::Renderer(Window &window, Device &device) : window_m(window), device_m(
 }
 Renderer::~Renderer() { freeCommandBuffers(); }
 
+uint32_t Renderer::getSwapChainImageCount() const { return C_UI32T(swapChain_m->imageCount()); }
+
 void Renderer::recreateSwapChain() {
     auto extent = window_m.getExtent();
     while(extent.width == 0 || extent.height == 0) {

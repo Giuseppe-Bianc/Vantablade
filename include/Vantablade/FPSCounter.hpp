@@ -19,6 +19,10 @@ public:
     [[nodiscard]] long double getFPS() const noexcept;
     [[nodiscard]] long double getFrameTime() const noexcept { return frameTime; }
     [[nodiscard]] long double getMsPerFrame() const noexcept;
+    [[nodiscard]] long double getMaxFPS() const noexcept { return max_fps; }
+    [[nodiscard]] const std::string &getMsPerFrameString() const noexcept { return ms_per_frameComposition; }
+    // Updates internal counters and the ms-per-frame string without touching the window title.
+    void tick();
 
 private:
     // PERF: only regenerate the time string when ms_per_frame changes (about once per second).

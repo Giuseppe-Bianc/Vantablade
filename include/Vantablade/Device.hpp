@@ -109,6 +109,9 @@ public:
     [[nodiscard]] VkQueue graphicsQueue() const noexcept { return graphicsQueue_; }
     [[nodiscard]] VkQueue presentQueue() const noexcept { return presentQueue_; }
     [[nodiscard]] VmaAllocator getAllocator() const noexcept { return allocator; }
+    [[nodiscard]] VkInstance getInstance() const noexcept { return instance; }
+    [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const noexcept { return physicalDevice; }
+
 
     // CONST: query methods do not modify *this.
     [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }

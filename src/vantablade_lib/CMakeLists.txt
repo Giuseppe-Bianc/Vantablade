@@ -33,6 +33,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/Renderer.hpp
         SimpleRenderSystem.cpp
         ../../include/Vantablade/SimpleRenderSystem.hpp
+        ImGuiLayer.cpp
+        ../../include/Vantablade/ImGuiLayer.hpp
 )
 
 
@@ -51,6 +53,7 @@ target_link_libraries(vantablade_lib
         glfw
         glm::glm
         GPUOpen::VulkanMemoryAllocator
+        imgui::imgui
         Vantablade::vantablade_core_lib)
 
 target_include_directories(vantablade_lib ${WARNING_GUARD}
