@@ -12,6 +12,7 @@
 #include "Model.hpp"
 #include "GameObject.hpp"
 #include "ImGuiLayer.hpp"
+#include "FPSCounter.hpp"
 // clang-format on
 
 class Application {
@@ -32,6 +33,7 @@ private:
     Device device_m{window};
     Renderer renderer_m{window, device_m};
     std::vector<GameObject> gameObjects;
+    FPSCounter fps_m{window.getGLFWWindow(), wtile};
     // ImGuiLayer must be declared after renderer_m so it initialises last
     // and destructs first — render pass must still be valid during shutdown.
     std::unique_ptr<ImGuiLayer> imguiLayer_m;

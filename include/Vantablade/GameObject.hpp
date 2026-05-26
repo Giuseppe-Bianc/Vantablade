@@ -39,14 +39,14 @@ public:
     GameObject(GameObject &&) = default;
     GameObject &operator=(GameObject &&) = default;
 
-    id_t getId() { return id; }
+    [[nodiscard]] id_t getId() const noexcept { return id; }
 
     std::shared_ptr<Model> model{};
     glm::vec3 color{};
     TransformComponent transform{};
 
 private:
-    GameObject(id_t objId) : id{objId} {}
+    explicit GameObject(id_t objId) noexcept : id{objId} {}
 
     id_t id;
 };

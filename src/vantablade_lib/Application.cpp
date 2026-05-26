@@ -11,9 +11,90 @@
 
 #include <imgui.h>
 
+class RendererPanel : public IUIPanel {
+public:
+    RendererPanel(Device &device, const std::vector<GameObject> &gameObjects)
+        : device_m{device}, gameObjects_m{gameObjects} {}
+
+    void onDraw() override {
+        ImGui::Begin("Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        if (ImGui::CollapsingHeader("Device")) {
+            const auto &p = device_m.properties;
+
+            const auto apiVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.apiVersion), VK_API_VERSION_MINOR(p.apiVersion),
+                                       VK_API_VERSION_PATCH(p.apiVersion));
+
+            const auto driverVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.driverVersion), VK_API_VERSION_MINOR(p.driverVersion),
+                                          VK_API_VERSION_PATCH(p.driverVersion));
+
+            const auto vendor = FORMAT("{} (ID: {:#010x})", getVendorName(p.vendorID), p.vendorID);
+            const auto deviceId = FORMAT("{}({:#010x})", p.deviceID, p.deviceID);
+            const auto uuid = uuid_to_string(std::span<const uint8_t, 16>{p.pipelineCacheUUID, 16});
+
+            ImGui::Text("Device Name:       %s", p.deviceName);
+            ImGui::Text("API Version:       %s", apiVer.c_str());
+            ImGui::Text("Driver Version:    %s", driverVer.c_str());
+            ImGui::Text("Vendor:            %s", vendor.c_str());
+            ImGui::Text("Device ID:         %s", deviceId.c_str());
+            ImGui::Text("Device Type:       %s", getDeviceType(p.deviceType));
+            ImGui::Text("Pipeline UUID:     %s", uuid.c_str());
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Rendered Objects: %zu", gameObjects_m.size());
+
+        if (!gameObjects_m.empty()) {
+            /*for (size_t i = 0; i < gameObjects_m.size(); ++i) {
+                ImGui::Text("Object %zu", i);
+            }*/
+           for (const auto& obj : gameObjects_m) {
+               ImGui::Text("Object %u vertices: %zu", obj.getId(), obj.model ? obj.model->getVertexCount() : 0);
+            }
+        }
+
+        ImGui::End();
+    }
+
+    const std::string& getName() const override {
+        static const std::string name = "Renderer";
+        return name;
+    }
+
+private:
+    Device &device_m;
+    const std::vector<GameObject> &gameObjects_m;
+};
+
+class FPSPanel : public IUIPanel {
+public:
+    FPSPanel(FPSCounter &fps) : fps_m{fps} {}
+
+    void onDraw() override {
+        ImGui::Begin("Performance", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        const auto fpsLine = FORMAT("{:.3LF} fps/{}", fps_m.getFPS(), fps_m.getMsPerFrameString());
+        const auto maxLine = FORMAT("Max: {:.3LF} fps", fps_m.getMaxFPS());
+        ImGui::Text("%s", fpsLine.c_str());
+        ImGui::Text("%s", maxLine.c_str());
+
+        ImGui::End();
+    }
+
+    const std::string& getName() const override {
+        static const std::string name = "Performance";
+        return name;
+    }
+
+private:
+    FPSCounter &fps_m;
+};
+
 Application::Application() {
     imguiLayer_m = std::make_unique<ImGuiLayer>(device_m, window, renderer_m.getSwapChainRenderPass(), renderer_m.getSwapChainImageCount());
     imguiLayer_m->onAttach();
+    imguiLayer_m->addPanel<RendererPanel>(device_m, gameObjects);
+    imguiLayer_m->addPanel<FPSPanel>(fps_m);
     loadGameObjects();
 }
 
@@ -94,7 +175,6 @@ void Application::loadGameObjects() {
 }
 
 void Application::mainLoop() {
-    FPSCounter fps{window.getGLFWWindow(), wtile};
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
 
     while(!window.shouldClose()) [[likely]] {
@@ -102,45 +182,6 @@ void Application::mainLoop() {
 
         // --- ImGui new frame --------------------------------------------
         imguiLayer_m->begin();
-
-        // --- Renderer stats panel ---------------------------------------
-        {
-            ImGui::Begin("Renderer");
-
-            if(ImGui::CollapsingHeader("Device")) {
-                const auto &p = device_m.properties;
-
-                const auto apiVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.apiVersion), VK_API_VERSION_MINOR(p.apiVersion),
-                                           VK_API_VERSION_PATCH(p.apiVersion));
-
-                const auto driverVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.driverVersion), VK_API_VERSION_MINOR(p.driverVersion),
-                                              VK_API_VERSION_PATCH(p.driverVersion));
-
-                const auto vendor = FORMAT("{} (ID: {:#010x})", getVendorName(p.vendorID), p.vendorID);
-                const auto deviceId = FORMAT("{}({:#010x})", p.deviceID, p.deviceID);
-                const auto uuid = uuid_to_string(std::span<const uint8_t, 16>{p.pipelineCacheUUID, 16});
-
-                ImGui::Text("Device Name:       %s", p.deviceName);
-                ImGui::Text("API Version:       %s", apiVer.c_str());
-                ImGui::Text("Driver Version:    %s", driverVer.c_str());
-                ImGui::Text("Vendor:            %s", vendor.c_str());
-                ImGui::Text("Device ID:         %s", deviceId.c_str());
-                ImGui::Text("Device Type:       %s", getDeviceType(p.deviceType));
-                ImGui::Text("Pipeline UUID:     %s", uuid.c_str());
-            }
-            ImGui::Separator();
-            const auto fpsLine = FORMAT("{:.3LF} fps/{}", fps.getFPS(), fps.getMsPerFrameString());
-            const auto maxLine = FORMAT("Max: {:.3LF} fps", fps.getMaxFPS());
-            ImGui::Text("%s", fpsLine.c_str());
-            ImGui::Text("%s", maxLine.c_str());
-
-            ImGui::Separator();
-            ImGui::Text("rendere Objects: %zu", gameObjects.size());
-
-            ImGui::End();
-        }
-
-        // Add further panels here — each in its own ImGui::Begin/End block.
 
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
@@ -155,7 +196,7 @@ void Application::mainLoop() {
             renderer_m.endFrame();
         }
 
-        fps.tick();
+        fps_m.tick();
     }
 
     VK_CHECK(vkDeviceWaitIdle(device_m.device()), "failed to wait for device idle!");

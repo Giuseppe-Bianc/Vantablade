@@ -26,6 +26,8 @@ public:
     void bind(VkCommandBuffer commandBuffer) const;
     void draw(VkCommandBuffer commandBuffer) const;
 
+    [[nodiscard]] uint32_t getVertexCount() const noexcept { return vertexCount; }
+
 private:
     void createVertexBuffers(const std::vector<Vertex> &vertices);
 

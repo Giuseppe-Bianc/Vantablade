@@ -72,3 +72,7 @@ static inline constexpr auto fepsilon = std::numeric_limits<long double>::epsilo
 [[nodiscard]] inline fs::path calculateRelativePathToModels(const fs::path &startPath, const fs::path &targetFile) {
     return calculateRelativePathToSrc(startPath, targetFile, "models");
 }
+
+[[nodiscard]] inline fs::path calculateRelativePathToAssets(const fs::path &startPath, const fs::path &targetFile) {
+    return calculateRelativePathToSrc(startPath, targetFile, "asssets");
+}

@@ -98,6 +98,10 @@ void ImGuiLayer::begin() {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    for (auto& panel : panels_m) {
+        panel->onDraw();
+    }
 }
 
 void ImGuiLayer::end(VkCommandBuffer commandBuffer) {
@@ -154,6 +158,19 @@ void ImGuiLayer::createDescriptorPool() {
 // ---------------------------------------------------------------------------
 
 void ImGuiLayer::setupStyle() {
+    ImGuiIO &io = ImGui::GetIO();
+
+    const auto fontPath = calculateRelativePathToAssets(Vantablade::cmake::project_path(), R"(Fonts\FiraCode\FiraCodeNerdFont-Medium.ttf)");
+    LINFO("Loading ImGui font from '{}'", fontPath.string());
+    if(!std::filesystem::exists(fontPath)) { 
+        LERROR("ImGuiLayer: font file does not exist at '{}'", fontPath.string());
+    }
+
+    ImFont *font = io.Fonts->AddFontFromFileTTF(fontPath.string().c_str(), 18.0f);
+    if(!font) { 
+        LERROR("ImGuiLayer: ImGui failed to load font from '{}'", fontPath.string());
+    }
+
     ImGui::StyleColorsDark();
 
     ImGuiStyle &s = ImGui::GetStyle();
