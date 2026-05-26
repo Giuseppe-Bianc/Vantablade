@@ -1,0 +1,18 @@
+src/vantablade_lib/ImGuiLayer.cpp
+  h_361662506da91f 165
+include/Vantablade/Renderer.hpp
+  h_361662506da91f 25
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 30,34-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "17aae93086389dc6de9adf92565072fd3ebfe4c4",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
