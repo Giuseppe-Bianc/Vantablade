@@ -1,0 +1,52 @@
+include/Vantablade/GameObject.hpp
+  h_361662506da91f 42,49
+src/vantablade_lib/ImGuiLayer.cpp
+  s_314c80e288c544::t_d5db418ef087ec 101-104
+  h_361662506da91f 161,163-173
+src/vantablade_lib/Application.cpp
+  s_314c80e288c544::t_e1d602cc8b7394 97
+  s_314c80e288c544::t_b43e2b38b72cf4 67-73,76-79,81-90
+  s_314c80e288c544::t_d394a8e09eec67 20
+  s_314c80e288c544::t_e34ee863a36301 96
+  s_314c80e288c544::t_12c1bcade143a1 75,80
+  s_314c80e288c544::t_548e552fac5ef6 74
+  s_314c80e288c544::t_c4163a4e9e06ce 14-15,17-19,21-44,55-65,91-92
+  s_314c80e288c544::t_3d6a0f89596d2b 49
+  s_314c80e288c544::t_6a583e147590e3 46-47,54
+  s_314c80e288c544::t_185b863f69d75a 16,66
+  s_314c80e288c544::t_75c8854970de33 199
+  h_361662506da91f 45,48,50-53
+include/Vantablade/headers.hpp
+  h_361662506da91f 75-78
+include/Vantablade/Application.hpp
+  s_314c80e288c544::t_c16a44f4dae323 15
+  s_314c80e288c544::t_b78e2c1644ba71 36
+include/Vantablade/Model.hpp
+  h_361662506da91f 29-30
+include/Vantablade/ImGuiLayer.hpp
+  s_314c80e288c544::t_4f622d9fdd491b 48-50
+  s_314c80e288c544::t_72cdc48bfa85c0 13-26
+  s_314c80e288c544::t_8d44906ab01de4 55-66
+  s_314c80e288c544::t_9a2ced0a3ec620 78-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.1",
+  "base_commit_sha": "e157ae7aa2e3efff33c5b0fca764851340879dd6",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_314c80e288c544": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1df4c19e-7125-4294-b935-7e9d4cecad7b",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
