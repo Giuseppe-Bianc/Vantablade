@@ -162,7 +162,7 @@ void ImGuiLayer::setupStyle() {
     LINFO("Loading ImGui font from '{}'", fontPath.string());
     if(!std::filesystem::exists(fontPath)) { LERROR("ImGuiLayer: font file does not exist at '{}'", fontPath.string()); }
 
-    ImFont *font = io.Fonts->AddFontFromFileTTF(fontPath.string().c_str(), 18.0f);
+    ImFont *font = io.Fonts->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f);
     if(!font) { LERROR("ImGuiLayer: ImGui failed to load font from '{}'", fontPath.string()); }
 
     ImGui::StyleColorsDark();
