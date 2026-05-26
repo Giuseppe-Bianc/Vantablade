@@ -13,13 +13,12 @@
 
 class RendererPanel : public IUIPanel {
 public:
-    RendererPanel(Device &device, const std::vector<GameObject> &gameObjects)
-        : device_m{device}, gameObjects_m{gameObjects} {}
+    RendererPanel(Device &device, const std::vector<GameObject> &gameObjects) : device_m{device}, gameObjects_m{gameObjects} {}
 
     void onDraw() override {
         ImGui::Begin("Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-        if (ImGui::CollapsingHeader("Device")) {
+        if(ImGui::CollapsingHeader("Device")) {
             const auto &p = device_m.properties;
 
             const auto apiVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.apiVersion), VK_API_VERSION_MINOR(p.apiVersion),
@@ -44,19 +43,19 @@ public:
         ImGui::Separator();
         ImGui::Text("Rendered Objects: %zu", gameObjects_m.size());
 
-        if (!gameObjects_m.empty()) {
+        if(!gameObjects_m.empty()) {
             /*for (size_t i = 0; i < gameObjects_m.size(); ++i) {
                 ImGui::Text("Object %zu", i);
             }*/
-           for (const auto& obj : gameObjects_m) {
-               ImGui::Text("Object %u vertices: %zu", obj.getId(), obj.model ? obj.model->getVertexCount() : 0);
+            for(const auto &obj : gameObjects_m) {
+                ImGui::Text("Object %u vertices: %zu", obj.getId(), obj.model ? obj.model->getVertexCount() : 0);
             }
         }
 
         ImGui::End();
     }
 
-    const std::string& getName() const override {
+    const std::string &getName() const override {
         static const std::string name = "Renderer";
         return name;
     }
@@ -81,7 +80,7 @@ public:
         ImGui::End();
     }
 
-    const std::string& getName() const override {
+    const std::string &getName() const override {
         static const std::string name = "Performance";
         return name;
     }

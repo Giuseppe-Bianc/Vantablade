@@ -11,8 +11,8 @@
 #include "Window.hpp"
 
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 /**
  * IUIPanel — Interface for a renderable UI component.
@@ -21,7 +21,7 @@ class IUIPanel {
 public:
     virtual ~IUIPanel() = default;
     virtual void onDraw() = 0;
-    virtual const std::string& getName() const = 0;
+    virtual const std::string &getName() const = 0;
 };
 
 class ImGuiLayer {
@@ -52,16 +52,15 @@ public:
     // Call this from Renderer::recreateSwapChain if image count changes.
     void onSwapChainRecreated(uint32_t newImageCount);
 
-    template <typename T, typename... Args>
-    T* addPanel(Args &&...args) {
+    template <typename T, typename... Args> T *addPanel(Args &&...args) {
         auto panel = std::make_unique<T>(std::forward<Args>(args)...);
-        T* ptr = panel.get();
+        T *ptr = panel.get();
         panels_m.push_back(std::move(panel));
         return ptr;
     }
 
-    void removePanel(const std::string& name) {
-        std::erase_if(panels_m, [&](const auto& p) { return p->getName() == name; });
+    void removePanel(const std::string &name) {
+        std::erase_if(panels_m, [&](const auto &p) { return p->getName() == name; });
     }
 
 private:
