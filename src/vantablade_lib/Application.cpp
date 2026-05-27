@@ -65,7 +65,7 @@ private:
 
 class FPSPanel : public IUIPanel {
 public:
-    FPSPanel(FPSCounter &fps) : fps_m{fps} {}
+    explicit FPSPanel(FPSCounter &fps) : fps_m{fps} {}
 
     void onDraw() override {
         ImGui::Begin("Performance", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
