@@ -1,7 +1,7 @@
 /*
-* Created by gbian on 27/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 27/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 // clang-format off
 // NOLINTBEGIN(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers)
 // clang-format on

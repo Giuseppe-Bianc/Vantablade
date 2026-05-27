@@ -62,7 +62,7 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
         calculateRelativePathToShaders(Vantablade::cmake::project_path(), "simple_shader.frag.opt.spv"), pipelineConfig);
 }
 
-void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects,  const Camera &camera) {
+void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects, const Camera &camera) {
     pipeline_m->bind(commandBuffer);
 
     for(auto &obj : gameObjects) {

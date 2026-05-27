@@ -5,8 +5,8 @@
 // NOLINTBEGIN(*-include-cleaner,*-convert-member-functions-to-static, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers,
 // *-magic-numbers)
 #include "Vantablade/Application.hpp"
-#include "Vantablade/FPSCounter.hpp"
 #include "Vantablade/Camera.hpp"
+#include "Vantablade/FPSCounter.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
