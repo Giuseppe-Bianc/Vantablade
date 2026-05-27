@@ -6,6 +6,7 @@
 // *-magic-numbers)
 #include "Vantablade/Application.hpp"
 #include "Vantablade/FPSCounter.hpp"
+#include "Vantablade/Camera.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
@@ -166,16 +167,21 @@ void Application::loadGameObjects() {
     std::shared_ptr<Model> model = createCubeModel(device_m, {.0f, .0f, .0f});
     auto cube = GameObject::createGameObject();
     cube.model = model;
-    cube.transform.translation = {.0f, .0f, .5f};
+    cube.transform.translation = {.0f, .0f, 2.5f};
     cube.transform.scale = {.5f, .5f, .5f};
     gameObjects.push_back(std::move(cube));
 }
 
 void Application::mainLoop() {
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
+    Camera camera{};
 
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
+
+        float aspect = renderer_m.getAspectRatio();
+        // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+        camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
         // --- ImGui new frame --------------------------------------------
         imguiLayer_m->begin();
@@ -183,7 +189,7 @@ void Application::mainLoop() {
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
             renderer_m.beginSwapChainRenderPass(commandBuffer);
-            simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+            simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
             // ImGui draw calls recorded into the same command buffer,
             // inside the active render pass.
