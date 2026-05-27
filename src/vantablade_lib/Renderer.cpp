@@ -29,9 +29,7 @@ void Renderer::recreateSwapChain() {
         const std::shared_ptr<SwapChain> oldSwapChain = std::move(swapChain_m);
         swapChain_m = std::make_unique<SwapChain>(device_m, extent, oldSwapChain);
 
-        if(!oldSwapChain->compareSwapFormats(*swapChain_m)) {
-            throw std::runtime_error("Swap chain image(or depth) format has changed!");
-        }
+        if(!oldSwapChain->compareSwapFormats(*swapChain_m)) { throw std::runtime_error("Swap chain image(or depth) format has changed!"); }
     }
 }
 
@@ -69,7 +67,7 @@ VkCommandBuffer Renderer::beginFrame() {
 
     isFrameStarted = true;
 
-    auto* commandBuffer = getCurrentCommandBuffer();
+    auto *commandBuffer = getCurrentCommandBuffer();
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -79,7 +77,7 @@ VkCommandBuffer Renderer::beginFrame() {
 
 void Renderer::endFrame() {
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
-    auto* commandBuffer = getCurrentCommandBuffer();
+    auto *commandBuffer = getCurrentCommandBuffer();
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
 
     auto result = swapChain_m->submitCommandBuffers(&commandBuffer, &currentImageIndex);
@@ -103,12 +101,12 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     renderPassInfo.renderPass = swapChain_m->getRenderPass();
     renderPassInfo.framebuffer = swapChain_m->getFrameBuffer(currentImageIndex);
 
-    renderPassInfo.renderArea.offset = {.x=0, .y=0};
+    renderPassInfo.renderArea.offset = {.x = 0, .y = 0};
     renderPassInfo.renderArea.extent = swapChain_m->getSwapChainExtent();
 
     std::array<VkClearValue, 2> clearValues{};
     clearValues[0].color = {{0.01f, 0.01f, 0.01f, 1.0f}};
-    clearValues[1].depthStencil = {.depth=1.0f, .stencil=0};
+    clearValues[1].depthStencil = {.depth = 1.0f, .stencil = 0};
     renderPassInfo.clearValueCount = C_UI32T(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 

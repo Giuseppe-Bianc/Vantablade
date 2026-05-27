@@ -127,17 +127,17 @@ void ImGuiLayer::onSwapChainRecreated(uint32_t newImageCount) {
 void ImGuiLayer::createDescriptorPool() {
     // Generous pool — one per descriptor type as recommended in imgui_impl_vulkan.h.
     constexpr std::array<VkDescriptorPoolSize, 11> poolSizes{{
-        {.type=VK_DESCRIPTOR_TYPE_SAMPLER, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, .descriptorCount=1000},
-        {.type=VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, .descriptorCount=1000},
+        {.type = VK_DESCRIPTOR_TYPE_SAMPLER, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, .descriptorCount = 1000},
+        {.type = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, .descriptorCount = 1000},
     }};
 
     const VkDescriptorPoolCreateInfo poolInfo{
@@ -165,7 +165,7 @@ void ImGuiLayer::setupStyle() {
     if(!std::filesystem::exists(fontPath)) { LERROR("ImGuiLayer: font file does not exist at '{}'", fontPath.string()); }
 
     ImFont *font = io.Fonts->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f);
-    if(font== nullptr) { LERROR("ImGuiLayer: ImGui failed to load font from '{}'", fontPath.string()); }
+    if(font == nullptr) { LERROR("ImGuiLayer: ImGui failed to load font from '{}'", fontPath.string()); }
 
     ImGui::StyleColorsDark();
 
