@@ -6,7 +6,7 @@
 // NOLINTBEGIN(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers)
 // clang-format on
 #include "Vantablade/Camera.hpp"
-void Camera::setOrthographicProjection(float left, float right, float bottom, float top, float near, float far) {
+void Camera::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {
     projectionMatrix = glm::orthoLH(left, right, bottom, top, near, far);
 }
 
