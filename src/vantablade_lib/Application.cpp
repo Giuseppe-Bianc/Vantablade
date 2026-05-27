@@ -46,7 +46,7 @@ public:
                 ImGui::Text("Object %zu", i);
             }*/
             for(const auto &obj : gameObjects_m) {
-                ImGui::Text("Object %u vertices: %zu", obj.getId(), obj.model ? obj.model->getVertexCount() : 0);
+                ImGui::Text("Object %u vertices: %u", obj.getId(), obj.model ? obj.model->getVertexCount() : 0);
             }
         }
 
