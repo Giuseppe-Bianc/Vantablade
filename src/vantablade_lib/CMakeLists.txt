@@ -35,6 +35,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/SimpleRenderSystem.hpp
         ImGuiLayer.cpp
         ../../include/Vantablade/ImGuiLayer.hpp
+        Camera.cpp
+        ../../include/Vantablade/Camera.hpp
 )
 
 

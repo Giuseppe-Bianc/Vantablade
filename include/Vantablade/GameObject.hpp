@@ -13,7 +13,7 @@ struct TransformComponent {
     glm::vec3 scale{1.f, 1.f, 1.f};
     glm::vec3 rotation;
 
-    [[nodiscard]] glm::mat4 mat4() const {
+    [[nodiscard]] glm::mat4 mat4() const noexcept {
         /*glm::mat4 t = glm::translate(glm::mat4(1.f), translation);
         glm::mat4 r = glm::yawPitchRoll(rotation.y, rotation.x, rotation.z);
         glm::mat4 s = glm::scale(glm::mat4(1.f), scale);
