@@ -35,6 +35,19 @@ function(Vantablade_setup_dependencies)
       "12.1.0"
       SYSTEM
       YES)
+    if(TARGET fmt)
+      target_compile_options(fmt PRIVATE
+        $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-w>
+      )
+      if(MSVC)
+        get_target_property(_fmt_opts fmt COMPILE_OPTIONS)
+        if(_fmt_opts)
+          list(FILTER _fmt_opts EXCLUDE REGEX "^/W[0-4]$")
+          set_target_properties(fmt PROPERTIES COMPILE_OPTIONS "${_fmt_opts}")
+        endif()
+        target_compile_options(fmt PRIVATE /W0)
+      endif()
+    endif()
   endif()
 
   if(NOT TARGET spdlog::spdlog)
