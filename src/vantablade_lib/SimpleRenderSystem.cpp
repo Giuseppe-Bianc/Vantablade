@@ -2,7 +2,9 @@
  * Created by gbian on 22/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-
+// clang-format off
+// NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise, *-avoid-magic-numbers, *-magic-numbers, *-pro-type-union-access)
+// clang-format on
 #include "Vantablade/SimpleRenderSystem.hpp"
 
 #include "Vantablade/vulkanCheck.hpp"
@@ -77,3 +79,6 @@ void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::v
         obj.model->draw(commandBuffer);
     }
 }
+// clang-format off
+// NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise, *-avoid-magic-numbers, *-magic-numbers, *-pro-type-union-access)
+// clang-format on

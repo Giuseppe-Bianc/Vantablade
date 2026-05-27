@@ -33,7 +33,7 @@ public:
     VkCommandBuffer beginFrame();
     void endFrame();
     void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-    void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+    void endSwapChainRenderPass(VkCommandBuffer commandBuffer) const;
     [[nodiscard]] uint32_t getSwapChainImageCount() const;
 
 private:
@@ -46,7 +46,7 @@ private:
     std::unique_ptr<SwapChain> swapChain_m;
     std::vector<VkCommandBuffer> commandBuffers;
 
-    uint32_t currentImageIndex;
+    uint32_t currentImageIndex{0};
     int currentFrameIndex{0};
     bool isFrameStarted{false};
 };

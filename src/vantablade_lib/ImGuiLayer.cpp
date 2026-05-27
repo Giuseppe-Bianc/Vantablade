@@ -1,7 +1,9 @@
 /*
  * ImGuiLayer — Dear ImGui Vulkan/GLFW backend integration.
  */
-// NOLINTBEGIN(*-include-cleaner)
+// clang-format off
+// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic)
+// clang-format on
 #include "Vantablade/ImGuiLayer.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
@@ -125,17 +127,17 @@ void ImGuiLayer::onSwapChainRecreated(uint32_t newImageCount) {
 void ImGuiLayer::createDescriptorPool() {
     // Generous pool — one per descriptor type as recommended in imgui_impl_vulkan.h.
     constexpr std::array<VkDescriptorPoolSize, 11> poolSizes{{
-        {VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
-        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
-        {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
-        {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
-        {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
-        {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
-        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
-        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
-        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
-        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000},
+        {.type=VK_DESCRIPTOR_TYPE_SAMPLER, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, .descriptorCount=1000},
+        {.type=VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, .descriptorCount=1000},
     }};
 
     const VkDescriptorPoolCreateInfo poolInfo{
@@ -163,10 +165,11 @@ void ImGuiLayer::setupStyle() {
     if(!std::filesystem::exists(fontPath)) { LERROR("ImGuiLayer: font file does not exist at '{}'", fontPath.string()); }
 
     ImFont *font = io.Fonts->AddFontFromFileTTF(fontPath.string().c_str(), 15.0f);
-    if(!font) { LERROR("ImGuiLayer: ImGui failed to load font from '{}'", fontPath.string()); }
+    if(font== nullptr) { LERROR("ImGuiLayer: ImGui failed to load font from '{}'", fontPath.string()); }
 
     ImGui::StyleColorsDark();
 
+    // NOLINTNEXTLINE(*-identifier-length)
     ImGuiStyle &s = ImGui::GetStyle();
     s.WindowRounding = 5.0f;
     s.FrameRounding = 4.0f;
@@ -177,6 +180,7 @@ void ImGuiLayer::setupStyle() {
     s.FrameBorderSize = 0.0f;
     s.IndentSpacing = 14.0f;
 
+    // NOLINTNEXTLINE(*-pro-bounds-array-to-pointer-decay,hicpp-no-array-decay, *-identifier-length)
     ImVec4 *c = s.Colors;
     c[ImGuiCol_WindowBg] = {0.10f, 0.10f, 0.11f, 1.00f};
     c[ImGuiCol_ChildBg] = {0.12f, 0.12f, 0.13f, 1.00f};
@@ -212,4 +216,6 @@ void ImGuiLayer::setupStyle() {
     c[ImGuiCol_ResizeGripActive] = {0.28f, 0.56f, 1.00f, 0.95f};
     c[ImGuiCol_TextSelectedBg] = {0.28f, 0.56f, 1.00f, 0.35f};
 }
-// NOLINTEND(*-include-cleaner)
+// clang-format off
+// NOLINTEND(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic)
+// clang-format on

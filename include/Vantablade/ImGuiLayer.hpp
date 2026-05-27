@@ -43,10 +43,10 @@ public:
     void begin();
 
     // Call at the end of every frame, inside an active render pass.
-    void end(VkCommandBuffer commandBuffer);
+    static void end(VkCommandBuffer commandBuffer);
 
     // Renders ImGui viewports outside the main swapchain render pass.
-    void renderViewports();
+    // void renderViewports();
 
     // Update min/max image count after a swap chain recreation.
     // Call this from Renderer::recreateSwapChain if image count changes.

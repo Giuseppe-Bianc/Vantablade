@@ -26,5 +26,5 @@ private:
     Device &device_m;
 
     std::unique_ptr<Pipeline> pipeline_m;
-    VkPipelineLayout pipelineLayout;
+    VkPipelineLayout pipelineLayout{VK_NULL_HANDLE};
 };
