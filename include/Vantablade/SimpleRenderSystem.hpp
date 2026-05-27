@@ -10,7 +10,6 @@
 #include "GameObject.hpp"
 #include "Pipeline.hpp"
 
-
 class SimpleRenderSystem {
 public:
     SimpleRenderSystem(Device &device, VkRenderPass renderPass);
