@@ -124,6 +124,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
 }
 
+// NOLINTNEXTLINE(*-convert-member-functions-to-static)
 void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) const {
     assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
