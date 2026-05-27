@@ -1578,12 +1578,12 @@ TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "
 
 namespace {
     void requireMat4Approx(const glm::mat4 &actual, const glm::mat4 &expected, const float margin = 1e-5f) {
-        for (std::size_t column = 0; column < 4; ++column) {
+        for(std::size_t column = 0; column < 4; ++column) {
             // PERF: cache column access, avoids repeated operator[] chaining.
-            const auto& aCol = actual[column];
-            const auto& eCol = expected[column];
+            const auto &aCol = actual[column];
+            const auto &eCol = expected[column];
 
-            for (std::size_t row = 0; row < 4; ++row) {
+            for(std::size_t row = 0; row < 4; ++row) {
                 // PERF: reuse Approx object, only update expected target value.
                 auto approx = Approx(eCol[row]).margin(margin);
 
