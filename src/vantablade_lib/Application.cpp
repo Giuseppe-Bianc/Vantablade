@@ -88,6 +88,33 @@ private:
     FPSCounter &fps_m;
 };
 
+class CameraPanel : public IUIPanel {
+public:
+    explicit CameraPanel(const Camera &camera) : camera_m{camera} {}
+
+    void onDraw() override {
+        ImGui::Begin("Camera", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+
+        const auto &projection = camera_m.getProjection();
+        const auto &view = camera_m.getView();
+
+        ImGui::Text("Projection Matrix: %s", glmp::to_string(projection).c_str());
+
+        ImGui::Text("View Matrix: %s", glmp::to_string(view).c_str());
+
+        ImGui::End();
+    }
+
+    const std::string &getName() const override {
+        static const std::string name = "Camera";
+        return name;
+    }
+
+private:
+    const Camera &camera_m;
+};
+
+
 Application::Application() {
     imguiLayer_m = std::make_unique<ImGuiLayer>(device_m, window, renderer_m.getSwapChainRenderPass(), renderer_m.getSwapChainImageCount());
     imguiLayer_m->onAttach();
@@ -176,6 +203,10 @@ void Application::mainLoop() {
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
     Camera camera{};
 
+    camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
+    imguiLayer_m->addPanel<CameraPanel>(camera);
+
+    
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
 
