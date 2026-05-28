@@ -114,7 +114,6 @@ private:
     const Camera &camera_m;
 };
 
-
 Application::Application() {
     imguiLayer_m = std::make_unique<ImGuiLayer>(device_m, window, renderer_m.getSwapChainRenderPass(), renderer_m.getSwapChainImageCount());
     imguiLayer_m->onAttach();
@@ -206,7 +205,6 @@ void Application::mainLoop() {
     camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
     imguiLayer_m->addPanel<CameraPanel>(camera);
 
-    
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
 
