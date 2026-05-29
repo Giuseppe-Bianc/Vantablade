@@ -156,7 +156,7 @@ function(Vantablade_setup_dependencies)
       CPMAddPackage(
         NAME tracy
         GITHUB_REPOSITORY "wolfpld/tracy"
-        GIT_TAG "master"
+        GIT_TAG "v0.13.1"
         SYSTEM YES
         OPTIONS
         "TRACY_ENABLE ON"
