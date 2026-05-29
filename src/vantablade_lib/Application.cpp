@@ -209,6 +209,7 @@ void Application::run() {
 }
 
 void Application::loadGameObjects() {
+    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Loading game objects"};
 #endif
@@ -220,6 +221,7 @@ void Application::loadGameObjects() {
 }
 
 void Application::mainLoop() {
+    VZ_ZONE_SCOPED;
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
     Camera camera{};
 
@@ -227,6 +229,7 @@ void Application::mainLoop() {
     imguiLayer_m->addPanel<CameraPanel>(camera);
 
     while(!window.shouldClose()) [[likely]] {
+        VZ_ZONE_SCOPED;
         glfwPollEvents();
 
         const float aspect = renderer_m.getAspectRatio();
@@ -234,7 +237,10 @@ void Application::mainLoop() {
         camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
         // --- ImGui new frame --------------------------------------------
-        imguiLayer_m->begin();
+        {
+            VZ_ZONE_SCOPED;
+            imguiLayer_m->begin();
+        }
 
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
@@ -243,13 +249,17 @@ void Application::mainLoop() {
 
             // ImGui draw calls recorded into the same command buffer,
             // inside the active render pass.
-            imguiLayer_m->end(commandBuffer);
+            {
+                VZ_ZONE_SCOPED;
+                imguiLayer_m->end(commandBuffer);
+            }
 
             renderer_m.endSwapChainRenderPass(commandBuffer);
             renderer_m.endFrame();
         }
 
         fps_m.tick();
+        VZ_FRAME_MARK();
     }
 
     VK_CHECK(vkDeviceWaitIdle(device_m.device()), "failed to wait for device idle!");

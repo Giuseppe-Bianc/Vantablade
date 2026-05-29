@@ -16,8 +16,8 @@ namespace Vantablade {
 #ifdef VANTABLADE_PROFILING
 #define VZ_ZONE_SCOPED ZoneScoped
 #define VZ_FRAME_MARK() FrameMark
-#define VZ_PLOT_INT(name, value) TracyPlotInt32((int32_t)name, value)
-#define VZ_PLOT_FLOAT(name, value) TracyPlotFloat((float)name, value)
+#define VZ_PLOT_INT(name, value) TracyPlot(name, static_cast<int64_t>(value))
+#define VZ_PLOT_FLOAT(name, value) TracyPlot(name, static_cast<float>(value))
 #else
 #define VZ_ZONE_SCOPED ((void)0)
 #define VZ_FRAME_MARK() ((void)0)
@@ -38,6 +38,7 @@ namespace Vantablade {
         ~VulkanProfiler();
 
         void init(VkDevice device, VkPhysicalDevice physicalDevice);
+        void shutdown();
         void mapQueue(uint32_t queueIndex, VkQueue queue);
 
         void beginGpuZone(VkCommandBuffer cmd, const char *name);
@@ -58,6 +59,7 @@ namespace Vantablade {
         VulkanProfiler() = default;
         ~VulkanProfiler() = default;
         void init(VkDevice, VkPhysicalDevice) {}
+        void shutdown() {}
         void mapQueue(uint32_t, VkQueue) {}
         void beginGpuZone(VkCommandBuffer, const char *) {}
         void endGpuZone(VkCommandBuffer) {}

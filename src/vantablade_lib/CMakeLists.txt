@@ -76,7 +76,7 @@ target_compile_features(vantablade_lib PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
 
 if (VANTABLADE_PROFILING)
     target_compile_definitions(vantablade_lib PUBLIC VANTABLADE_PROFILING)
-    target_link_libraries(vantablade_lib PUBLIC tracy)
+    target_link_libraries(vantablade_lib PUBLIC Tracy::TracyClient)
 endif ()
 
 Vantablade_configure_linker(vantablade_lib)

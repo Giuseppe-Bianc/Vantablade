@@ -7,15 +7,21 @@
 #include "Vantablade/vulkanCheck.hpp"
 #include <vk_mem_alloc.h>
 
-Model::Model(Device &device, const std::vector<Vertex> &vertices) : device_m{device} { createVertexBuffers(vertices); }
+Model::Model(Device &device, const std::vector<Vertex> &vertices) : device_m{device} {
+    VZ_ZONE_SCOPED;
+    createVertexBuffers(vertices);
+}
 
 Model::~Model() {
+    VZ_ZONE_SCOPED;
     // Single call destroys both the VkBuffer and its VmaAllocation.
     vmaDestroyBuffer(device_m.getAllocator(), vertexBuffer, vertexBufferAllocation);
 }
 
 void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
+    VZ_ZONE_SCOPED;
     vertexCount = C_UI32T(vertices.size());
+    VZ_PLOT_INT("Total Vertex Count", vertexCount);
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
     const VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
@@ -31,15 +37,20 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
     vmaUnmapMemory(device_m.getAllocator(), vertexBufferAllocation);
 }
 
-void Model::draw(VkCommandBuffer commandBuffer) const { vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0); }
+void Model::draw(VkCommandBuffer commandBuffer) const { 
+    VZ_ZONE_SCOPED;
+    vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+}
 
 void Model::bind(VkCommandBuffer commandBuffer) const {
+    VZ_ZONE_SCOPED;
     const std::array<VkBuffer, 1> buffers{vertexBuffer};
     const std::array<VkDeviceSize, 1> offsets{0};
     vkCmdBindVertexBuffers(commandBuffer, 0, C_UI32T(buffers.size()), buffers.data(), offsets.data());
 }
 
 std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptions() {
+    VZ_ZONE_SCOPED;
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
     bindingDescriptions[0].binding = 0;
     bindingDescriptions[0].stride = sizeof(Vertex);
@@ -48,6 +59,7 @@ std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptio
 }
 
 std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescriptions() {
+    VZ_ZONE_SCOPED;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
     attributeDescriptions[0].binding = 0;
     attributeDescriptions[0].location = 0;
