@@ -67,13 +67,18 @@ VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
     VZ_ZONE_SCOPED;
     auto *const vkdevice = device.device();
 
-    // CONST: waitResult is not reassigned — const makes the intent explicit.
-    const VkResult waitResult = vkWaitForFences(vkdevice, 1, &inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max());
+    {
+        VZ_ZONE_SCOPED_NAMED("WaitForInFlightFence");
+        // CONST: waitResult is not reassigned — const makes the intent explicit.
+        const VkResult waitResult = vkWaitForFences(vkdevice, 1, &inFlightFences[currentFrame], VK_TRUE, uint64Max);
 
-    if(waitResult != VK_SUCCESS) { return waitResult; }
+        if(waitResult != VK_SUCCESS) { return waitResult; }
+    }
 
-    return vkAcquireNextImageKHR(vkdevice, swapChain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphores[currentFrame],
-                                 VK_NULL_HANDLE, imageIndex);
+    {
+        VZ_ZONE_SCOPED_NAMED("AcquireNextImageKHR");
+        return vkAcquireNextImageKHR(vkdevice, swapChain, uint64Max, imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, imageIndex);
+    }
 }
 
 // NOLINTNEXTLINE(*-non-const-parameter)
@@ -81,7 +86,7 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_
     VZ_ZONE_SCOPED;
     if(imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
         // CONST: result not reassigned after this call.
-        VK_CHECK(vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max()),
+        VK_CHECK(vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, uint64Max),
                  "failed to wait for in-flight image fence!");
     }
 

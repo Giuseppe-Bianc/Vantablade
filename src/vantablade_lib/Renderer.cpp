@@ -77,7 +77,6 @@ VkCommandBuffer Renderer::beginFrame() {
     VK_CHECK_SWAPCHAIN(result, "failed to acquire swap chain image!");
 
     isFrameStarted = true;
-    VZ_PLOT_INT("SwapChain Image Index", currentImageIndex);
 
     auto *commandBuffer = getCurrentCommandBuffer();
     VkCommandBufferBeginInfo beginInfo{};

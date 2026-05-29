@@ -15,11 +15,13 @@ namespace Vantablade {
  */
 #ifdef VANTABLADE_PROFILING
 #define VZ_ZONE_SCOPED ZoneScoped
+#define VZ_ZONE_SCOPED_NAMED(name) ZoneScopedN(name)
 #define VZ_FRAME_MARK() FrameMark
 #define VZ_PLOT_INT(name, value) TracyPlot(name, static_cast<int64_t>(value))
 #define VZ_PLOT_FLOAT(name, value) TracyPlot(name, static_cast<float>(value))
 #else
 #define VZ_ZONE_SCOPED ((void)0)
+#define VZ_ZONE_SCOPED_NAMED(name) ((void)0)
 #define VZ_FRAME_MARK() ((void)0)
 #define VZ_PLOT_INT(name, value) ((void)0)
 #define VZ_PLOT_FLOAT(name, value) ((void)0)
