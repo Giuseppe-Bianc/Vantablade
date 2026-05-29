@@ -123,6 +123,59 @@ function(Vantablade_setup_dependencies)
     )
   endif()
 
+  if(VANTABLADE_PROFILING)
+  if(NOT TARGET Tracy::TracyClient)
+    CPMAddPackage(
+      NAME tracy
+      GITHUB_REPOSITORY wolfpld/tracy
+      GIT_TAG v0.13.1
+      OPTIONS
+        "TRACY_ENABLE ON"
+        "TRACY_ON_DEMAND ON"
+    )
+  endif()
+
+  # Use ExternalProject_Add so Tracy's tools build in complete isolation.
+  # Their vendor.cmake (imgui, freetype, etc.) runs in a separate CMake
+  # process and cannot conflict with your project's targets or packages.
+  if(DEFINED tracy_SOURCE_DIR)
+    include(ExternalProject)
+
+    # GUI profiler: output at <build>/tracy-profiler/<Config>/tracy-profiler.exe
+    ExternalProject_Add(
+      TracyProfiler
+      SOURCE_DIR               "${tracy_SOURCE_DIR}/profiler"
+      BINARY_DIR               "${CMAKE_BINARY_DIR}/tracy-profiler"
+      CMAKE_GENERATOR          "${CMAKE_GENERATOR}"
+      CMAKE_GENERATOR_PLATFORM "${CMAKE_GENERATOR_PLATFORM}"
+      CMAKE_GENERATOR_TOOLSET  "${CMAKE_GENERATOR_TOOLSET}"
+      BUILD_COMMAND
+        ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG> --parallel
+      INSTALL_COMMAND ""
+      EXCLUDE_FROM_ALL TRUE
+    )
+    
+
+    # CLI capture tool: output at <build>/tracy-capture/<Config>/tracy-capture.exe
+    ExternalProject_Add(
+      TracyCapture
+      SOURCE_DIR               "${tracy_SOURCE_DIR}/capture"
+      BINARY_DIR               "${CMAKE_BINARY_DIR}/tracy-capture"
+      CMAKE_GENERATOR          "${CMAKE_GENERATOR}"
+      CMAKE_GENERATOR_PLATFORM "${CMAKE_GENERATOR_PLATFORM}"
+      CMAKE_GENERATOR_TOOLSET  "${CMAKE_GENERATOR_TOOLSET}"
+      BUILD_COMMAND
+        ${CMAKE_COMMAND} --build <BINARY_DIR> --config $<CONFIG> --parallel
+      INSTALL_COMMAND ""
+      EXCLUDE_FROM_ALL TRUE
+    )
+
+    # Uncomment as needed:
+    # ExternalProject_Add(TracyCsvExport SOURCE_DIR "${tracy_SOURCE_DIR}/csvexport" ...)
+    # ExternalProject_Add(TracyImport    SOURCE_DIR "${tracy_SOURCE_DIR}/import"    ...)
+  endif()
+endif()
+
   if(NOT TARGET imgui)
     CPMAddPackage(
       NAME imgui
@@ -148,19 +201,6 @@ function(Vantablade_setup_dependencies)
       target_link_libraries(imgui PUBLIC glfw Vulkan::Vulkan)
       set_target_properties(imgui PROPERTIES FOLDER "ThirdParty")
       add_library(imgui::imgui ALIAS imgui)
-    endif()
-  endif()
-
-  if(VANTABLADE_PROFILING)
-    if(NOT TARGET Tracy::TracyClient)
-      CPMAddPackage(
-        NAME tracy
-        GITHUB_REPOSITORY "wolfpld/tracy"
-        GIT_TAG "v0.13.1"
-        SYSTEM YES
-        OPTIONS
-        "TRACY_ENABLE ON"
-      )
     endif()
   endif()
 endfunction()

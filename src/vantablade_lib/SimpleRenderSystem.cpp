@@ -66,7 +66,6 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
 
 void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GameObject> &gameObjects, const Camera &camera) {
     VZ_ZONE_SCOPED;
-    VZ_PLOT_INT("Rendered Game Objects", gameObjects.size());
     pipeline_m->bind(commandBuffer);
 
     const glm::mat4 &projectionView = camera.getProjection() * camera.getView();
