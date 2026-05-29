@@ -52,3 +52,4 @@ obj/
 *.tmpCLAUDE.local.md
 CLAUDE.local.md
 imgui.ini
+*.tracy
