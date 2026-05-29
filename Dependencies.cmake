@@ -150,4 +150,15 @@ function(Vantablade_setup_dependencies)
       add_library(imgui::imgui ALIAS imgui)
     endif()
   endif()
+
+  if(VANTABLADE_PROFILING)
+    if(NOT TARGET tracy)
+      CPMAddPackage(
+        NAME tracy
+        GITHUB_REPOSITORY "wolfpld/tracy"
+        GIT_TAG "master"
+        SYSTEM YES
+      )
+    endif()
+  endif()
 endfunction()

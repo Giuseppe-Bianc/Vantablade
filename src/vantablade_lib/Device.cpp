@@ -321,6 +321,8 @@ void Device::createLogicalDevice() {
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
 
+    profiler.init(device_, physicalDevice);
+
     psetObjectName(instance, "Main Instance");
     psetObjectName(device_, "Main Device");
     psetObjectName(physicalDevice, "Main Physical Device");
@@ -329,6 +331,9 @@ void Device::createLogicalDevice() {
     vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
     psetObjectName(graphicsQueue_, "Graphics Queue");
     psetObjectName(presentQueue_, "Present Queue");
+
+    profiler.mapQueue(indices.graphicsFamily.value(), graphicsQueue_);
+    profiler.mapQueue(indices.presentFamily.value(), presentQueue_);
 
     psetObjectName(surface_, "Window Surface KHR");
     psetObjectName(debugMessenger, "Debug Utils Messenger");
@@ -679,6 +684,27 @@ void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPro
     }
 
     VK_CHECK(vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr), "failed to create image!");
+}
+
+void Device::updateMemoryStats() {
+#ifdef VANTABLADE_PROFILING
+    std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets{};
+    vmaGetHeapBudgets(allocator, budgets.data());
+
+    VmaTotalStatistics stats = {};
+    vmaCalculateStatistics(allocator, &stats);
+
+    VkDeviceSize totalBudget = 0;
+    for(const auto &budget : budgets) { totalBudget += budget.budget; }
+
+    const float usagePercent = totalBudget == 0
+                                   ? 0.0f
+                                   : (static_cast<float>(stats.total.statistics.allocationBytes) / static_cast<float>(totalBudget)) *
+                                         100.0f;
+    VZ_PLOT_FLOAT("VMA Total Memory (MB)", static_cast<float>(stats.total.statistics.allocationBytes / 1024 / 1024));
+    VZ_PLOT_FLOAT("VMA Memory Usage %", usagePercent);
+    VZ_PLOT_INT("VMA Allocation Count", static_cast<int32_t>(stats.total.statistics.allocationCount));
+#endif
 }
 
 // clang-format off

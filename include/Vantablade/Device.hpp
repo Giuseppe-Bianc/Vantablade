@@ -9,6 +9,7 @@
 #include "Window.hpp"
 #include "VkObjectTypeResolve.hpp"
 #include "vulkanToString.hpp"
+#include "Profiler.hpp"
 // clang-format on
 
 // Forward declaration for VMA
@@ -112,6 +113,9 @@ public:
     [[nodiscard]] VkInstance getInstance() const noexcept { return instance; }
     [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const noexcept { return physicalDevice; }
 
+    Vantablade::VulkanProfiler &getProfiler() noexcept { return profiler; }
+    void updateMemoryStats();
+
     // CONST: query methods do not modify *this.
     [[nodiscard]] SwapChainSupportDetails getSwapChainSupport() const { return querySwapChainSupport(physicalDevice); }
     [[nodiscard]] uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const;
@@ -200,6 +204,8 @@ private:
     VkSurfaceKHR surface_{VK_NULL_HANDLE};
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};
+
+    Vantablade::VulkanProfiler profiler;
 
     static inline constexpr std::array<const char *, 1> validationLayers{"VK_LAYER_KHRONOS_validation"};
     static inline constexpr std::array<const char *, 1> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
