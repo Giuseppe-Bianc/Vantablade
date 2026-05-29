@@ -152,12 +152,14 @@ function(Vantablade_setup_dependencies)
   endif()
 
   if(VANTABLADE_PROFILING)
-    if(NOT TARGET tracy)
+    if(NOT TARGET Tracy::TracyClient)
       CPMAddPackage(
         NAME tracy
         GITHUB_REPOSITORY "wolfpld/tracy"
         GIT_TAG "master"
         SYSTEM YES
+        OPTIONS
+        "TRACY_ENABLE ON"
       )
     endif()
   endif()

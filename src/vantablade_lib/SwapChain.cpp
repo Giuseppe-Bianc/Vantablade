@@ -64,6 +64,7 @@ SwapChain::~SwapChain() {
 }
 
 VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
+    VZ_ZONE_SCOPED;
     auto *const vkdevice = device.device();
 
     // CONST: waitResult is not reassigned — const makes the intent explicit.
@@ -77,6 +78,7 @@ VkResult SwapChain::acquireNextImage(uint32_t *imageIndex) {
 
 // NOLINTNEXTLINE(*-non-const-parameter)
 VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
+    VZ_ZONE_SCOPED;
     if(imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
         // CONST: result not reassigned after this call.
         VK_CHECK(vkWaitForFences(device.device(), 1, &imagesInFlight[*imageIndex], VK_TRUE, std::numeric_limits<uint64_t>::max()),
@@ -131,6 +133,7 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_
 }
 
 void SwapChain::createSwapChain() {
+    VZ_ZONE_SCOPED;
     const SwapChainSupportDetails swapChainSupport = device.getSwapChainSupport();
 
     const VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -197,6 +200,7 @@ void SwapChain::createSwapChain() {
 }
 
 void SwapChain::createImageViews() {
+    VZ_ZONE_SCOPED;
     swapChainImageViews.resize(swapChainImages.size());
 
     for(const auto &[i, image] : std::views::enumerate(swapChainImages)) {
@@ -219,6 +223,7 @@ void SwapChain::createImageViews() {
 }
 
 void SwapChain::createRenderPass() {
+    VZ_ZONE_SCOPED;
     VkAttachmentDescription depthAttachment{};
     depthAttachment.format = findDepthFormat();
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -276,6 +281,7 @@ void SwapChain::createRenderPass() {
 }
 
 void SwapChain::createFramebuffers() {
+    VZ_ZONE_SCOPED;
     swapChainFramebuffers.resize(imageCount());
 
     for(const auto &[i, imageView] : std::views::enumerate(swapChainImageViews)) {
@@ -299,6 +305,7 @@ void SwapChain::createFramebuffers() {
 }
 
 void SwapChain::createDepthResources() {
+    VZ_ZONE_SCOPED;
     const VkFormat depthFormat = findDepthFormat();
     swapChainDepthFormat = depthFormat;
     const VkExtent2D extent = getSwapChainExtent();
@@ -351,6 +358,7 @@ void SwapChain::createDepthResources() {
 }
 
 void SwapChain::createSyncObjects() {
+    VZ_ZONE_SCOPED;
     imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
@@ -383,6 +391,7 @@ void SwapChain::createSyncObjects() {
 }
 
 VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats) {
+    VZ_ZONE_SCOPED;
     const auto it = std::ranges::find_if(availableFormats, [](const VkSurfaceFormatKHR &availableFormat) {
         return availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
     });
@@ -391,6 +400,7 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 }
 
 VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes) {
+    VZ_ZONE_SCOPED;
     auto isAvailable = [&](VkPresentModeKHR mode) { return std::ranges::find(availablePresentModes, mode) != availablePresentModes.end(); };
 
     // Ordine di priorità realistico per rendering interattivo
@@ -429,6 +439,7 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
 }
 
 VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities) const {
+    VZ_ZONE_SCOPED;
     if(capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) { return capabilities.currentExtent; }
 
     // CONST: actualExtent is modified after construction; width/height are clamped in place.
@@ -439,6 +450,7 @@ VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilit
 }
 
 VkFormat SwapChain::findDepthFormat() const {
+    VZ_ZONE_SCOPED;
     // SAFETY: std::array replaces C-style array — size preserved at call boundary.
     constexpr std::array<VkFormat, 3> candidates{VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT};
     return device.findSupportedFormat(candidates, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
