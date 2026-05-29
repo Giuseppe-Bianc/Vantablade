@@ -1,0 +1,24 @@
+src/vantablade_lib/Profiler.cpp
+  s_4b74c214f6d560::t_e0ce3c82d09c50 69-74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "887e5ee6395ce69444121f1bae15525fbf0ae7ea",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_4b74c214f6d560": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "c321550a-b764-46a8-88e6-f287fa873cb4",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
