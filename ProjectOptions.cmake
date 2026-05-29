@@ -122,6 +122,7 @@ macro(Vantablade_setup_options)
   endif()
 
   option(Vantablade_BUILD_FUZZ_TESTS "Enable fuzz testing executable" ${DEFAULT_FUZZER})
+  option(VANTABLADE_PROFILING "Enable Tracy profiling" OFF)
 
 endmacro()
 

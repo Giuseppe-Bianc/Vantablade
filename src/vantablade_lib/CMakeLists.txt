@@ -37,6 +37,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/ImGuiLayer.hpp
         Camera.cpp
         ../../include/Vantablade/Camera.hpp
+        Profiler.cpp
+        ../../include/Vantablade/Profiler.hpp
 )
 
 
@@ -71,6 +73,11 @@ if (Vantablade_BUILD_FUZZ_TESTS)
 endif ()
 
 target_compile_features(vantablade_lib PUBLIC cxx_std_${CMAKE_CXX_STANDARD})
+
+if (VANTABLADE_PROFILING)
+    target_compile_definitions(vantablade_lib PUBLIC VANTABLADE_PROFILING)
+    target_link_libraries(vantablade_lib PUBLIC tracy)
+endif ()
 
 Vantablade_configure_linker(vantablade_lib)
 

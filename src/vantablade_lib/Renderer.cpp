@@ -72,12 +72,14 @@ VkCommandBuffer Renderer::beginFrame() {
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin recording command buffer!");
+    device_m.getProfiler().beginGpuZone(commandBuffer, "MainFrame");
     return commandBuffer;
 }
 
 void Renderer::endFrame() {
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
     auto *commandBuffer = getCurrentCommandBuffer();
+    device_m.getProfiler().endGpuZone(commandBuffer);
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
 
     auto result = swapChain_m->submitCommandBuffers(&commandBuffer, &currentImageIndex);
@@ -90,6 +92,9 @@ void Renderer::endFrame() {
 
     isFrameStarted = false;
     currentFrameIndex = (currentFrameIndex + 1) % C_I(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    device_m.getProfiler().resolveTimestamps();
+    device_m.updateMemoryStats();
 }
 
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
