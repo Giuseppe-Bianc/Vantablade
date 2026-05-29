@@ -80,13 +80,12 @@ public:
         // Cache the formatted strings and only reformat on value change.
         // Two FORMAT calls per frame become zero in the steady state.
         const long double currentFps = fps_m.getFPS();
-        if(currentFps != lastFps_m) {
+        if(std::fabsl(currentFps - lastFps_m) > std::numeric_limits<long double>::epsilon()) {
             lastFps_m = currentFps;
-            // getMsPerFrameString() returns a cached const std::string& — no allocation.
             fpsLine_m = FORMAT("{:.3LF} fps/{}", currentFps, fps_m.getMsPerFrameString());
         }
         const long double currentMax = fps_m.getMaxFPS();
-        if(currentMax != lastMax_m) {
+        if(std::fabsl(currentMax - lastMax_m) > std::numeric_limits<long double>::epsilon()) {
             lastMax_m = currentMax;
             maxLine_m = FORMAT("Max: {:.3LF} fps", currentMax);
         }
