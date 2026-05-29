@@ -1,0 +1,74 @@
+include/Vantablade/Profiler.hpp
+  h_361662506da91f 3-4
+  s_4b114654f72cc3::t_0e1a3689de14eb 5
+src/vantablade_lib/Device.cpp
+  s_ead11386a3fa37::t_5da2d7fb4b593b 324-325
+  s_ead11386a3fa37::t_28b2533e81f717 689,693,695-696,705,708-709
+  s_ead11386a3fa37::t_7c159719ae0a73 335-337
+  s_4b114654f72cc3::t_2826a48f0ee953 690,707
+  s_4b114654f72cc3::t_80f9f30216e5e6 691-692,694,697-704,706,712
+Dependencies.cmake
+  s_af6b01d868362f::t_d47042f686161f 153-163
+AGENTS.md
+  s_15330fb534e298::t_d689bb2ac6910d 5-6,8-11
+src/vantablade_lib/CMakeLists.txt
+  h_361662506da91f 40-41,77-81
+include/Vantablade/Device.hpp
+  s_ead11386a3fa37::t_9b9bee85a63c10 117
+  s_4b114654f72cc3::t_b955845732c3d3 116,208
+  s_ead11386a3fa37::t_9d16aede593e64 118
+  s_ead11386a3fa37::t_ba877ec093d491 209
+  s_ead11386a3fa37::t_b6030ca8b81e34 12
+ProjectOptions.cmake
+  s_af6b01d868362f::t_d7b7e69dc67364 125
+src/vantablade_lib/Renderer.cpp
+  s_ead11386a3fa37::t_2b6d1c9c6718c2 95-96
+  s_ead11386a3fa37::t_730044c75eb07b 75
+  s_ead11386a3fa37::t_5fa99f7a170b85 97
+  s_ead11386a3fa37::t_687e992c8757b7 82
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "58699ad883775f8242a9a3bea42bc1308dfbeb69",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_15330fb534e298": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e739f-6921-7563-b63c-9594148115d1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_4b114654f72cc3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e737c-e7c5-78f0-9d0a-76999206fb84",
+        "model": "gpt-5.5"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_af6b01d868362f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ec5bed11-246d-41ad-ae0f-b1b401a40c91",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_ead11386a3fa37": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "439ee37b-4453-4910-8ead-794c240e3ed9",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
