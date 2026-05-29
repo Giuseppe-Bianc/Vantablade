@@ -1,0 +1,80 @@
+Dependencies.cmake
+  s_15330fb534e298::t_3924a155a21146 155,161-162
+src/vantablade_lib/Device.cpp
+  s_15330fb534e298::t_792c01d906a3b3 160
+  s_f8cf93052a17c9::t_99406da167de71 145,156,172,235,257,349,363,387-390
+  h_361662506da91f 393,412,426,435,454,470,505,523,549,572,591,604
+src/vantablade_lib/Model.cpp
+  s_f8cf93052a17c9::t_cd6e9e062a0c92 24
+  h_361662506da91f 41,46,53
+  s_f8cf93052a17c9::t_36e6f47f4529a6 10-13,16,22
+include/Vantablade/Profiler.hpp
+  s_15330fb534e298::t_8f1f01a5542798 41,62
+  s_15330fb534e298::t_b56f47e3c820c9 19
+  s_15330fb534e298::t_ca165054489473 20
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 136,203,226,284,308,361,394,403,442,453
+  s_f8cf93052a17c9::t_336731550f10a0 67,81
+src/vantablade_lib/Application.cpp
+  s_f12bbb04845ebb::t_2b065e7804c04a 224,232,240-243,252-255,262
+  s_f8cf93052a17c9::t_5394b109ffaf7d 212
+src/vantablade_lib/Window.cpp
+  s_f8cf93052a17c9::t_ea7a5bf9cc5146 14,19,26,34
+  h_361662506da91f 10,49,61,78,124,129
+src/vantablade_lib/Renderer.cpp
+  s_f8cf93052a17c9::t_e38c9f661f0a6c 15-18,20-23
+  s_f12bbb04845ebb::t_ac0578fcab2ef8 11,26,45,62,68,92,114,148,154
+  s_f8cf93052a17c9::t_ba58a49334692d 80
+src/vantablade_lib/Pipeline.cpp
+  h_361662506da91f 140
+  s_f8cf93052a17c9::t_80eb793d7f8037 13,18,29,37,125,135
+src/vantablade_lib/Profiler.cpp
+  s_15330fb534e298::t_6a6187ba722316 28,41,70-73
+  h_361662506da91f 1-2
+  s_15330fb534e298::t_77f4bebc7d6736 14,29-38,47,58
+src/vantablade_lib/Camera.cpp
+  s_f8cf93052a17c9::t_0ee285caaf0c5d 11,17,24,29,34
+  h_361662506da91f 9
+src/vantablade_lib/CMakeLists.txt
+  s_15330fb534e298::t_770cfe4a6de692 79,213
+src/vantablade_lib/SimpleRenderSystem.cpp
+  s_f8cf93052a17c9::t_f2b5bf553e0c79 69
+  s_f12bbb04845ebb::t_cade6d61ae45ac 29,51,68,91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "d634053b79b11fdf9e53851d9badcbdbb848743c",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_15330fb534e298": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e739f-6921-7563-b63c-9594148115d1",
+        "model": "gpt-5.5"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_f12bbb04845ebb": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e73d6-0aba-77c2-81e1-2254e161f7bc",
+        "model": "gpt-5.5"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_f8cf93052a17c9": {
+      "agent_id": {
+        "tool": "gemini",
+        "id": "78a3efb2-839f-4b98-bdc1-97fef18a3b90",
+        "model": "gemini-3-flash-preview"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
