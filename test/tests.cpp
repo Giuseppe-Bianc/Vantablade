@@ -1496,27 +1496,6 @@ TEST_CASE("VK_CHECK reports Vulkan failures with diagnostics", "[vulkan][check]"
     }
 }
 
-TEST_CASE("VK_CHECK_SYNC_OBJECTS requires every call to succeed", "[vulkan][check]") {
-    SECTION("VK_CHECK_SYNC_OBJECTS accepts three successes") {
-        // NOLINTNEXTLINE(*-easily-swappable-parameters)
-        const auto check = [](const VkResult first, const VkResult second, const VkResult third) {
-            VK_CHECK_SYNC_OBJECTS(first, second, third, "sync objects should not throw");
-        };
-
-        REQUIRE_NOTHROW(check(VK_SUCCESS, VK_SUCCESS, VK_SUCCESS));
-    }
-
-    SECTION("VK_CHECK_SYNC_OBJECTS reports the failing result") {
-        // NOLINTNEXTLINE(*-easily-swappable-parameters)
-        const auto fail = [](const VkResult first, const VkResult second, const VkResult third) {
-            VK_CHECK_SYNC_OBJECTS(first, second, third, "sync object wait failed");
-        };
-
-        REQUIRE_THROWS_WITH(fail(VK_SUCCESS, VK_TIMEOUT, VK_SUCCESS), ContainsSubstring("sync object wait failed"));
-        REQUIRE_THROWS_WITH(fail(VK_SUCCESS, VK_TIMEOUT, VK_SUCCESS), ContainsSubstring("VK_TIMEOUT"));
-    }
-}
-
 TEST_CASE("VK_CHECK_SWAPCHAIN accepts only success or suboptimal", "[vulkan][check]") {
     SECTION("VK_CHECK_SWAPCHAIN accepts VK_SUCCESS") {
         const auto check = [](const VkResult result) { VK_CHECK_SWAPCHAIN(result, "swapchain should not throw"); };

@@ -356,17 +356,26 @@ void SwapChain::createSyncObjects() {
     inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
     imagesInFlight.assign(imageCount(), VK_NULL_HANDLE);
 
-    const VkSemaphoreCreateInfo semaphoreInfo{.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr, .flags = 0};
+    const VkSemaphoreCreateInfo semaphoreInfo{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+    };
     const VkFenceCreateInfo fenceInfo{
-        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = nullptr, .flags = VK_FENCE_CREATE_SIGNALED_BIT};
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = VK_FENCE_CREATE_SIGNALED_BIT,
+    };
 
     auto *const vkdevice = device.device();
 
     for(const std::size_t i : std::views::iota(std::size_t{0}, MAX_FRAMES_IN_FLIGHT)) {
-        VK_CHECK_SYNC_OBJECTS(vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]),
-                              vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]),
-                              vkCreateFence(vkdevice, &fenceInfo, nullptr, &inFlightFences[i]),
-                              "failed to create synchronization objects for a frame!");
+        VK_CHECK(vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]),
+                 FORMAT("failed to create imageAvailableSemaphores[{}]!", i));
+        VK_CHECK(vkCreateSemaphore(vkdevice, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]),
+                 FORMAT("failed to create renderFinishedSemaphores[{}]!", i));
+        VK_CHECK(vkCreateFence(vkdevice, &fenceInfo, nullptr, &inFlightFences[i]), FORMAT("failed to create inFlightFences[{}]!", i));
+
         device.setObjectName(imageAvailableSemaphores[i], FORMAT("ImageAvailable Semaphore[{}]", i).c_str());
         device.setObjectName(renderFinishedSemaphores[i], FORMAT("RenderFinished Semaphore[{}]", i).c_str());
         device.setObjectName(inFlightFences[i], FORMAT("InFlight Fence[{}]", i).c_str());

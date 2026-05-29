@@ -14,41 +14,37 @@
 
 class RendererPanel : public IUIPanel {
 public:
-    RendererPanel(Device &device, const std::vector<GameObject> &gameObjects) : device_m{device}, gameObjects_m{gameObjects} {}
+    RendererPanel(Device &device, const std::vector<GameObject> &gameObjects) : device_m{device}, gameObjects_m{gameObjects} {
+        // PERF: device properties never change after construction — format once here,
+        // never inside onDraw(). Five FORMAT calls per frame become zero.
+        const auto &p = device_m.properties;
+        apiVer_m = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.apiVersion), VK_API_VERSION_MINOR(p.apiVersion),
+                          VK_API_VERSION_PATCH(p.apiVersion));
+        driverVer_m = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.driverVersion), VK_API_VERSION_MINOR(p.driverVersion),
+                             VK_API_VERSION_PATCH(p.driverVersion));
+        vendor_m = FORMAT("{}(ID:{:#010x})", getVendorName(p.vendorID), p.vendorID);
+        deviceId_m = FORMAT("{}({:#010x})", p.deviceID, p.deviceID);
+        // uuid_to_string now produces one allocation; see DeviceInfo.hpp refactoring.
+        uuid_m = uuid_to_string(std::span<const uint8_t, 16>{p.pipelineCacheUUID, 16});
+    }
 
     void onDraw() override {
         ImGui::Begin("Renderer", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
         if(ImGui::CollapsingHeader("Device")) {
-            const auto &p = device_m.properties;
-
-            const auto apiVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.apiVersion), VK_API_VERSION_MINOR(p.apiVersion),
-                                       VK_API_VERSION_PATCH(p.apiVersion));
-
-            const auto driverVer = FORMAT("{}.{}.{}", VK_API_VERSION_MAJOR(p.driverVersion), VK_API_VERSION_MINOR(p.driverVersion),
-                                          VK_API_VERSION_PATCH(p.driverVersion));
-
-            const auto vendor = FORMAT("{}(ID:{:#010x})", getVendorName(p.vendorID), p.vendorID);
-            const auto deviceId = FORMAT("{}({:#010x})", p.deviceID, p.deviceID);
-            const auto uuid = uuid_to_string(std::span<const uint8_t, 16>{p.pipelineCacheUUID, 16});
-
-            ImGui::Text("Device Name: %s, DeviceID: %s", p.deviceName, deviceId.c_str());
-            ImGui::Text("API Version:   %s, Driver Version: %s", apiVer.c_str(), driverVer.c_str());
-            ImGui::Text("Vendor:        %s", vendor.c_str());
-            ImGui::Text("Device Type:   %s", getDeviceType(p.deviceType));
-            ImGui::Text("Pipeline UUID: %s", uuid.c_str());
+            // PERF: all strings pre-computed at construction — zero FORMAT calls here.
+            ImGui::Text("Device Name: %s, DeviceID: %s", device_m.properties.deviceName, deviceId_m.c_str());
+            ImGui::Text("API Version:   %s, Driver Version: %s", apiVer_m.c_str(), driverVer_m.c_str());
+            ImGui::Text("Vendor:        %s", vendor_m.c_str());
+            ImGui::Text("Device Type:   %s", getDeviceType(device_m.properties.deviceType));
+            ImGui::Text("Pipeline UUID: %s", uuid_m.c_str());
         }
 
         ImGui::Separator();
         ImGui::Text("Rendered Objects: %zu", gameObjects_m.size());
 
-        if(!gameObjects_m.empty()) {
-            /*for (size_t i = 0; i < gameObjects_m.size(); ++i) {
-                ImGui::Text("Object %zu", i);
-            }*/
-            for(const auto &obj : gameObjects_m) {
-                ImGui::Text("Object %u vertices: %u", obj.getId(), obj.model ? obj.model->getVertexCount() : 0);
-            }
+        for(const auto &obj : gameObjects_m) {
+            ImGui::Text("Object %u vertices: %u", obj.getId(), obj.model ? obj.model->getVertexCount() : 0u);
         }
 
         ImGui::End();
@@ -62,19 +58,41 @@ public:
 private:
     Device &device_m;
     const std::vector<GameObject> &gameObjects_m;
+    // PERF: cached, immutable device info strings.
+    std::string apiVer_m;
+    std::string driverVer_m;
+    std::string vendor_m;
+    std::string deviceId_m;
+    std::string uuid_m;
 };
 
 class FPSPanel : public IUIPanel {
 public:
-    explicit FPSPanel(FPSCounter &fps) : fps_m{fps} {}
+    explicit FPSPanel(FPSCounter &fps) : fps_m{fps} {
+        fpsLine_m.reserve(64);
+        maxLine_m.reserve(32);
+    }
 
     void onDraw() override {
         ImGui::Begin("Performance", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
-        const auto fpsLine = FORMAT("{:.3LF} fps/{}", fps_m.getFPS(), fps_m.getMsPerFrameString());
-        const auto maxLine = FORMAT("Max: {:.3LF} fps", fps_m.getMaxFPS());
-        ImGui::Text("%s", fpsLine.c_str());
-        ImGui::Text("%s", maxLine.c_str());
+        // PERF: FPS updates at most once per second (when totalTime >= 1.0L in FPSCounter).
+        // Cache the formatted strings and only reformat on value change.
+        // Two FORMAT calls per frame become zero in the steady state.
+        const long double currentFps = fps_m.getFPS();
+        if(currentFps != lastFps_m) {
+            lastFps_m = currentFps;
+            // getMsPerFrameString() returns a cached const std::string& — no allocation.
+            fpsLine_m = FORMAT("{:.3LF} fps/{}", currentFps, fps_m.getMsPerFrameString());
+        }
+        const long double currentMax = fps_m.getMaxFPS();
+        if(currentMax != lastMax_m) {
+            lastMax_m = currentMax;
+            maxLine_m = FORMAT("Max: {:.3LF} fps", currentMax);
+        }
+
+        ImGui::Text("%s", fpsLine_m.c_str());
+        ImGui::Text("%s", maxLine_m.c_str());
 
         ImGui::End();
     }
@@ -86,6 +104,10 @@ public:
 
 private:
     FPSCounter &fps_m;
+    std::string fpsLine_m;
+    std::string maxLine_m;
+    long double lastFps_m = -1.0L;
+    long double lastMax_m = -1.0L;
 };
 
 class CameraPanel : public IUIPanel {
@@ -130,7 +152,7 @@ void Application::run() {
 }
 
 // temporary helper function, creates a 1x1x1 cube centered at offset
-std::unique_ptr<Model> createCubeModel(Device &device, glm::vec3 offset) {
+[[nodiscard]] std::unique_ptr<Model> createCubeModel(Device &device, glm::vec3 offset) {
     std::vector<Model::Vertex> vertices{
 
         // left face (white)
@@ -190,9 +212,8 @@ void Application::loadGameObjects() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Loading game objects"};
 #endif
-    std::shared_ptr<Model> model = createCubeModel(device_m, {.0f, .0f, .0f});
     auto cube = GameObject::createGameObject();
-    cube.model = model;
+    cube.model = createCubeModel(device_m, {.0f, .0f, .0f});
     cube.transform.translation = {.0f, .0f, 2.5f};
     cube.transform.scale = {.5f, .5f, .5f};
     gameObjects.push_back(std::move(cube));
@@ -208,7 +229,7 @@ void Application::mainLoop() {
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
 
-        float aspect = renderer_m.getAspectRatio();
+        const float aspect = renderer_m.getAspectRatio();
         // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
         camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 

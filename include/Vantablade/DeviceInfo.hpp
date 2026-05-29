@@ -17,8 +17,8 @@
 
 DISABLE_WARNINGS_PUSH(26446 26482)
 
-static inline std::string getVendorName(uint32_t vendorID) {
-    static const std::unordered_map<uint32_t, std::string> vendorMap = {
+[[nodiscard]] static inline std::string_view getVendorName(uint32_t vendorID) {
+    static const std::unordered_map<uint32_t, std::string_view> vendorMap = {
         {0x1002, "Advanced Micro Devices, Inc. (AMD)"},
         {0x1010, "ImgTec"},
         {0x10DE, "NVIDIA Corporation"},
@@ -71,12 +71,10 @@ static inline std::string getVendorName(uint32_t vendorID) {
         {0x1A3B, "Facebook, Inc."},
         {0x1CC4, "Innogrit, Inc."},
         {0x1C20, "Mellanox Technologies"},
-        // Add more vendor IDs and their corresponding names here if needed
     };
 
-    auto it = vendorMap.find(vendorID);
-    if(it != vendorMap.end()) { return it->second; }
-    return "Unknown Vendor";
+    const auto it = vendorMap.find(vendorID);
+    return it != vendorMap.end() ? it->second : std::string_view{"Unknown Vendor"};
 }
 
 static inline const char *getDeviceType(VkPhysicalDeviceType input_value) noexcept {
@@ -153,12 +151,12 @@ static inline void printQueueFamilies(VkPhysicalDevice device) {
         LINFO("Family {:2}: {:2} queues | {}", i, q.queueCount, VkQueueFlagsString(q.queueFlags));
     }
 }
-static inline std::string uuid_to_string(std::span<const uint8_t, 16> uuid) {
-    const std::array<std::string, 5> segments = {
-        FORMAT("{:02x}{:02x}{:02x}{:02x}", uuid[0], uuid[1], uuid[2], uuid[3]), FORMAT("{:02x}{:02x}", uuid[4], uuid[5]),
-        FORMAT("{:02x}{:02x}", uuid[6], uuid[7]), FORMAT("{:02x}{:02x}", uuid[8], uuid[9]),
-        FORMAT("{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}", uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15])};
-    return FFORMAT("{}", FMT_JOIN(segments, "-"));
+
+[[nodiscard]] static inline std::string uuid_to_string(std::span<const uint8_t, 16> uuid) {
+    return FORMAT("{:02x}{:02x}{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}-{:02x}{:02x}"
+                  "-{:02x}{:02x}{:02x}{:02x}{:02x}{:02x}",
+                  uuid[0], uuid[1], uuid[2], uuid[3], uuid[4], uuid[5], uuid[6], uuid[7], uuid[8], uuid[9], uuid[10], uuid[11], uuid[12],
+                  uuid[13], uuid[14], uuid[15]);
 }
 
 static inline void printPhysicalDeviceProperties(const VkPhysicalDeviceProperties &properties) {
