@@ -63,6 +63,7 @@ struct DeviceFeatureChain {
     VkPhysicalDeviceFeatures2 f2{};
 
     DeviceFeatureChain() noexcept {
+        VZ_ZONE_SCOPED;
         f14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
         f14.pNext = nullptr;
 
@@ -213,6 +214,7 @@ private:
 };
 
 template <typename T> inline void Device::psetObjectName(T handle, const char *name) noexcept {
+    VZ_ZONE_SCOPED;
     if constexpr(!enableValidationLayers) { return; }
     if(debugFuncs.setObjectName == nullptr) { return; }
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
