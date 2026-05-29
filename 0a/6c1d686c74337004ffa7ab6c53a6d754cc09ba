@@ -1,0 +1,14 @@
+.gitignore
+  h_361662506da91f 55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "0a6c1d686c74337004ffa7ab6c53a6d754cc09ba",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
