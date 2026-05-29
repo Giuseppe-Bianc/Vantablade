@@ -6,7 +6,6 @@
 #include <tracy/TracyVulkan.hpp>
 #endif
 
-
 namespace Vantablade {
 
 #ifdef VANTABLADE_PROFILING

@@ -37,7 +37,7 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
     vmaUnmapMemory(device_m.getAllocator(), vertexBufferAllocation);
 }
 
-void Model::draw(VkCommandBuffer commandBuffer) const { 
+void Model::draw(VkCommandBuffer commandBuffer) const {
     VZ_ZONE_SCOPED;
     vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 }

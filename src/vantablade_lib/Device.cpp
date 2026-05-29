@@ -384,9 +384,9 @@ void Device::createAllocator() {
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
 
-void Device::createSurface() { 
+void Device::createSurface() {
     VZ_ZONE_SCOPED;
-    window_m.createWindowSurface(instance, &surface_, nullptr); 
+    window_m.createWindowSurface(instance, &surface_, nullptr);
 }
 
 bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
