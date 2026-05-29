@@ -12,14 +12,14 @@ Renderer::Renderer(Window &window, Device &device) : window_m(window), device_m(
     recreateSwapChain();
     createCommandBuffers();
 }
-Renderer::~Renderer() { 
+Renderer::~Renderer() {
     VZ_ZONE_SCOPED;
-    freeCommandBuffers(); 
+    freeCommandBuffers();
 }
 
-uint32_t Renderer::getSwapChainImageCount() const { 
+uint32_t Renderer::getSwapChainImageCount() const {
     VZ_ZONE_SCOPED;
-    return C_UI32T(swapChain_m->imageCount()); 
+    return C_UI32T(swapChain_m->imageCount());
 }
 
 void Renderer::recreateSwapChain() {

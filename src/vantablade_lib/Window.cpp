@@ -6,8 +6,8 @@
 #include "Vantablade/Window.hpp"
 
 #include "Vantablade/Monitor.hpp"
-#include "Vantablade/vulkanCheck.hpp"
 #include "Vantablade/Profiler.hpp"
+#include "Vantablade/vulkanCheck.hpp"
 
 DISABLE_WARNINGS_PUSH(26432 26447)
 Window::Window(const int w, const int h, const std::string_view window_name) : width(w), height(h), windowName(window_name) {
