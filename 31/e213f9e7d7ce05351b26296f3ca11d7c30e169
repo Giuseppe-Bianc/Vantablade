@@ -1,0 +1,24 @@
+include/Vantablade/Profiler.hpp
+  s_d263f1a61b5032::t_57f5d8362ff3a7 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "31e213f9e7d7ce05351b26296f3ca11d7c30e169",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_d263f1a61b5032": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "74b914c4-5e40-42b3-8143-27f9e33102c8",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
