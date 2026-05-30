@@ -1,0 +1,16 @@
+include/Vantablade/Profiler.hpp
+  h_361662506da91f 63,65,67,69,71,73
+src/vantablade_lib/Profiler.cpp
+  h_361662506da91f 71,74
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "ce22384140f26b4661cf6f60f2568397484ab999",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
