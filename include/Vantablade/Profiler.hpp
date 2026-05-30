@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vantablade/VulkanCheck.hpp"
+#include "Vantablade/vulkanCheck.hpp"
 #include "Vantablade/headers.hpp"
 
 #ifdef VANTABLADE_PROFILING
