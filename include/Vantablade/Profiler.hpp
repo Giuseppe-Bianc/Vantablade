@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vantablade/vulkanCheck.hpp"
 #include "Vantablade/headers.hpp"
+#include "Vantablade/vulkanCheck.hpp"
 
 #ifdef VANTABLADE_PROFILING
 #include <tracy/Tracy.hpp>
