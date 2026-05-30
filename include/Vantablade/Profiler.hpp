@@ -60,11 +60,17 @@ namespace Vantablade {
     public:
         VulkanProfiler() = default;
         ~VulkanProfiler() = default;
+        // cppcheck-suppress functionStatic
         void init(VkDevice, VkPhysicalDevice) {}
+        // cppcheck-suppress functionStatic
         void shutdown() {}
+        // cppcheck-suppress functionStatic
         void mapQueue(uint32_t, VkQueue) {}
+        // cppcheck-suppress functionStatic
         void beginGpuZone(VkCommandBuffer, const char *) {}
+        // cppcheck-suppress functionStatic
         void endGpuZone(VkCommandBuffer) {}
+        // cppcheck-suppress functionStatic
         void resolveTimestamps() {}
     };
 #endif
