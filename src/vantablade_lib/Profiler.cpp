@@ -68,10 +68,10 @@ namespace Vantablade {
             uint64_t start, end;
             VK_CHECK(vkGetQueryPoolResults(m_device, m_queryPool, zone.startQuery, 1, sizeof(start), &start, sizeof(start),
                                            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT),
-                     "VulkanProfiler: Failed to read start timestamp");
+                    "Failed to read start timestamp");
             VK_CHECK(vkGetQueryPoolResults(m_device, m_queryPool, zone.endQuery, 1, sizeof(end), &end, sizeof(end),
                                            VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT),
-                     "VulkanProfiler: Failed to read end timestamp");
+                     "Failed to read end timestamp");
 
             double durationMs = (double)(end - start) * m_timestampPeriod * 1e-6;
             VZ_PLOT_FLOAT(zone.name, (float)durationMs);
