@@ -3,7 +3,7 @@
  * Copyright (c) 2026 All rights reserved.
  */
 // clang-format off
-// NOLINTBEGIN(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers)
+// NOLINTBEGIN(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers, *-identifier-length)
 // clang-format on
 #include "Vantablade/Camera.hpp"
 #include "Vantablade/Profiler.hpp"
@@ -39,5 +39,5 @@ void Camera::setViewYXZ(const glm::vec3 &position, const glm::vec3 &rotation) {
     viewMatrix = translation * rotationMatrix;
 }
 // clang-format off
-// NOLINTEND(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers)
+// NOLINTEND(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers, *-identifier-length)
 // clang-format on
