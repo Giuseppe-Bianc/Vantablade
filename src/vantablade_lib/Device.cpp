@@ -155,7 +155,7 @@ Device::Device(Window &window) : window_m{window} {
     allocInfo.commandPool = commandPool;
     allocInfo.commandBufferCount = 1;
 
-    VkCommandBuffer cmdBuffer;
+    VkCommandBuffer cmdBuffer{};
     vkAllocateCommandBuffers(device_, &allocInfo, &cmdBuffer);
     // Give the profiler init command buffer a debug name so validation messages
     // can identify it if something goes wrong during calibration.
