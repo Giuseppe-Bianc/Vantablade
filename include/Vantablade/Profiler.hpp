@@ -34,8 +34,16 @@ namespace Vantablade {
 //   Creates a RAII Tracy GPU zone on cmd. Ends at enclosing scope exit.
 //   ctx must be a TracyVkCtx obtained from VulkanProfiler::getContext().
 //   cmd must be a VkCommandBuffer in recording state.
+//   Typical uses include frame submission, render pass recording, pipeline
+//   binding, model draw calls, and ImGui render submission.
 //   This must remain a macro: Tracy's zone macros capture __FILE__ and __LINE__
 //   at the call site. A class wrapper cannot do this without losing location.
+//
+//   Example:
+//     {
+//         VZ_GPU_ZONE(ctx, cmd, "Frame::GPU");
+//         renderScene(cmd);
+//     }
 //
 // VZ_GPU_COLLECT(ctx, cmd)
 //   Records timestamp retrieval commands into cmd. Call once per frame,
@@ -68,12 +76,9 @@ namespace Vantablade {
         /**
          * Parameters for Tracy Vulkan context initialisation.
          *
-         * cmdBuffer must be in recording state when passed to init().
-         * After init() returns, the caller must:
-         *   1. vkEndCommandBuffer(params.cmdBuffer)
-         *   2. vkQueueSubmit to params.queue
-         *   3. vkQueueWaitIdle (or fence wait)
-         * Tracy writes calibration timestamp queries into cmdBuffer during init.
+         * cmdBuffer must be a valid primary command buffer allocated from the
+         * target queue's command pool. Tracy records and submits its own
+         * initialization commands during init().
          */
         struct InitParams {
             VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
@@ -98,7 +103,7 @@ namespace Vantablade {
          *
          * Preconditions:
          *   - All params fields are valid and non-null.
-         *   - params.cmdBuffer is in recording state.
+         *   - params.cmdBuffer is allocated and ready for Tracy to record into.
          *   - params.queue supports timestamps
          *     (VkQueueFamilyProperties::timestampValidBits > 0).
          *

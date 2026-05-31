@@ -23,10 +23,9 @@ namespace Vantablade {
     VulkanProfiler::~VulkanProfiler() { shutdown(); }
 
     void VulkanProfiler::init(const InitParams &params) {
-        // TracyVkContext creates Tracy's internal query pool and writes calibration
-        // timestamp queries into params.cmdBuffer. The command buffer must already
-        // be in recording state. After this call returns, the caller must end,
-        // submit, and wait for params.cmdBuffer before using the context.
+        // TracyVkContext creates Tracy's internal query pool and records its own
+        // initialization commands into params.cmdBuffer. The command buffer must
+        // be valid, but the caller does not begin or end it around this call.
         m_tracyCtx = TracyVkContext(params.physicalDevice, params.device, params.queue, params.cmdBuffer);
 
         // If VK_EXT_calibrated_timestamps is available on the target hardware,
