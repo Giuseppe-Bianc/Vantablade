@@ -39,11 +39,13 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 
 void Model::draw(VkCommandBuffer commandBuffer) const {
     VZ_ZONE_SCOPED;
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Model::draw");
     vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 }
 
 void Model::bind(VkCommandBuffer commandBuffer) const {
     VZ_ZONE_SCOPED;
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Model::bind");
     const std::array<VkBuffer, 1> buffers{vertexBuffer};
     const std::array<VkDeviceSize, 1> offsets{0};
     vkCmdBindVertexBuffers(commandBuffer, 0, C_UI32T(buffers.size()), buffers.data(), offsets.data());

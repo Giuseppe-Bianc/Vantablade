@@ -43,7 +43,7 @@ public:
     void begin();
 
     // Call at the end of every frame, inside an active render pass.
-    static void end(VkCommandBuffer commandBuffer);
+    void end(VkCommandBuffer commandBuffer);
 
     // Renders ImGui viewports outside the main swapchain render pass.
     // void renderViewports();
