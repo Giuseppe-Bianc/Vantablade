@@ -1,0 +1,38 @@
+src/vantablade_lib/Profiler.cpp
+  s_52cc3d323699da::t_ac318ecf247194 26-28
+include/Vantablade/Profiler.hpp
+  h_361662506da91f 37-38,42-46
+  s_52cc3d323699da::t_ac318ecf247194 79-81,106
+src/vantablade_lib/Device.cpp
+  s_e466af496f7e88::t_2c31c38b519986 160-162
+  s_e466af496f7e88::t_b2b274555a9207 677,693
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "8dd2b5ee11dd9d7a0776ca4a7b171992f13cf9e6",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_52cc3d323699da": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "adb698ec-59f8-4100-9793-0e764b1728b2",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_e466af496f7e88": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "308c3dc9-4720-47d0-b1ce-5a84c6ca0061",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
