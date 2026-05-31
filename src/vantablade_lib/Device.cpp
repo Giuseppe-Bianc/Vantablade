@@ -157,17 +157,12 @@ Device::Device(Window &window) : window_m{window} {
 
     VkCommandBuffer cmdBuffer;
     vkAllocateCommandBuffers(device_, &allocInfo, &cmdBuffer);
-
-    VkCommandBufferBeginInfo beginInfo{};
-    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-    vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+    // Give the profiler init command buffer a debug name so validation messages
+    // can identify it if something goes wrong during calibration.
+    setObjectName(cmdBuffer, "Profiler Init CommandBuffer");
 
     profiler.init(
         {.physicalDevice = physicalDevice, .device = device_, .queue = graphicsQueue_, .cmdBuffer = cmdBuffer, .contextName = "GPU"});
-
-    vkEndCommandBuffer(cmdBuffer);
     createAllocator();
 }
 
@@ -679,6 +674,7 @@ void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
     VZ_ZONE_SCOPED;
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+    VZ_GPU_ZONE(getProfiler().getContext(), commandBuffer, "Device::copyBuffer");
 
     VkBufferCopy copyRegion{};
     copyRegion.srcOffset = 0;  // Optional
@@ -694,6 +690,7 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
     VZ_ZONE_SCOPED;
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+    VZ_GPU_ZONE(getProfiler().getContext(), commandBuffer, "Device::copyBufferToImage");
 
     pcmdBeginLabel(commandBuffer, "Copy Buffer To Image", DebugColors::Yellow);
 
