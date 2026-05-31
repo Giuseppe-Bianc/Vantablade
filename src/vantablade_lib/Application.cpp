@@ -228,18 +228,14 @@ void Application::mainLoop() {
     imguiLayer_m->addPanel<CameraPanel>(camera);
 
     while(!window.shouldClose()) [[likely]] {
-        VZ_ZONE_SCOPED;
         glfwPollEvents();
+        [[maybe_unused]] auto frameTime = C_F(fps_m.getFrameTime());
 
         const float aspect = renderer_m.getAspectRatio();
         // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
         camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+        imguiLayer_m->begin();
 
-        // --- ImGui new frame --------------------------------------------
-        {
-            VZ_ZONE_SCOPED;
-            imguiLayer_m->begin();
-        }
 
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
@@ -249,12 +245,7 @@ void Application::mainLoop() {
                 renderer_m.beginSwapChainRenderPass(commandBuffer);
                 simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
-                // ImGui draw calls recorded into the same command buffer,
-                // inside the active render pass.
-                {
-                    VZ_ZONE_SCOPED;
-                    imguiLayer_m->end(commandBuffer);
-                }
+                imguiLayer_m->end(commandBuffer);
 
                 renderer_m.endSwapChainRenderPass(commandBuffer);
             }
