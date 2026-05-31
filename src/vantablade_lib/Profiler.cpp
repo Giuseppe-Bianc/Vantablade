@@ -1,10 +1,20 @@
-#include "Vantablade/Profiler.hpp"
-
+// TRACY_IMPLEMENTATION must be defined before the first inclusion of any Tracy
+// header in this translation unit. Profiler.hpp includes Tracy.hpp transitively,
+// so this define must appear before the Profiler.hpp include below.
+//
+// This makes the current translation unit own Tracy's compiled implementation.
+// Exactly one TU in the program may define this.
+//
+// Alternative (preferred for larger projects): remove this define entirely and
+// instead add ${TRACY_DIR}/public/TracyClient.cpp to your CMake target_sources.
+// That file handles everything and removes the ordering constraint.
 #ifdef VANTABLADE_PROFILING
 #define TRACY_IMPLEMENTATION
-#include <tracy/Tracy.hpp>
-#include <tracy/TracyVulkan.hpp>
 #endif
+
+#include "Vantablade/Profiler.hpp"
+
+#include <cstring>  // std::strlen
 
 namespace Vantablade {
 
@@ -12,75 +22,60 @@ namespace Vantablade {
 
     VulkanProfiler::~VulkanProfiler() { shutdown(); }
 
-    void VulkanProfiler::init(VkDevice device, VkPhysicalDevice physicalDevice) {
-        m_device = device;
+    void VulkanProfiler::init(const InitParams &params) {
+        // TracyVkContext creates Tracy's internal query pool and writes calibration
+        // timestamp queries into params.cmdBuffer. The command buffer must already
+        // be in recording state. After this call returns, the caller must end,
+        // submit, and wait for params.cmdBuffer before using the context.
+        m_tracyCtx = TracyVkContext(params.physicalDevice, params.device, params.queue, params.cmdBuffer);
 
-        VkPhysicalDeviceProperties deviceProps = {};
-        vkGetPhysicalDeviceProperties(physicalDevice, &deviceProps);
-        m_timestampPeriod = deviceProps.limits.timestampPeriod;
+        // If VK_EXT_calibrated_timestamps is available on the target hardware,
+        // replace the line above with:
+        //
+        //   auto getCalibrateableTimeDomains =
+        //       reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(
+        //           vkGetDeviceProcAddr(params.device,
+        //               "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"));
+        //   auto getCalibratedTimestamps =
+        //       reinterpret_cast<PFN_vkGetCalibratedTimestampsEXT>(
+        //           vkGetDeviceProcAddr(params.device,
+        //               "vkGetCalibratedTimestampsEXT"));
+        //
+        //   m_tracyCtx = TracyVkContextCalibrated(
+        //       params.physicalDevice,
+        //       params.device,
+        //       params.queue,
+        //       params.cmdBuffer,
+        //       getCalibrateableTimeDomains,
+        //       getCalibratedTimestamps
+        //   );
+        //
+        // The calibrated variant produces significantly more accurate CPU/GPU
+        // timeline correlation on hardware that supports it (most modern AMD/Intel,
+        // and Vulkan 1.2+ NVIDIA drivers on Linux/Windows 10+).
 
-        VkQueryPoolCreateInfo poolInfo = {};
-        poolInfo.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO;
-        poolInfo.queryType = VK_QUERY_TYPE_TIMESTAMP;
-        poolInfo.queryCount = 1024;
-
-        VK_CHECK(vkCreateQueryPool(m_device, &poolInfo, nullptr, &m_queryPool), "VulkanProfiler: Failed to create query pool");
+        if(m_tracyCtx && params.contextName) {
+            const auto len = static_cast<uint16_t>(std::strlen(params.contextName));
+            TracyVkContextName(m_tracyCtx, params.contextName, len);
+        }
     }
 
     void VulkanProfiler::shutdown() {
-        if(m_queryPool == VK_NULL_HANDLE) { return; }
-
-        vkDestroyQueryPool(m_device, m_queryPool, nullptr);
-        m_queryPool = VK_NULL_HANDLE;
-        m_device = VK_NULL_HANDLE;
-        m_activeZones.clear();
-        m_currentQueryIndex = 0;
+        if(!m_tracyCtx) { return; }
+        // GPU must be idle before this call. TracyVkDestroy reads back any pending
+        // timestamp queries and frees Tracy's internal Vulkan resources.
+        TracyVkDestroy(m_tracyCtx);
+        m_tracyCtx = nullptr;
     }
 
-    void VulkanProfiler::mapQueue(uint32_t, VkQueue) {}
-
-    void VulkanProfiler::beginGpuZone(VkCommandBuffer cmd, const char *name) {
-        if(!m_queryPool) return;
-
-        uint32_t queryIdx = m_currentQueryIndex % 1024;
-        vkCmdResetQueryPool(cmd, m_queryPool, queryIdx, 1);
-        vkCmdWriteTimestamp(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, m_queryPool, queryIdx);
-
-        m_activeZones.push_back({queryIdx, 0, name});
-        m_currentQueryIndex++;
+    void VulkanProfiler::collect(VkCommandBuffer cmd) {
+        if(!m_tracyCtx) { return; }
+        // Records commands into cmd that will retrieve timestamp results when the
+        // GPU executes this command buffer. No CPU stall. Results are forwarded
+        // to Tracy asynchronously after the GPU completes the frame.
+        TracyVkCollect(m_tracyCtx, cmd);
     }
 
-    void VulkanProfiler::endGpuZone(VkCommandBuffer cmd) {
-        if(!m_queryPool || m_activeZones.empty()) return;
-
-        uint32_t queryIdx = m_currentQueryIndex % 1024;
-        vkCmdResetQueryPool(cmd, m_queryPool, queryIdx, 1);
-        vkCmdWriteTimestamp(cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_queryPool, queryIdx);
-
-        m_activeZones.back().endQuery = queryIdx;
-        m_currentQueryIndex++;
-    }
-
-    void VulkanProfiler::resolveTimestamps() {
-        if(!m_queryPool || m_activeZones.empty()) return;
-
-        for(const auto &zone : m_activeZones) {
-            uint64_t start, end;
-            VK_CHECK(vkGetQueryPoolResults(m_device, m_queryPool, zone.startQuery, 1, sizeof(start), &start, sizeof(start),
-                                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT),
-                     "Failed to read start timestamp");
-            VK_CHECK(vkGetQueryPoolResults(m_device, m_queryPool, zone.endQuery, 1, sizeof(end), &end, sizeof(end),
-                                           VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT),
-                     "Failed to read end timestamp");
-
-            double durationMs = (double)(end - start) * m_timestampPeriod * 1e-6;
-            VZ_PLOT_FLOAT(zone.name, (float)durationMs);
-        }
-        m_activeZones.clear();
-        // Reset query pool if we've used most of it, or just let it wrap around if we're careful.
-        // For simplicity, we just wrap. If we exceed 1024 queries per frame, we need a bigger pool.
-    }
-
-#endif
+#endif  // VANTABLADE_PROFILING
 
 }  // namespace Vantablade

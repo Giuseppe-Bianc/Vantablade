@@ -133,6 +133,7 @@ void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule 
 
 void Pipeline::bind(VkCommandBuffer commandBuffer) const {
     VZ_ZONE_SCOPED;
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Pipeline::bind");
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 }
 

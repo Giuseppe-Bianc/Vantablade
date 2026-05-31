@@ -149,6 +149,25 @@ Device::Device(Window &window) : window_m{window} {
     pickPhysicalDevice();
     createLogicalDevice();
     createCommandPool();
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer cmdBuffer;
+    vkAllocateCommandBuffers(device_, &allocInfo, &cmdBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(cmdBuffer, &beginInfo);
+
+    profiler.init(
+        {.physicalDevice = physicalDevice, .device = device_, .queue = graphicsQueue_, .cmdBuffer = cmdBuffer, .contextName = "GPU"});
+
+    vkEndCommandBuffer(cmdBuffer);
     createAllocator();
 }
 
@@ -327,8 +346,6 @@ void Device::createLogicalDevice() {
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
 
-    profiler.init(device_, physicalDevice);
-
     psetObjectName(instance, "Main Instance");
     psetObjectName(device_, "Main Device");
     psetObjectName(physicalDevice, "Main Physical Device");
@@ -337,9 +354,6 @@ void Device::createLogicalDevice() {
     vkGetDeviceQueue(device_, indices.presentFamily.value(), 0, &presentQueue_);
     psetObjectName(graphicsQueue_, "Graphics Queue");
     psetObjectName(presentQueue_, "Present Queue");
-
-    profiler.mapQueue(indices.graphicsFamily.value(), graphicsQueue_);
-    profiler.mapQueue(indices.presentFamily.value(), presentQueue_);
 
     psetObjectName(surface_, "Window Surface KHR");
     psetObjectName(debugMessenger, "Debug Utils Messenger");

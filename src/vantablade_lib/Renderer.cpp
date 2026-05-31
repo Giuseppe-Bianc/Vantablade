@@ -83,7 +83,6 @@ VkCommandBuffer Renderer::beginFrame() {
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin recording command buffer!");
-    device_m.getProfiler().beginGpuZone(commandBuffer, "MainFrame");
     return commandBuffer;
 }
 
@@ -91,7 +90,7 @@ void Renderer::endFrame() {
     VZ_ZONE_SCOPED;
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
     auto *commandBuffer = getCurrentCommandBuffer();
-    device_m.getProfiler().endGpuZone(commandBuffer);
+    VZ_GPU_COLLECT(device_m.getProfiler().getContext(), commandBuffer);
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
 
     auto result = swapChain_m->submitCommandBuffers(&commandBuffer, &currentImageIndex);
@@ -105,12 +104,12 @@ void Renderer::endFrame() {
     isFrameStarted = false;
     currentFrameIndex = (currentFrameIndex + 1) % C_I(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
-    device_m.getProfiler().resolveTimestamps();
     device_m.updateMemoryStats();
 }
 
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     VZ_ZONE_SCOPED;
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Renderer::beginSwapChainRenderPass");
     assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
@@ -145,6 +144,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) const {
     VZ_ZONE_SCOPED;
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Renderer::endSwapChainRenderPass");
     assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     vkCmdEndRenderPass(commandBuffer);

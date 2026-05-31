@@ -243,17 +243,21 @@ void Application::mainLoop() {
 
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
-            renderer_m.beginSwapChainRenderPass(commandBuffer);
-            simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
-
-            // ImGui draw calls recorded into the same command buffer,
-            // inside the active render pass.
+            // GPU frame scope: must end before vkEndCommandBuffer/collect
             {
-                VZ_ZONE_SCOPED;
-                imguiLayer_m->end(commandBuffer);
-            }
+                VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Frame::GPU");
+                renderer_m.beginSwapChainRenderPass(commandBuffer);
+                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
-            renderer_m.endSwapChainRenderPass(commandBuffer);
+                // ImGui draw calls recorded into the same command buffer,
+                // inside the active render pass.
+                {
+                    VZ_ZONE_SCOPED;
+                    imguiLayer_m->end(commandBuffer);
+                }
+
+                renderer_m.endSwapChainRenderPass(commandBuffer);
+            }
             renderer_m.endFrame();
         }
 
