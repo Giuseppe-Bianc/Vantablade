@@ -106,8 +106,7 @@ void ImGuiLayer::begin() {
 
 void ImGuiLayer::end(VkCommandBuffer commandBuffer) {
     ImGui::Render();
-    auto tracyCtx = device_m.getProfiler().getContext();
-    VZ_GPU_ZONE(tracyCtx, commandBuffer, "ImGui::Render");
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "ImGui::Render");
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }
 
