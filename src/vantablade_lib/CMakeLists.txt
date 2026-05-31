@@ -39,6 +39,8 @@ add_library(vantablade_lib
         ../../include/Vantablade/Camera.hpp
         Profiler.cpp
         ../../include/Vantablade/Profiler.hpp
+        KeyboardMovementController.cpp
+        ../../include/Vantablade/KeyboardMovementController.hpp
 )
 
 
