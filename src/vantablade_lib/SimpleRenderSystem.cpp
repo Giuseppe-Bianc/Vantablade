@@ -69,7 +69,7 @@ void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::v
     pipeline_m->bind(commandBuffer);
 
     const glm::mat4 &projectionView = camera.getProjection() * camera.getView();
-    const float twoPi = glm::two_pi<float>();
+    const auto twoPi = glm::two_pi<float>();
 
     for(auto &obj : gameObjects) {
         obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, twoPi);
