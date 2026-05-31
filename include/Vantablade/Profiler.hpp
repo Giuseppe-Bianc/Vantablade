@@ -155,7 +155,7 @@ namespace Vantablade {
      * a no-op getContext() so call sites can compile unconditionally. The
      * actual tracing macros expand to no-ops and will not evaluate these
      * values at runtime. */
-    using TracyVkCtx = void*;
+    using TracyVkCtx = void *;
 
     class VulkanProfiler {
     public:
