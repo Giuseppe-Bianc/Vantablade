@@ -298,6 +298,7 @@ void Device::createLogicalDevice() {
     // Core Features
     features.f2.features.samplerAnisotropy = supported.f2.features.samplerAnisotropy;
     features.f2.features.shaderInt64 = supported.f2.features.shaderInt64;
+    features.f2.features.shaderInt16 = supported.f2.features.shaderInt16;
     features.f2.features.fragmentStoresAndAtomics = supported.f2.features.fragmentStoresAndAtomics;
     features.f2.features.vertexPipelineStoresAndAtomics = supported.f2.features.vertexPipelineStoresAndAtomics;
 
@@ -306,6 +307,7 @@ void Device::createLogicalDevice() {
 
     // Vulkan 1.2
     features.f12.bufferDeviceAddress = supported.f12.bufferDeviceAddress;
+    features.f12.shaderInt8 = supported.f12.shaderInt8;
     features.f12.timelineSemaphore = supported.f12.timelineSemaphore;
     features.f12.scalarBlockLayout = supported.f12.scalarBlockLayout;
     features.f12.storageBuffer8BitAccess = supported.f12.storageBuffer8BitAccess;
@@ -332,12 +334,12 @@ void Device::createLogicalDevice() {
     createInfo.enabledExtensionCount = C_UI32T(deviceExtensions.size());
     createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-    if(enableValidationLayers) {
+    /*if(enableValidationLayers) {
         createInfo.enabledLayerCount = C_UI32T(validationLayers.size());
         createInfo.ppEnabledLayerNames = validationLayers.data();
     } else {
         createInfo.enabledLayerCount = 0;
-    }
+    }*/
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
 
