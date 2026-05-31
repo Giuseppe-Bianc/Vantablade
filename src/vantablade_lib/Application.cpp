@@ -7,9 +7,9 @@
 #include "Vantablade/Application.hpp"
 #include "Vantablade/Camera.hpp"
 #include "Vantablade/FPSCounter.hpp"
+#include "Vantablade/KeyboardMovementController.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
-#include "Vantablade/KeyboardMovementController.hpp"
 
 #include <imgui.h>
 
@@ -230,8 +230,6 @@ void Application::mainLoop() {
 
     auto viewerObject = GameObject::createGameObject();
     KeyboardMovementController cameraController{};
-
-    
 
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
