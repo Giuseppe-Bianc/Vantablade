@@ -1,12 +1,12 @@
 /*
-* Created by gbian on 31/05/2026.
-* Copyright (c) 2026 All rights reserved.
-*/
+ * Created by gbian on 31/05/2026.
+ * Copyright (c) 2026 All rights reserved.
+ */
 
 #pragma once
 
-#include "Vantablade/Window.hpp"
 #include "Vantablade/GameObject.hpp"
+#include "Vantablade/Window.hpp"
 
 class KeyboardMovementController {
 public:
@@ -23,7 +23,7 @@ public:
         int lookDown = GLFW_KEY_DOWN;
     };
 
-    void moveInPlaneXZ(GLFWwindow* window, float dt, GameObject& gameObject);
+    void moveInPlaneXZ(GLFWwindow *window, float dt, GameObject &gameObject);
 
     KeyMappings keys{};
     float moveSpeed{3.f};
