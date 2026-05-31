@@ -172,13 +172,18 @@ namespace Vantablade {
         VulkanProfiler(const VulkanProfiler &) = delete;
         VulkanProfiler &operator=(const VulkanProfiler &) = delete;
 
+        // cppcheck-suppress functionStatic
         void init(const InitParams &) {}
+        // cppcheck-suppress functionStatic
         void shutdown() {}
+        // cppcheck-suppress functionStatic
         void collect(VkCommandBuffer) {}
         // Provide a no-op getContext() so call sites may compile unconditionally.
         // VZ_GPU_ZONE expands to ((void)0) when profiling is disabled, so the
         // returned value is never evaluated at runtime.
+        // cppcheck-suppress functionStatic
         [[nodiscard]] TracyVkCtx getContext() const noexcept { return nullptr; }
+        // cppcheck-suppress functionStatic
         [[nodiscard]] bool isInitialized() const noexcept { return false; }
     };
 
