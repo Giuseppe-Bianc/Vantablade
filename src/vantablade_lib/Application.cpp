@@ -9,6 +9,7 @@
 #include "Vantablade/FPSCounter.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
+#include "Vantablade/KeyboardMovementController.hpp"
 
 #include <imgui.h>
 
@@ -227,9 +228,17 @@ void Application::mainLoop() {
     camera.setViewTarget(glm::vec3(-1.f, -2.f, -2.f), glm::vec3(0.f, 0.f, 2.5f));
     imguiLayer_m->addPanel<CameraPanel>(camera);
 
+    auto viewerObject = GameObject::createGameObject();
+    KeyboardMovementController cameraController{};
+
+    
+
     while(!window.shouldClose()) [[likely]] {
         glfwPollEvents();
         [[maybe_unused]] auto frameTime = C_F(fps_m.getFrameTime());
+
+        cameraController.moveInPlaneXZ(window.getGLFWWindow(), frameTime, viewerObject);
+        camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
         const float aspect = renderer_m.getAspectRatio();
         // camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);

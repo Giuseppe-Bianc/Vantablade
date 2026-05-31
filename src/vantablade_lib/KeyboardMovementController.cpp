@@ -4,8 +4,10 @@
  */
 
 #include "Vantablade/KeyboardMovementController.hpp"
+#include "Vantablade/Profiler.hpp"
 
 void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, GameObject &gameObject) {
+    VZ_ZONE_SCOPED;
     glm::vec3 rotate{0};
     if(glfwGetKey(window, keys.lookRight) == GLFW_PRESS) { rotate.y += 1.f; }
     if(glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) { rotate.y -= 1.f; }
