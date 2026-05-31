@@ -70,9 +70,8 @@ void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::v
     pipeline_m->bind(commandBuffer);
 
     const glm::mat4 &projectionView = camera.getProjection() * camera.getView();
-    //const auto twoPi = glm::two_pi<float>();
+    // const auto twoPi = glm::two_pi<float>();
     for(auto &obj : gameObjects) {
-
         SimplePushConstantData push{};
         push.color = obj.color;
         push.transform = projectionView * obj.transform.mat4();

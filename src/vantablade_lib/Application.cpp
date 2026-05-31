@@ -236,7 +236,6 @@ void Application::mainLoop() {
         camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
         imguiLayer_m->begin();
 
-
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
             // GPU frame scope: must end before vkEndCommandBuffer/collect
