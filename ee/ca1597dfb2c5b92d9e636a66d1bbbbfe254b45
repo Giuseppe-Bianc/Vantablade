@@ -1,0 +1,14 @@
+src/vantablade_lib/SimpleRenderSystem.cpp
+  h_361662506da91f 72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "eeca1597dfb2c5b92d9e636a66d1bbbbfe254b45",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
