@@ -1,0 +1,26 @@
+src/vantablade_lib/ImGuiLayer.cpp
+  s_ea6555ac06dc35::t_50a607a024389f 109
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 158
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "c1f211705cea8d69f794bee67233c85bbe2ab482",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_ea6555ac06dc35": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "d89ce3ee-c4f8-42ab-9753-449b7c85e494",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
