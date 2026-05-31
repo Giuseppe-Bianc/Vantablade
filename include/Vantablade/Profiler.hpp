@@ -151,6 +151,11 @@ namespace Vantablade {
     };
 
 #else  // VANTABLADE_PROFILING not defined: zero-cost no-ops, same public interface.
+    /* When profiling is disabled, provide a lightweight TracyVkCtx alias and
+     * a no-op getContext() so call sites can compile unconditionally. The
+     * actual tracing macros expand to no-ops and will not evaluate these
+     * values at runtime. */
+    using TracyVkCtx = void*;
 
     class VulkanProfiler {
     public:
@@ -170,8 +175,10 @@ namespace Vantablade {
         void init(const InitParams &) {}
         void shutdown() {}
         void collect(VkCommandBuffer) {}
-        // getContext() is intentionally absent: VZ_GPU_ZONE expands to ((void)0)
-        // and never evaluates its arguments, so the call site never reaches getContext().
+        // Provide a no-op getContext() so call sites may compile unconditionally.
+        // VZ_GPU_ZONE expands to ((void)0) when profiling is disabled, so the
+        // returned value is never evaluated at runtime.
+        [[nodiscard]] TracyVkCtx getContext() const noexcept { return nullptr; }
         [[nodiscard]] bool isInitialized() const noexcept { return false; }
     };
 
