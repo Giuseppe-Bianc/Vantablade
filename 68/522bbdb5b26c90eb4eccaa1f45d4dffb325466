@@ -1,0 +1,18 @@
+include/Vantablade/Model.hpp
+  h_361662506da91f 20-25,38,44-47
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 10,12-13,19,29-35,37,39-74,79-84,89,93-94
+src/vantablade_lib/Application.cpp
+  h_361662506da91f 156-157,162,169,176,183,190,197,201-206
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "68522bbdb5b26c90eb4eccaa1f45d4dffb325466",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
