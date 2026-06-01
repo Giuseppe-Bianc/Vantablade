@@ -372,8 +372,8 @@ void Device::createCommandPool() {
 }
 
 #ifdef VANTABLADE_PROFILING
-static void* VMA_TracyAllocate(void* pUser, VkDeviceSize size, size_t alignment, size_t* pActualSize) {
-    void* ptr = std::malloc(size);
+static void *VMA_TracyAllocate(void *pUser, VkDeviceSize size, size_t alignment, size_t *pActualSize) {
+    void *ptr = std::malloc(size);
     if(ptr) {
         if(pActualSize) *pActualSize = size;
         VZ_MEM_ALLOC(ptr, size);
@@ -381,14 +381,14 @@ static void* VMA_TracyAllocate(void* pUser, VkDeviceSize size, size_t alignment,
     return ptr;
 }
 
-static void VMA_TracyFree(void* pUser, void* p) {
+static void VMA_TracyFree(void *pUser, void *p) {
     VZ_MEM_FREE(p);
     std::free(p);
 }
 
-static void* VMA_TracyReallocate(void* pUser, void* p, VkDeviceSize oldSize, VkDeviceSize size, size_t alignment, size_t* pActualSize) {
+static void *VMA_TracyReallocate(void *pUser, void *p, VkDeviceSize oldSize, VkDeviceSize size, size_t alignment, size_t *pActualSize) {
     VZ_MEM_FREE(p);
-    void* ptr = std::realloc(p, size);
+    void *ptr = std::realloc(p, size);
     if(ptr) {
         if(pActualSize) *pActualSize = size;
         VZ_MEM_ALLOC(ptr, size);
@@ -396,11 +396,9 @@ static void* VMA_TracyReallocate(void* pUser, void* p, VkDeviceSize oldSize, VkD
     return ptr;
 }
 
-static VmaAllocatorCallbacks tracyVmaCallbacks = {
-    .pfnAllocate = VMA_TracyAllocate,
-    .pfnFree = VMA_TracyFree,
-    .pfnReallocate = VMA_TracyReallocate
-};
+static VmaAllocatorCallbacks tracyVmaCallbacks = {.pfnAllocate = VMA_TracyAllocate,
+                                                  .pfnFree = VMA_TracyFree,
+                                                  .pfnReallocate = VMA_TracyReallocate};
 #endif
 
 void Device::createAllocator() {

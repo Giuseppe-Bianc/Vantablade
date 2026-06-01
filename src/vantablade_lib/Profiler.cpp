@@ -25,24 +25,14 @@ namespace Vantablade {
     void VulkanProfiler::init(const InitParams &params) {
         // Attempt to use calibrated timestamps for higher precision CPU/GPU correlation.
         // This is preferred for most modern hardware and drivers.
-        auto getCalibrateableTimeDomains =
-            reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(
-                vkGetDeviceProcAddr(params.device,
-                    "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"));
-        auto getCalibratedTimestamps =
-            reinterpret_cast<PFN_vkGetCalibratedTimestampsEXT>(
-                vkGetDeviceProcAddr(params.device,
-                    "vkGetCalibratedTimestampsEXT"));
+        auto getCalibrateableTimeDomains = reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(
+            vkGetDeviceProcAddr(params.device, "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"));
+        auto getCalibratedTimestamps = reinterpret_cast<PFN_vkGetCalibratedTimestampsEXT>(
+            vkGetDeviceProcAddr(params.device, "vkGetCalibratedTimestampsEXT"));
 
         if(getCalibrateableTimeDomains && getCalibratedTimestamps) {
-            m_tracyCtx = TracyVkContextCalibrated(
-                params.physicalDevice,
-                params.device,
-                params.queue,
-                params.cmdBuffer,
-                getCalibrateableTimeDomains,
-                getCalibratedTimestamps
-            );
+            m_tracyCtx = TracyVkContextCalibrated(params.physicalDevice, params.device, params.queue, params.cmdBuffer,
+                                                  getCalibrateableTimeDomains, getCalibratedTimestamps);
         } else {
             m_tracyCtx = TracyVkContext(params.physicalDevice, params.device, params.queue, params.cmdBuffer);
         }
