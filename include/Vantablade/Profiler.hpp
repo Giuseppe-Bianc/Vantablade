@@ -19,16 +19,12 @@ namespace Vantablade {
 #define VZ_FRAME_MARK() FrameMark
 #define VZ_PLOT_INT(name, value) TracyPlot(name, static_cast<int64_t>(value))
 #define VZ_PLOT_FLOAT(name, value) TracyPlot(name, static_cast<float>(value))
-#define VZ_MEM_ALLOC(ptr, size) MemoryAlloc(ptr, size)
-#define VZ_MEM_FREE(ptr) MemoryFree(ptr)
 #else
 #define VZ_ZONE_SCOPED ((void)0)
 #define VZ_ZONE_SCOPED_NAMED(name) ((void)0)
 #define VZ_FRAME_MARK() ((void)0)
 #define VZ_PLOT_INT(name, value) ((void)0)
 #define VZ_PLOT_FLOAT(name, value) ((void)0)
-#define VZ_MEM_ALLOC(ptr, size) ((void)0)
-#define VZ_MEM_FREE(ptr) ((void)0)
 #endif
 
 // ---------------------------------------------------------------------------

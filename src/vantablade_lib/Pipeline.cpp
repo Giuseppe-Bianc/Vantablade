@@ -26,7 +26,7 @@ Pipeline::~Pipeline() {
 }
 [[nodiscard]]
 std::vector<char> Pipeline::readFile(const fs::path &filepath) {
-    VZ_ZONE_SCOPED_NAMED("Pipeline::readFile");
+    VZ_ZONE_SCOPED;
     std::string sCode = vnd::readFromFile(filepath.string());
     std::vector<char> result(sCode.size());
     std::memcpy(result.data(), sCode.data(), sCode.size());
@@ -34,7 +34,7 @@ std::vector<char> Pipeline::readFile(const fs::path &filepath) {
 }
 
 void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::path &fragFilepath, const PipelineConfigInfo &configInfo) {
-    VZ_ZONE_SCOPED_NAMED("Pipeline::createGraphicsPipeline");
+    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer("create Graphics Pipeline");
 #endif
@@ -122,7 +122,7 @@ void Pipeline::createGraphicsPipeline(const fs::path &vertFilepath, const fs::pa
 }
 
 void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule *shaderModule) {
-    VZ_ZONE_SCOPED_NAMED("Pipeline::createShaderModule");
+    VZ_ZONE_SCOPED;
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code.size();
@@ -132,7 +132,7 @@ void Pipeline::createShaderModule(const std::vector<char> &code, VkShaderModule 
 }
 
 void Pipeline::bind(VkCommandBuffer commandBuffer) const {
-    VZ_ZONE_SCOPED_NAMED("Pipeline::bind");
+    VZ_ZONE_SCOPED;
     VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Pipeline::bind");
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 }

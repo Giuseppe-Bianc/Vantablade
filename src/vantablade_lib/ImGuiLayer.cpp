@@ -106,7 +106,7 @@ void ImGuiLayer::begin() {
 
 void ImGuiLayer::end(VkCommandBuffer commandBuffer) {
     ImGui::Render();
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "ImGui::VulkanRender");
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "ImGui::Render");
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }
 
