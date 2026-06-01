@@ -1,0 +1,65 @@
+src/vantablade_lib/Profiler.cpp
+  s_99335e720fa12c::t_7fcfee480c1853 26-35,37-48
+src/vantablade_lib/Pipeline.cpp
+  s_99335e720fa12c::t_ce0d4b87b00570 135
+  s_99335e720fa12c::t_7017e6064ad8bf 37
+  s_99335e720fa12c::t_c639934b3d8004 29
+  s_99335e720fa12c::t_9208e21a708f92 125
+  s_99335e720fa12c::t_7016dabd6d5195 13
+src/vantablade_lib/SwapChain.cpp
+  h_361662506da91f 417
+src/vantablade_lib/SimpleRenderSystem.cpp
+  s_7ebc9737cee453::t_d3c919f49b216d 75-79,81-83
+include/Vantablade/Model.hpp
+  h_361662506da91f 44
+src/vantablade_lib/Device.cpp
+  s_99335e720fa12c::t_bed7d14e9cb8c1 272
+  s_99335e720fa12c::t_c18ceaa75a521d 374-405
+  s_99335e720fa12c::t_76c1ae1ce45098 250
+  s_99335e720fa12c::t_d98dada671557b 427-429
+  s_99335e720fa12c::t_47c62d2e4d4013 15
+  s_99335e720fa12c::t_a884e32f1ea5d6 187
+  s_99335e720fa12c::t_c4dd6c6936e8f7 361
+  s_99335e720fa12c::t_886e9e6a2c3d98 146
+src/vantablade_lib/Model.cpp
+  s_99335e720fa12c::t_5d6fe6a9270957 23
+  s_99335e720fa12c::t_3f4e8be2d530c7 50
+  s_99335e720fa12c::t_156bfe4faa357e 17
+  s_99335e720fa12c::t_f035a68dfbdeb6 78
+  h_361662506da91f 79,89
+  s_99335e720fa12c::t_da3c208afc52a6 11
+  s_99335e720fa12c::t_6195942a807c7e 88
+src/vantablade_lib/ImGuiLayer.cpp
+  s_7ebc9737cee453::t_5c0cb56955548f 109
+include/Vantablade/Profiler.hpp
+  s_99335e720fa12c::t_1562986e00ebca 22-23,30-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "45df8d29f17cb705119c1901f04fee6078244bb1",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_7ebc9737cee453": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "38b280eb-5020-415d-afdd-e3f13be4424e",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_99335e720fa12c": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "1ce94125-e314-4bb9-8913-51fe23a038f0",
+        "model": "gemma4:31b"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
