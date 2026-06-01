@@ -8,19 +8,19 @@
 #include <vk_mem_alloc.h>
 
 Model::Model(Device &device, const Model::Builder &builder) : device_m{device} {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Model::Constructor");
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 }
 
 Model::~Model() {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Model::Destructor");
     vmaDestroyBuffer(device_m.getAllocator(), vertexBuffer, vertexBufferAllocation);
     if(hasIndexBuffer) { vmaDestroyBuffer(device_m.getAllocator(), indexBuffer, indexBufferAllocation); }
 }
 
 void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Model::createVertexBuffers");
     vertexCount = C_UI32T(vertices.size());
     VZ_PLOT_INT("Total Vertex Count", vertexCount);
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
@@ -47,7 +47,7 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 }
 
 void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Model::createIndexBuffers");
     indexCount = C_UI32T(indices.size());
     hasIndexBuffer = indexCount > 0;
 
@@ -75,8 +75,8 @@ void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
 }
 
 void Model::draw(VkCommandBuffer commandBuffer) const {
-    VZ_ZONE_SCOPED;
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "LveModel::draw");
+    VZ_ZONE_SCOPED_NAMED("Model::draw");
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Model::draw");
     if(hasIndexBuffer) {
         vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
     } else {
@@ -85,8 +85,8 @@ void Model::draw(VkCommandBuffer commandBuffer) const {
 }
 
 void Model::bind(VkCommandBuffer commandBuffer) const {
-    VZ_ZONE_SCOPED;
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "LveModel::bind");
+    VZ_ZONE_SCOPED_NAMED("Model::bind");
+    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Model::bind");
     const std::array<VkBuffer, 1> buffers{vertexBuffer};
     const std::array<VkDeviceSize, 1> offsets{0};
     vkCmdBindVertexBuffers(commandBuffer, 0, C_UI32T(buffers.size()), buffers.data(), offsets.data());

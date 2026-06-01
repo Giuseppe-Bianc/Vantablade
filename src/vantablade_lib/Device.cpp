@@ -12,6 +12,7 @@
 DISABLE_WARNINGS_PUSH(4100 4127 4189 4201 4324 4505 4820 26812)
 #include <vk_mem_alloc.h>
 DISABLE_WARNINGS_POP()
+#include <cstdlib>
 
 template <typename Fn> Fn Device::loadInstanceProc(VkInstance inst, const char *name) noexcept {
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)
@@ -142,7 +143,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 
 // class member functions
 Device::Device(Window &window) : window_m{window} {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Device::Constructor");
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -183,7 +184,7 @@ Device::~Device() {
 }
 
 void Device::createInstance() {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Device::createInstance");
     if constexpr(enableValidationLayers) {
         if(!checkValidationLayerSupport()) { throw std::runtime_error("Validation layers requested but not available."); }
     }
@@ -246,7 +247,7 @@ void Device::createInstance() {
 }
 
 void Device::pickPhysicalDevice() {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Device::pickPhysicalDevice");
 #ifndef NDEBUG
     const vnd::AutoTimer time{"pick Physical Device"};
 #endif
@@ -268,7 +269,7 @@ void Device::pickPhysicalDevice() {
 }
 
 void Device::createLogicalDevice() {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Device::createLogicalDevice");
     const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     if(!indices.graphicsFamily.has_value() || !indices.presentFamily.has_value()) {
@@ -357,7 +358,7 @@ void Device::createLogicalDevice() {
 }
 
 void Device::createCommandPool() {
-    VZ_ZONE_SCOPED;
+    VZ_ZONE_SCOPED_NAMED("Device::createCommandPool");
     const QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
     if(!queueFamilyIndices.graphicsFamily.has_value()) { throw std::runtime_error("failed to find graphics queue family!"); }
 
@@ -369,6 +370,38 @@ void Device::createCommandPool() {
     VK_CHECK(vkCreateCommandPool(device_, &poolInfo, nullptr, &commandPool), "failed to create command pool!");
     psetObjectName(commandPool, "Command Pool");
 }
+
+#ifdef VANTABLADE_PROFILING
+static void* VMA_TracyAllocate(void* pUser, VkDeviceSize size, size_t alignment, size_t* pActualSize) {
+    void* ptr = std::malloc(size);
+    if(ptr) {
+        if(pActualSize) *pActualSize = size;
+        VZ_MEM_ALLOC(ptr, size);
+    }
+    return ptr;
+}
+
+static void VMA_TracyFree(void* pUser, void* p) {
+    VZ_MEM_FREE(p);
+    std::free(p);
+}
+
+static void* VMA_TracyReallocate(void* pUser, void* p, VkDeviceSize oldSize, VkDeviceSize size, size_t alignment, size_t* pActualSize) {
+    VZ_MEM_FREE(p);
+    void* ptr = std::realloc(p, size);
+    if(ptr) {
+        if(pActualSize) *pActualSize = size;
+        VZ_MEM_ALLOC(ptr, size);
+    }
+    return ptr;
+}
+
+static VmaAllocatorCallbacks tracyVmaCallbacks = {
+    .pfnAllocate = VMA_TracyAllocate,
+    .pfnFree = VMA_TracyFree,
+    .pfnReallocate = VMA_TracyReallocate
+};
+#endif
 
 void Device::createAllocator() {
     VZ_ZONE_SCOPED;
@@ -391,6 +424,9 @@ void Device::createAllocator() {
     allocatorCreateInfo.device = device_;
     allocatorCreateInfo.instance = instance;
     allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+#ifdef VANTABLADE_PROFILING
+    allocatorCreateInfo.pAllocator = &tracyVmaCallbacks;
+#endif
 
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }

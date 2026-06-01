@@ -41,7 +41,7 @@ private:
     VkBuffer vertexBuffer{VK_NULL_HANDLE};
     VmaAllocation vertexBufferAllocation{VK_NULL_HANDLE};  // replaces VkDeviceMemory
     uint32_t vertexCount{0};
-    bool hasIndexBuffer = false;
+    bool hasIndexBuffer{false};
     VkBuffer indexBuffer{VK_NULL_HANDLE};
     VmaAllocation indexBufferAllocation{VK_NULL_HANDLE};
     uint32_t indexCount{0};

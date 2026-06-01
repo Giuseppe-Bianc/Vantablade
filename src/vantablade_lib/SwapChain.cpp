@@ -414,12 +414,12 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
         return VK_PRESENT_MODE_MAILBOX_KHR;
     }
 
-    if(isAvailable(VK_PRESENT_MODE_FIFO_KHR)) {
+    /*if(isAvailable(VK_PRESENT_MODE_FIFO_KHR)) {
         LINFO("Present mode: FIFO (VSync)");
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    /*if(isAvailable(VK_PRESENT_MODE_FIFO_RELAXED_KHR)) {
+    if(isAvailable(VK_PRESENT_MODE_FIFO_RELAXED_KHR)) {
         LINFO("Present mode: FIFO_RELAXED");
         return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
     }*/

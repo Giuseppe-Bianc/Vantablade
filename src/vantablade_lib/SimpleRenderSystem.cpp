@@ -72,12 +72,15 @@ void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::v
     const glm::mat4 &projectionView = camera.getProjection() * camera.getView();
     // const auto twoPi = glm::two_pi<float>();
     for(auto &obj : gameObjects) {
-        SimplePushConstantData push{};
-        push.color = obj.color;
-        push.transform = projectionView * obj.transform.mat4();
+        {
+            VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "SimpleRenderSystem::ObjectPushConstants");
+            SimplePushConstantData push{};
+            push.color = obj.color;
+            push.transform = projectionView * obj.transform.mat4();
 
-        vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
-                           sizeof(SimplePushConstantData), &push);
+            vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                               sizeof(SimplePushConstantData), &push);
+        }
         obj.model->bind(commandBuffer);
         obj.model->draw(commandBuffer);
     }
