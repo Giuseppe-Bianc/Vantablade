@@ -1,0 +1,14 @@
+src/vantablade_lib/VmaImplementation.cpp
+  h_361662506da91f 20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "824465f51aac8020962fb5ba20cbfc54f5716681",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
