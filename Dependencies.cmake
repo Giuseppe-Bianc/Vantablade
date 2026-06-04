@@ -129,6 +129,8 @@ function(Vantablade_setup_dependencies)
       NAME tracy
       GITHUB_REPOSITORY wolfpld/tracy
       GIT_TAG v0.13.1
+      SYSTEM
+      YES
       OPTIONS
         "TRACY_ENABLE ON"
         "TRACY_ON_DEMAND ON"
@@ -203,4 +205,14 @@ endif()
       add_library(imgui::imgui ALIAS imgui)
     endif()
   endif()
+
+  if (NOT TARGET tinyobjloader)
+    CPMAddPackage(
+            NAME tinyobjloader
+            GIT_REPOSITORY https://github.com/tinyobjloader/tinyobjloader
+            GIT_TAG release # Use "master" for the latest version
+            SYSTEM
+            YES
+    )
+  endif ()
 endfunction()
