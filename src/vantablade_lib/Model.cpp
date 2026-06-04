@@ -12,13 +12,13 @@
 #include <tiny_obj_loader.h>
 
 namespace {
-struct VertexHasher {
-    std::uint32_t operator()(Model::Vertex const &vertex) const {
-        std::size_t seed = 0;
-        hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
-        return static_cast<std::uint32_t>(seed);
-    }
-};
+    struct VertexHasher {
+        std::uint32_t operator()(Model::Vertex const &vertex) const {
+            std::size_t seed = 0;
+            hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            return static_cast<std::uint32_t>(seed);
+        }
+    };
 }  // namespace
 
 DISABLE_WARNINGS_PUSH(26432)
