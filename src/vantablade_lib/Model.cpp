@@ -11,33 +11,34 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
 
-namespace std {
-    template <> struct hash<Model::Vertex> {
-        size_t operator()(Model::Vertex const &vertex) const {
-            size_t seed = 0;
-            hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
-            return seed;
-        }
-    };
-}  // namespace std
+namespace {
+struct VertexHasher {
+    std::uint32_t operator()(Model::Vertex const &vertex) const {
+        std::size_t seed = 0;
+        hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+        return static_cast<std::uint32_t>(seed);
+    }
+};
+}  // namespace
 
 DISABLE_WARNINGS_PUSH(26432)
 void Model::Builder::loadModel(const std::string &filepath) {
-    vnd::AutoTimer timer("loadModel");
+    const vnd::AutoTimer timer("loadModel");
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> materials;
-    std::string warn, err;
+    std::string warn;
+    std::string err;
 
     if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) { throw std::runtime_error(warn + err); }
 
-    size_t estimatedSize = attrib.vertices.size() / 3;
+    const std::size_t estimatedSize = attrib.vertices.size() / 3;
     vertices.clear();
     indices.clear();
     vertices.reserve(estimatedSize);
     indices.reserve(attrib.vertices.size());
 
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    std::unordered_map<Vertex, uint32_t, VertexHasher> uniqueVertices{};
     for(const auto &shape : shapes) {
         for(const auto &[vertex_index, normal_index, texcoord_index] : shape.mesh.indices) {
             Vertex vertex{};
@@ -104,8 +105,8 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 
     const VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
 
-    VkBuffer stagingBuffer;
-    VmaAllocation stagingBufferAllocation;
+    VkBuffer stagingBuffer{VK_NULL_HANDLE};
+    VmaAllocation stagingBufferAllocation{VK_NULL_HANDLE};
     device_m.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
                           stagingBufferAllocation);
@@ -132,8 +133,8 @@ void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
 
     const VkDeviceSize bufferSize = sizeof(indices[0]) * indexCount;
 
-    VkBuffer stagingBuffer;
-    VmaAllocation stagingBufferAllocation;
+    VkBuffer stagingBuffer{VK_NULL_HANDLE};
+    VmaAllocation stagingBufferAllocation{VK_NULL_HANDLE};
     device_m.createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                           VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
                           stagingBufferAllocation);
