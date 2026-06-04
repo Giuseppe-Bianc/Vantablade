@@ -211,11 +211,13 @@ void Application::loadGameObjects() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Loading game objects"};
 #endif
-    auto cube = GameObject::createGameObject();
-    cube.model = createCubeModel(device_m, {.0f, .0f, .0f});
-    cube.transform.translation = {.0f, .0f, 2.5f};
-    cube.transform.scale = {.5f, .5f, .5f};
-    gameObjects.push_back(std::move(cube));
+    std::shared_ptr<Model> lveModel = Model::createModelFromFile(
+        device_m, calculateRelativePathToModels(Vantablade::cmake::project_path(), "smooth_vase.obj").string());
+    auto gameObj = GameObject::createGameObject();
+    gameObj.model = lveModel;
+    gameObj.transform.translation = {.0f, .0f, 2.5f};
+    gameObj.transform.scale = glm::vec3(3.f);
+    gameObjects.push_back(std::move(gameObj));
 }
 
 void Application::mainLoop() {
