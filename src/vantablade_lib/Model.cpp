@@ -4,8 +4,82 @@
  */
 // NOLINTBEGIN(*-include-cleaner, *-signed-bitwise)
 #include "Vantablade/Model.hpp"
+#include "Vantablade/Utils.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 #include <vk_mem_alloc.h>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
+
+namespace std {
+    template <> struct hash<Model::Vertex> {
+        size_t operator()(Model::Vertex const &vertex) const {
+            size_t seed = 0;
+            hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            return seed;
+        }
+    };
+}  // namespace std
+
+void Model::Builder::loadModel(const std::string &filepath) {
+    vnd::AutoTimer timer("loadModel");
+    tinyobj::attrib_t attrib;
+    std::vector<tinyobj::shape_t> shapes;
+    std::vector<tinyobj::material_t> materials;
+    std::string warn, err;
+
+    if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) { throw std::runtime_error(warn + err); }
+
+    vertices.clear();
+    indices.clear();
+
+    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+    for(const auto &shape : shapes) {
+        for(const auto &[vertex_index, normal_index, texcoord_index] : shape.mesh.indices) {
+            Vertex vertex{};
+
+            if(vertex_index >= 0) {
+                vertex.position = {
+                    attrib.vertices[3 * vertex_index + 0],
+                    attrib.vertices[3 * vertex_index + 1],
+                    attrib.vertices[3 * vertex_index + 2],
+                };
+
+                auto colorIndex = 3 * vertex_index + 2;
+                if(colorIndex < attrib.colors.size()) {
+                    vertex.color = {
+                        attrib.colors[colorIndex - 2],
+                        attrib.colors[colorIndex - 1],
+                        attrib.colors[colorIndex - 0],
+                    };
+                } else {
+                    vertex.color = {1.f, 1.f, 1.f};  // set default color
+                }
+            }
+
+            if(normal_index >= 0) {
+                vertex.normal = {
+                    attrib.normals[3 * normal_index + 0],
+                    attrib.normals[3 * normal_index + 1],
+                    attrib.normals[3 * normal_index + 2],
+                };
+            }
+
+            if(texcoord_index >= 0) {
+                vertex.uv = {
+                    attrib.texcoords[2 * texcoord_index + 0],
+                    attrib.texcoords[2 * texcoord_index + 1],
+                };
+            }
+
+            if(uniqueVertices.count(vertex) == 0) {
+                uniqueVertices[vertex] = C_UI32T(vertices.size());
+                vertices.emplace_back(vertex);
+            }
+            indices.emplace_back(uniqueVertices[vertex]);
+        }
+    }
+}
 
 Model::Model(Device &device, const Model::Builder &builder) : device_m{device} {
     VZ_ZONE_SCOPED;
@@ -72,6 +146,12 @@ void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
 
     device_m.copyBuffer(stagingBuffer, indexBuffer, bufferSize);
     vmaDestroyBuffer(device_m.getAllocator(), stagingBuffer, stagingBufferAllocation);
+}
+
+std::unique_ptr<Model> Model::createModelFromFile(Device &device, const std::string &filepath) {
+    Builder builder{};
+    builder.loadModel(filepath);
+    return std::make_unique<Model>(device, builder);
 }
 
 void Model::draw(VkCommandBuffer commandBuffer) const {
