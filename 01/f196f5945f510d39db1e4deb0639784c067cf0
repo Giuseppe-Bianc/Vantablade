@@ -1,0 +1,16 @@
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 11-13,16-18
+.github/workflows/ci.yml
+  h_361662506da91f 88,95,102,108,115
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "01f196f5945f510d39db1e4deb0639784c067cf0",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
