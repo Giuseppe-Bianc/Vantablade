@@ -14,8 +14,6 @@
 
 #include "Vantablade/Profiler.hpp"
 
-#include <cstring>  // std::strlen
-
 namespace Vantablade {
 
 #ifdef VANTABLADE_PROFILING
