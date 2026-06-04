@@ -214,5 +214,8 @@ endif()
             SYSTEM
             YES
     )
+    target_compile_definitions(tinyobjloader INTERFACE
+      FAST_FLOAT_NO_CONSTEXPR=1
+    )
   endif ()
 endfunction()
