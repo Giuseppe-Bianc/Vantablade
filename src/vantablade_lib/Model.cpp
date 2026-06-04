@@ -21,6 +21,7 @@ namespace std {
     };
 }  // namespace std
 
+DISABLE_WARNINGS_PUSH(26432)
 void Model::Builder::loadModel(const std::string &filepath) {
     vnd::AutoTimer timer("loadModel");
     tinyobj::attrib_t attrib;
@@ -30,8 +31,11 @@ void Model::Builder::loadModel(const std::string &filepath) {
 
     if(!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filepath.c_str())) { throw std::runtime_error(warn + err); }
 
+    size_t estimatedSize = attrib.vertices.size() / 3;
     vertices.clear();
     indices.clear();
+    vertices.reserve(estimatedSize);
+    indices.reserve(attrib.vertices.size());
 
     std::unordered_map<Vertex, uint32_t> uniqueVertices{};
     for(const auto &shape : shapes) {
@@ -39,40 +43,38 @@ void Model::Builder::loadModel(const std::string &filepath) {
             Vertex vertex{};
 
             if(vertex_index >= 0) {
+                auto vertex_index3 = C_ST(3 * vertex_index);
                 vertex.position = {
-                    attrib.vertices[3 * vertex_index + 0],
-                    attrib.vertices[3 * vertex_index + 1],
-                    attrib.vertices[3 * vertex_index + 2],
+                    attrib.vertices[vertex_index3 + 0],
+                    attrib.vertices[vertex_index3 + 1],
+                    attrib.vertices[vertex_index3 + 2],
                 };
 
-                auto colorIndex = 3 * vertex_index + 2;
-                if(colorIndex < attrib.colors.size()) {
-                    vertex.color = {
-                        attrib.colors[colorIndex - 2],
-                        attrib.colors[colorIndex - 1],
-                        attrib.colors[colorIndex - 0],
-                    };
-                } else {
-                    vertex.color = {1.f, 1.f, 1.f};  // set default color
-                }
+                vertex.color = {
+                    attrib.colors[vertex_index3 + 0],
+                    attrib.colors[vertex_index3 + 1],
+                    attrib.colors[vertex_index3 + 2],
+                };
             }
 
             if(normal_index >= 0) {
+                auto normal_index3 = C_ST(3 * normal_index);
                 vertex.normal = {
-                    attrib.normals[3 * normal_index + 0],
-                    attrib.normals[3 * normal_index + 1],
-                    attrib.normals[3 * normal_index + 2],
+                    attrib.normals[normal_index3 + 0],
+                    attrib.normals[normal_index3 + 1],
+                    attrib.normals[normal_index3 + 2],
                 };
             }
 
             if(texcoord_index >= 0) {
+                auto texcoord_index2 = C_ST(2 * texcoord_index);
                 vertex.uv = {
-                    attrib.texcoords[2 * texcoord_index + 0],
-                    attrib.texcoords[2 * texcoord_index + 1],
+                    attrib.texcoords[texcoord_index2 + 0],
+                    attrib.texcoords[texcoord_index2 + 1],
                 };
             }
 
-            if(uniqueVertices.count(vertex) == 0) {
+            if(!uniqueVertices.contains(vertex)) {
                 uniqueVertices[vertex] = C_UI32T(vertices.size());
                 vertices.emplace_back(vertex);
             }
@@ -80,6 +82,7 @@ void Model::Builder::loadModel(const std::string &filepath) {
         }
     }
 }
+DISABLE_WARNINGS_POP()
 
 Model::Model(Device &device, const Model::Builder &builder) : device_m{device} {
     VZ_ZONE_SCOPED;
