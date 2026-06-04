@@ -2,7 +2,9 @@
  * Created by gbian on 08/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-
+// clang-format off
+// NOLINTBEGIN(*-include-cleaner, *-pro-type-member-init, *-member-init, *-avoid-c-arrays,*-avoid-c-arrays, *-pro-bounds-array-to-pointer-decay,*-no-array-decay, *-qualified-auto, *-diagnostic-old-style-cast)
+// clang-format on
 #pragma once
 
 #include "Device.hpp"
@@ -25,7 +27,7 @@ public:
     struct Builder {
         std::vector<Vertex> vertices{};
         std::vector<uint32_t> indices{};
-        void loadModel(const std::string &filename);
+        void loadModel(const std::string &filepath);
     };
 
     Model(Device &device, const Builder &builder);
@@ -54,3 +56,7 @@ private:
     VmaAllocation indexBufferAllocation{VK_NULL_HANDLE};
     uint32_t indexCount{0};
 };
+
+// clang-format off
+// NOLINTEND(*-include-cleaner, *-pro-type-member-init, *-member-init, *-avoid-c-arrays,*-avoid-c-arrays, *-pro-bounds-array-to-pointer-decay,*-no-array-decay, *-qualified-auto, *-diagnostic-old-style-cast)
+// clang-format on
