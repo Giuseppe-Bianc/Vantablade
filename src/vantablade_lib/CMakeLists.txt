@@ -41,6 +41,7 @@ add_library(vantablade_lib
         ../../include/Vantablade/Profiler.hpp
         KeyboardMovementController.cpp
         ../../include/Vantablade/KeyboardMovementController.hpp
+        ../../include/Vantablade/Utils.hpp
 )
 
 
@@ -60,6 +61,7 @@ target_link_libraries(vantablade_lib
         glm::glm
         GPUOpen::VulkanMemoryAllocator
         imgui::imgui
+        tinyobjloader
         Vantablade::vantablade_core_lib)
 
 target_include_directories(vantablade_lib ${WARNING_GUARD}
