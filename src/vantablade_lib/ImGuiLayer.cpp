@@ -2,7 +2,7 @@
  * ImGuiLayer — Dear ImGui Vulkan/GLFW backend integration.
  */
 // clang-format off
-// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic)
+// NOLINTBEGIN(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic, *-convert-member-functions-to-static)
 // clang-format on
 #include "Vantablade/ImGuiLayer.hpp"
 #include "Vantablade/vulkanCheck.hpp"
@@ -218,5 +218,5 @@ void ImGuiLayer::setupStyle() {
     c[ImGuiCol_TextSelectedBg] = {0.28f, 0.56f, 1.00f, 0.35f};
 }
 // clang-format off
-// NOLINTEND(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic)
+// NOLINTEND(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic, *-convert-member-functions-to-static)
 // clang-format on
