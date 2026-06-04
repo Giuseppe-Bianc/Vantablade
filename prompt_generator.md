@@ -6,9 +6,9 @@ Follow the process below carefully.
 
 # Step 1 — Clarify the Request
 
-Before writing the prompt, determine whether any **critical information is missing**.
+Before writing the prompt, evaluate whether essential elements such as context, objective, constraints, audience, and output format are missing. If any element is absent, list it explicitly and confirm whether it is required for task completion. Distinguish between required information and optional refinements before proceeding.
 
-If the request is ambiguous or incomplete, ask **up to 5 concise clarification questions** that would significantly improve the final prompt.
+If a request lacks sufficient specificity or contains conflicting requirements, ask a maximum of 5 concise clarification questions that materially improve the completeness and usability of the final prompt. Ambiguity refers to missing key parameters, contradictory instructions, or undefined objectives that prevent reliable execution. Prioritize questions that resolve the most critical missing information first, focusing on factors that most directly affect the outcome. Do not ask clarification questions when the missing information has no material impact on execution quality. In such cases, proceed with the best available interpretation.
 
 If the request is already clear, **skip this step** and proceed directly to Step 2.
 
@@ -63,13 +63,17 @@ Create a **fully structured prompt** using the framework below.
 
 ## ROLE
 
-Define the **expert persona** the AI should assume.
-Choose a role that maximizes expertise for the task.
+Define a domain-specific expert persona that the AI system must adopt when executing the assigned task. The persona must specify the relevant field of expertise, the required depth of knowledge, and the reasoning standards to be applied during output generation.
+
+Select a role configuration that is explicitly aligned with the task domain and optimized for accuracy, completeness, methodological rigor, and technical competence. The role must be defined in relation to the task’s requirements, constraints, and expected output format, ensuring consistent alignment between expertise and execution.
+
+The persona definition must include clear behavioral parameters, including terminology consistency, evidence-based reasoning, and avoidance of unsupported or speculative claims. The role selection must prioritize functional fit over general capability, ensuring that the selected expertise directly corresponds to the demands of the task.
 
 ## TASK
 
-Clearly describe **what the AI must accomplish**.
-Break complex tasks into **explicit steps when necessary**.
+Define the objective the AI system must complete, including clear success criteria for evaluating whether the objective has been achieved and identifying any missing or ambiguous inputs before execution.
+
+Decompose complex tasks into explicit, ordered steps when needed, and verify that the resulting step sequence is logically complete and consistent before execution.
 
 ## CONTEXT
 
