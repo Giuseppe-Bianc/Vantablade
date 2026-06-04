@@ -1,0 +1,16 @@
+prompt_generator.md
+  h_361662506da91f 9,11,66-70,74-76
+VMA-integration.md
+  h_361662506da91f 1-169
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "98307dc684a5639756a5ca759ea43859f2bcf366",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
