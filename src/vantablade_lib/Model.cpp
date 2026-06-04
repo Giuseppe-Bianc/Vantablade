@@ -8,8 +8,14 @@
 #include "Vantablade/vulkanCheck.hpp"
 #include <vk_mem_alloc.h>
 
+#if defined(_MSC_VER) && _MSC_VER < 1940
+PRAGMA_WARNING_PUSH(3615)
+#endif
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tiny_obj_loader.h>
+#if defined(_MSC_VER) && _MSC_VER < 1940
+PRAGMA_WARNING_POP()
+#endif
 
 namespace {
     struct VertexHasher {
