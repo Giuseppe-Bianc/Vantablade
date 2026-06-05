@@ -1,0 +1,43 @@
+include/Vantablade/GameObject.hpp
+  h_361662506da91f 17
+  s_ca79d7e0c9f38b::t_f3f1a04c7af71b 18
+shaders/simple_shader.frag
+  h_361662506da91f 8-9,12
+src/vantablade_lib/GameObject.cpp
+  h_361662506da91f 6-15
+src/vantablade_lib/SimpleRenderSystem.cpp
+  s_4bd12ac72f064f::t_424a88a6cd0279 79
+shaders/simple_shader.vert
+  h_361662506da91f 5-6,11-12,15-16,20-25
+src/vantablade_lib/Model.cpp
+  h_361662506da91f 198,200-203
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "6d1e731e2e637874000287aab61725ebfe464248",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_4bd12ac72f064f": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "0bb92064-f08f-45b3-8e22-4c3b71d2b474",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    },
+    "s_ca79d7e0c9f38b": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "f6b0d078-10ae-462c-9d84-9cca52508534",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
