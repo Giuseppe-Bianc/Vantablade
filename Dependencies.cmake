@@ -215,7 +215,7 @@ endif()
             YES
     )
     target_compile_definitions(tinyobjloader INTERFACE
-      FAST_FLOAT_NO_CONSTEXPR=1
+      TINYOBJLOADER_DISABLE_FAST_FLOAT
     )
   endif ()
 endfunction()
