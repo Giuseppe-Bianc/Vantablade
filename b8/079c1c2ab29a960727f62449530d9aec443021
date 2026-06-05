@@ -1,0 +1,24 @@
+src/vantablade_lib/Model.cpp
+  s_fc2be8a5edac77::t_999143a1c34c3e 22,25,211
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "b8079c1c2ab29a960727f62449530d9aec443021",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  },
+  "sessions": {
+    "s_fc2be8a5edac77": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e970d-232f-7c43-9bba-1deb38b4d7d5",
+        "model": "gpt-5.5"
+      },
+      "human_author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
