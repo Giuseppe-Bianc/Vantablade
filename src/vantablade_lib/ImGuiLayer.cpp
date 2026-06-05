@@ -104,6 +104,7 @@ void ImGuiLayer::begin() {
     for(auto &panel : panels_m) { panel->onDraw(); }
 }
 
+// cppcheck-suppress functionStatic
 void ImGuiLayer::end(VkCommandBuffer commandBuffer) {
     ImGui::Render();
     VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "ImGui::Render");
