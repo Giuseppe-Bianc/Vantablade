@@ -12,6 +12,4 @@ glm::mat4 TransformComponent::mat4() const noexcept {
     return transform;
 }
 
-glm::mat3 TransformComponent::normalMatrix() const noexcept {
-    return glm::transpose(glm::inverse(glm::mat3(mat4())));
-}
+glm::mat3 TransformComponent::normalMatrix() const noexcept { return glm::transpose(glm::inverse(glm::mat3(mat4()))); }
