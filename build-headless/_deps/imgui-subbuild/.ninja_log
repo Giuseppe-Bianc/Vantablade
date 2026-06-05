@@ -1,0 +1,21 @@
+# ninja log v7
+0	6	1780652555428129255	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-mkdir	14c4f0f46a7f86a7
+0	6	1780652555428129255	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-mkdir	14c4f0f46a7f86a7
+6	951	1780652556373154033	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-download	6a4242e70725e0eb
+6	951	1780652556373154033	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-download	6a4242e70725e0eb
+951	956	1780652556379154191	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-update	43bdc12a69dd5679
+951	956	1780652556379154191	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-update	43bdc12a69dd5679
+956	961	1780652556383154296	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-patch	e2046705a4cfe933
+956	961	1780652556383154296	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-patch	e2046705a4cfe933
+961	966	1780652556388154427	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-configure	4b38566a11f47a24
+961	966	1780652556388154427	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-configure	4b38566a11f47a24
+966	971	1780652556393154558	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-build	d04b8e5ff6ed4f49
+966	971	1780652556393154558	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-build	d04b8e5ff6ed4f49
+971	976	1780652556398154689	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-install	b9ed30b5718b4801
+971	976	1780652556398154689	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-install	b9ed30b5718b4801
+976	981	1780652556403154820	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-test	ea8e1676b02eb493
+976	981	1780652556403154820	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-test	ea8e1676b02eb493
+981	988	1780652556410155004	CMakeFiles/imgui-populate-complete	f51787da47ecd6bd
+981	988	1780652556410155004	imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-done	f51787da47ecd6bd
+981	988	1780652556410155004	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/CMakeFiles/imgui-populate-complete	f51787da47ecd6bd
+981	988	1780652556410155004	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/imgui-populate-prefix/src/imgui-populate-stamp/imgui-populate-done	f51787da47ecd6bd

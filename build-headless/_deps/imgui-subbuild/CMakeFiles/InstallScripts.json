@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/imgui-subbuild/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
