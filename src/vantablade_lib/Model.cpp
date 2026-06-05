@@ -19,10 +19,10 @@ PRAGMA_WARNING_POP()
 
 namespace {
     struct VertexHasher {
-        std::uint32_t operator()(Model::Vertex const &vertex) const {
+        std::size_t operator()(Model::Vertex const &vertex) const noexcept {
             std::size_t seed = 0;
             hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
-            return static_cast<std::uint32_t>(seed);
+            return seed;
         }
     };
 }  // namespace
