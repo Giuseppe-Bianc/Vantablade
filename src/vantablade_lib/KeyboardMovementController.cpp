@@ -2,10 +2,13 @@
  * Created by gbian on 31/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-
+// clang-format off
+// NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-pro-type-union-access, *-avoid-magic-numbers,*-magic-numbers,*-make-member-function-const)
+// clang-format on
 #include "Vantablade/KeyboardMovementController.hpp"
 #include "Vantablade/Profiler.hpp"
 
+// NOLINTNEXTLINE(*-identifier-length)
 void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, GameObject &gameObject) {
     VZ_ZONE_SCOPED;
     glm::vec3 rotate{0};
@@ -20,7 +23,7 @@ void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, Gam
     gameObject.transform.rotation.x = glm::clamp(gameObject.transform.rotation.x, -1.5f, 1.5f);
     gameObject.transform.rotation.y = glm::mod(gameObject.transform.rotation.y, glm::two_pi<float>());
 
-    float yaw = gameObject.transform.rotation.y;
+    const float yaw = gameObject.transform.rotation.y;
     const glm::vec3 forwardDir{C_F(std::sin(yaw)), 0.f, C_F(std::cos(yaw))};
     const glm::vec3 rightDir{forwardDir.z, 0.f, -forwardDir.x};
     const glm::vec3 upDir{0.f, -1.f, 0.f};
@@ -35,3 +38,8 @@ void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, Gam
 
     if(glm::length2(moveDir) > fepsilon) { gameObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir); }
 }
+
+
+// clang-format off
+// NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix, *-pro-type-union-access, *-avoid-magic-numbers,*-magic-numbers,*-make-member-function-const)
+// clang-format on
