@@ -72,7 +72,7 @@ void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, const 
 
     const glm::mat4 &projectionView = camera.getProjection() * camera.getView();
 
-    for(auto &obj : gameObjects) {
+    for(const auto &obj : gameObjects) {
         SimplePushConstantData push{};
         auto modelMatrix = obj.transform.mat4();
         push.transform = projectionView * modelMatrix;
