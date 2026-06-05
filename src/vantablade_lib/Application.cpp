@@ -45,7 +45,11 @@ public:
         ImGui::Text("Rendered Objects: %zu", gameObjects_m.size());
 
         for(const auto &obj : gameObjects_m) {
-            ImGui::Text("Object %u vertices: %u", obj.getId(), obj.model ? obj.model->getVertexCount() : 0u);
+            if (obj.model) {
+                ImGui::Text("Object %u vertices: %u", obj.getId(), obj.model->getVertexCount());
+            } else {
+                ImGui::Text("Object %u has no model", obj.getId());
+            }
         }
 
         ImGui::End();
