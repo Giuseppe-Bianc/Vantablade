@@ -13,16 +13,9 @@ struct TransformComponent {
     glm::vec3 scale{1.f, 1.f, 1.f};
     glm::vec3 rotation;
 
-    [[nodiscard]] glm::mat4 mat4() const noexcept {
-        /*glm::mat4 t = glm::translate(glm::mat4(1.f), translation);
-        glm::mat4 r = glm::yawPitchRoll(rotation.y, rotation.x, rotation.z);
-        glm::mat4 s = glm::scale(glm::mat4(1.f), scale);
-        return t * r * s;*/
-        glm::mat4 transform = glm::translate(glm::mat4(1.f), translation);
-        transform *= glm::eulerAngleYXZ(rotation.x, rotation.y, rotation.z);
-        transform = glm::scale(transform, scale);
-        return transform;
-    }
+    [[nodiscard]] glm::mat4 mat4() const noexcept;
+
+    [[nodiscard]] glm::mat3 normalMatrix() const noexcept;
 };
 
 class GameObject {
