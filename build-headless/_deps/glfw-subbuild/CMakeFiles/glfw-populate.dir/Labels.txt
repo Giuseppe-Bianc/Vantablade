@@ -1,0 +1,14 @@
+# Target labels
+ glfw-populate
+# Source files and their labels
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/CMakeFiles/glfw-populate
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/CMakeFiles/glfw-populate.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/CMakeFiles/glfw-populate-complete.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-build.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-configure.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-download.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-install.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-mkdir.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-patch.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-test.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glfw-subbuild/glfw-populate-prefix/src/glfw-populate-stamp/glfw-populate-update.rule

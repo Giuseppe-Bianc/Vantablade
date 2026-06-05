@@ -1,0 +1,21 @@
+# ninja log v7
+0	6	1780652547897931849	glm-populate-prefix/src/glm-populate-stamp/glm-populate-mkdir	c23d5686b209e6d
+0	6	1780652547897931849	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-mkdir	c23d5686b209e6d
+6	4398	1780652552291046999	glm-populate-prefix/src/glm-populate-stamp/glm-populate-download	ddf2aafadb79c382
+6	4398	1780652552291046999	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-download	ddf2aafadb79c382
+4398	4798	1780652552291046999	glm-populate-prefix/src/glm-populate-stamp/glm-populate-update	dd8efd4930e98aa3
+4398	4798	1780652552291046999	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-update	dd8efd4930e98aa3
+4798	4804	1780652552696057619	glm-populate-prefix/src/glm-populate-stamp/glm-populate-patch	e183ba3b38689c4c
+4798	4804	1780652552696057619	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-patch	e183ba3b38689c4c
+4804	4809	1780652552701057750	glm-populate-prefix/src/glm-populate-stamp/glm-populate-configure	38db84f72cfeccb1
+4804	4809	1780652552701057750	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-configure	38db84f72cfeccb1
+4809	4813	1780652552706057881	glm-populate-prefix/src/glm-populate-stamp/glm-populate-build	fb22475807f69370
+4809	4813	1780652552706057881	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-build	fb22475807f69370
+4813	4818	1780652552711058012	glm-populate-prefix/src/glm-populate-stamp/glm-populate-install	ace8bfcf3f4a0734
+4813	4818	1780652552711058012	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-install	ace8bfcf3f4a0734
+4818	4823	1780652552716058143	glm-populate-prefix/src/glm-populate-stamp/glm-populate-test	6349dabc0c8fa892
+4818	4823	1780652552716058143	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-test	6349dabc0c8fa892
+4823	4830	1780652552723058327	CMakeFiles/glm-populate-complete	754aeb8961bff1e9
+4823	4830	1780652552723058327	glm-populate-prefix/src/glm-populate-stamp/glm-populate-done	754aeb8961bff1e9
+4823	4830	1780652552723058327	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/CMakeFiles/glm-populate-complete	754aeb8961bff1e9
+4823	4830	1780652552723058327	/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/glm-subbuild/glm-populate-prefix/src/glm-populate-stamp/glm-populate-done	754aeb8961bff1e9

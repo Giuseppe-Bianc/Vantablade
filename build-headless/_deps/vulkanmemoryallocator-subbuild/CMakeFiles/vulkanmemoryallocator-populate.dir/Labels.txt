@@ -1,0 +1,14 @@
+# Target labels
+ vulkanmemoryallocator-populate
+# Source files and their labels
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/CMakeFiles/vulkanmemoryallocator-populate
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/CMakeFiles/vulkanmemoryallocator-populate.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/CMakeFiles/vulkanmemoryallocator-populate-complete.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-build.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-configure.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-download.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-install.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-mkdir.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-patch.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-test.rule
+/tmp/workspace/Giuseppe-Bianc/Vantablade/build-headless/_deps/vulkanmemoryallocator-subbuild/vulkanmemoryallocator-populate-prefix/src/vulkanmemoryallocator-populate-stamp/vulkanmemoryallocator-populate-update.rule
