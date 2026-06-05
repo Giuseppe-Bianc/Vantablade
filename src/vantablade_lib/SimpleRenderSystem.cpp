@@ -64,7 +64,8 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
         calculateRelativePathToShaders(Vantablade::cmake::project_path(), "simple_shader.frag.opt.spv"), pipelineConfig);
 }
 
-void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, const std::vector<GameObject> &gameObjects, const Camera &camera) {
+void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, const std::vector<GameObject> &gameObjects,
+                                           const Camera &camera) {
     VZ_ZONE_SCOPED;
     VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "SimpleRenderSystem::renderGameObjects");
     pipeline_m->bind(commandBuffer);

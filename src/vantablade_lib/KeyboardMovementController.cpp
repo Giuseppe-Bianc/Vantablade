@@ -39,7 +39,6 @@ void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, Gam
     if(glm::length2(moveDir) > fepsilon) { gameObject.transform.translation += moveSpeed * dt * glm::normalize(moveDir); }
 }
 
-
 // clang-format off
 // NOLINTEND(*-include-cleaner, *-uppercase-literal-suffix, *-pro-type-union-access, *-avoid-magic-numbers,*-magic-numbers,*-make-member-function-const)
 // clang-format on
