@@ -1,0 +1,20 @@
+src/vantablade_lib/Profiler.cpp
+  h_361662506da91f 24-27,29-31,33-38,44
+src/vantablade_lib/Renderer.cpp
+  h_361662506da91f 86
+include/Vantablade/Profiler.hpp
+  h_361662506da91f 84
+src/vantablade_lib/Device.cpp
+  h_361662506da91f 165
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.3",
+  "base_commit_sha": "8b7593e82cb568709ea2dbc3bfbcf804cbcf478d",
+  "prompts": {},
+  "humans": {
+    "h_361662506da91f": {
+      "author": "GIUSEPPE BIANCONI <gbianconi3@gmail.com>"
+    }
+  }
+}
