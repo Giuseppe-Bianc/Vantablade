@@ -83,6 +83,7 @@ VkCommandBuffer Renderer::beginFrame() {
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin recording command buffer!");
+    VZ_GPU_COLLECT(device_m.getProfiler().getContext(), commandBuffer);
     return commandBuffer;
 }
 
@@ -90,7 +91,6 @@ void Renderer::endFrame() {
     VZ_ZONE_SCOPED;
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
     auto *commandBuffer = getCurrentCommandBuffer();
-    VZ_GPU_COLLECT(device_m.getProfiler().getContext(), commandBuffer);
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
 
     auto result = swapChain_m->submitCommandBuffers(&commandBuffer, &currentImageIndex);

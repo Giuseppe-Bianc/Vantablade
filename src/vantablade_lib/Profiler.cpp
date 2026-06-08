@@ -21,40 +21,27 @@ namespace Vantablade {
     VulkanProfiler::~VulkanProfiler() { shutdown(); }
 
     void VulkanProfiler::init(const InitParams &params) {
-        // TracyVkContext creates Tracy's internal query pool and records its own
-        // initialization commands into params.cmdBuffer. The command buffer must
-        // be valid, but the caller does not begin or end it around this call.
-        m_tracyCtx = TracyVkContext(params.physicalDevice, params.device, params.queue, params.cmdBuffer);
+        LINFO("Profiler::init BEGIN");
+        // Instance-level: usa vkGetInstanceProcAddr
+        auto getCalibrateableTimeDomains = reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(
+            vkGetInstanceProcAddr(params.instance, "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"));
 
-        // If VK_EXT_calibrated_timestamps is available on the target hardware,
-        // replace the line above with:
-        //
-        //   auto getCalibrateableTimeDomains =
-        //       reinterpret_cast<PFN_vkGetPhysicalDeviceCalibrateableTimeDomainsEXT>(
-        //           vkGetDeviceProcAddr(params.device,
-        //               "vkGetPhysicalDeviceCalibrateableTimeDomainsEXT"));
-        //   auto getCalibratedTimestamps =
-        //       reinterpret_cast<PFN_vkGetCalibratedTimestampsEXT>(
-        //           vkGetDeviceProcAddr(params.device,
-        //               "vkGetCalibratedTimestampsEXT"));
-        //
-        //   m_tracyCtx = TracyVkContextCalibrated(
-        //       params.physicalDevice,
-        //       params.device,
-        //       params.queue,
-        //       params.cmdBuffer,
-        //       getCalibrateableTimeDomains,
-        //       getCalibratedTimestamps
-        //   );
-        //
-        // The calibrated variant produces significantly more accurate CPU/GPU
-        // timeline correlation on hardware that supports it (most modern AMD/Intel,
-        // and Vulkan 1.2+ NVIDIA drivers on Linux/Windows 10+).
+        // Device-level: vkGetDeviceProcAddr è corretto qui
+        auto getCalibratedTimestamps = reinterpret_cast<PFN_vkGetCalibratedTimestampsEXT>(
+            vkGetDeviceProcAddr(params.device, "vkGetCalibratedTimestampsEXT"));
+
+        if(getCalibrateableTimeDomains && getCalibratedTimestamps) {
+            m_tracyCtx = TracyVkContextCalibrated(params.physicalDevice, params.device, params.queue, params.cmdBuffer,
+                                                  getCalibrateableTimeDomains, getCalibratedTimestamps);
+        } else {
+            m_tracyCtx = TracyVkContext(params.physicalDevice, params.device, params.queue, params.cmdBuffer);
+        }
 
         if(m_tracyCtx && params.contextName) {
             const auto len = static_cast<uint16_t>(std::strlen(params.contextName));
             TracyVkContextName(m_tracyCtx, params.contextName, len);
         }
+        LINFO("Profiler::init END, ctx={}", (void *)m_tracyCtx);
     }
 
     void VulkanProfiler::shutdown() {

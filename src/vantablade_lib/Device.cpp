@@ -161,8 +161,12 @@ Device::Device(Window &window) : window_m{window} {
     // can identify it if something goes wrong during calibration.
     setObjectName(cmdBuffer, "Profiler Init CommandBuffer");
 
-    profiler.init(
-        {.physicalDevice = physicalDevice, .device = device_, .queue = graphicsQueue_, .cmdBuffer = cmdBuffer, .contextName = "GPU"});
+    profiler.init({.instance = instance,
+                   .physicalDevice = physicalDevice,
+                   .device = device_,
+                   .queue = graphicsQueue_,
+                   .cmdBuffer = cmdBuffer,
+                   .contextName = "GPU"});
     createAllocator();
 }
 

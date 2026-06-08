@@ -81,6 +81,7 @@ namespace Vantablade {
          * initialization commands during init().
          */
         struct InitParams {
+            VkInstance instance = VK_NULL_HANDLE;  // <-- aggiunto
             VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
             VkDevice device = VK_NULL_HANDLE;
             VkQueue queue = VK_NULL_HANDLE;
