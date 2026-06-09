@@ -134,6 +134,8 @@ function(Vantablade_setup_dependencies)
       OPTIONS
         "TRACY_ENABLE ON"
         "TRACY_ON_DEMAND ON"
+        "TRACY_DELAYED_INIT ON"
+        "TRACY_NO_EXIT ON"
     )
   endif()
 
