@@ -11,19 +11,16 @@
 
 DISABLE_WARNINGS_PUSH(26432 26447)
 Window::Window(const int w, const int h, const std::string_view window_name) : width(w), height(h), windowName(window_name) {
-    VZ_ZONE_SCOPED;
     initWindow();
 }
 
 Window::~Window() {
-    VZ_ZONE_SCOPED;
     glfwDestroyWindow(window);
     glfwTerminate();
 }
 DISABLE_WARNINGS_POP()
 
 void Window::initWindow() {
-    VZ_ZONE_SCOPED;
     initializeGLFW();
     setHints();
     createWindow();
@@ -31,7 +28,6 @@ void Window::initWindow() {
 }
 
 void Window::createWindow() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer("glfw_window creation");
 #endif
@@ -46,7 +42,6 @@ void Window::createWindow() {
 }
 
 void Window::setHints() const noexcept {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer("set glfw hints");
 #endif
@@ -58,7 +53,6 @@ void Window::setHints() const noexcept {
 }
 
 void Window::initializeGLFW() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer("glfw setup");
 #endif
@@ -75,7 +69,6 @@ void Window::initializeGLFW() {
 }
 
 void Window::centerWindow() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     vnd::Timer monitort("get primary Monitor");
 #endif
@@ -121,12 +114,10 @@ void Window::centerWindow() {
 }
 
 void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface, const VkAllocationCallbacks *allocator) {
-    VZ_ZONE_SCOPED;
     VK_CHECK(glfwCreateWindowSurface(instance, window, allocator, surface), "failed to create window surface");
 }
 
 void Window::framebufferResizeCallback(GLFWwindow *window, int width, int height) noexcept {
-    VZ_ZONE_SCOPED;
     auto *wwindow = static_cast<Window *>(glfwGetWindowUserPointer(window));
     wwindow->framebufferResized = true;
     wwindow->width = width;

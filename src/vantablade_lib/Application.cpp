@@ -156,7 +156,6 @@ void Application::run() {
 }
 
 void Application::loadGameObjects() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Loading game objects"};
 #endif
@@ -179,7 +178,6 @@ void Application::loadGameObjects() {
 }
 
 void Application::mainLoop() {
-    VZ_ZONE_SCOPED;
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
     Camera camera{};
 
@@ -204,20 +202,16 @@ void Application::mainLoop() {
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
             // GPU frame scope: must end before vkEndCommandBuffer/collect
-            {
-                VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Frame::GPU");
-                renderer_m.beginSwapChainRenderPass(commandBuffer);
-                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+            renderer_m.beginSwapChainRenderPass(commandBuffer);
+            simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
 
-                imguiLayer_m->end(commandBuffer);
+            imguiLayer_m->end(commandBuffer);
 
-                renderer_m.endSwapChainRenderPass(commandBuffer);
-            }
+            renderer_m.endSwapChainRenderPass(commandBuffer);
             renderer_m.endFrame();
         }
 
         fps_m.tick();
-        VZ_FRAME_MARK();
     }
 
     VK_CHECK(vkDeviceWaitIdle(device_m.device()), "failed to wait for device idle!");

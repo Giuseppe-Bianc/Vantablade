@@ -13,7 +13,7 @@ namespace Vantablade {
 // ---------------------------------------------------------------------------
 // CPU profiling macros. These were correct in the original and are unchanged.
 // ---------------------------------------------------------------------------
-#ifdef VANTABLADE_PROFILING
+/*#ifdef VANTABLADE_PROFILING
 #define VZ_ZONE_SCOPED ZoneScoped
 #define VZ_ZONE_SCOPED_NAMED(name) ZoneScopedN(name)
 #define VZ_FRAME_MARK() FrameMark
@@ -25,7 +25,7 @@ namespace Vantablade {
 #define VZ_FRAME_MARK() ((void)0)
 #define VZ_PLOT_INT(name, value) ((void)0)
 #define VZ_PLOT_FLOAT(name, value) ((void)0)
-#endif
+#endif*/
 
 // ---------------------------------------------------------------------------
 // GPU profiling macros.
@@ -49,13 +49,13 @@ namespace Vantablade {
 //   Records timestamp retrieval commands into cmd. Call once per frame,
 //   at the end of the frame's command buffer before vkEndCommandBuffer.
 // ---------------------------------------------------------------------------
-#ifdef VANTABLADE_PROFILING
+/*#ifdef VANTABLADE_PROFILING
 #define VZ_GPU_ZONE(ctx, cmd, name) TracyVkZone(ctx, cmd, name)
 #define VZ_GPU_COLLECT(ctx, cmd) TracyVkCollect(ctx, cmd)
 #else
 #define VZ_GPU_ZONE(ctx, cmd, name) ((void)0)
 #define VZ_GPU_COLLECT(ctx, cmd) ((void)0)
-#endif
+#endif*/
 
 // ---------------------------------------------------------------------------
 // VulkanProfiler

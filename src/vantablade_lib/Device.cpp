@@ -142,7 +142,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 
 // class member functions
 Device::Device(Window &window) : window_m{window} {
-    VZ_ZONE_SCOPED;
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -171,7 +170,6 @@ Device::Device(Window &window) : window_m{window} {
 }
 
 Device::~Device() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying Device");
 #endif
@@ -187,7 +185,6 @@ Device::~Device() {
 }
 
 void Device::createInstance() {
-    VZ_ZONE_SCOPED;
     if constexpr(enableValidationLayers) {
         if(!checkValidationLayerSupport()) { throw std::runtime_error("Validation layers requested but not available."); }
     }
@@ -250,7 +247,6 @@ void Device::createInstance() {
 }
 
 void Device::pickPhysicalDevice() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer time{"pick Physical Device"};
 #endif
@@ -272,7 +268,6 @@ void Device::pickPhysicalDevice() {
 }
 
 void Device::createLogicalDevice() {
-    VZ_ZONE_SCOPED;
     const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     if(!indices.graphicsFamily.has_value() || !indices.presentFamily.has_value()) {
@@ -361,7 +356,6 @@ void Device::createLogicalDevice() {
 }
 
 void Device::createCommandPool() {
-    VZ_ZONE_SCOPED;
     const QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
     if(!queueFamilyIndices.graphicsFamily.has_value()) { throw std::runtime_error("failed to find graphics queue family!"); }
 
@@ -375,7 +369,6 @@ void Device::createCommandPool() {
 }
 
 void Device::createAllocator() {
-    VZ_ZONE_SCOPED;
     VmaVulkanFunctions vulkanFunctions{};
     vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
     vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
@@ -399,13 +392,9 @@ void Device::createAllocator() {
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
 
-void Device::createSurface() {
-    VZ_ZONE_SCOPED;
-    window_m.createWindowSurface(instance, &surface_, nullptr);
-}
+void Device::createSurface() { window_m.createWindowSurface(instance, &surface_, nullptr); }
 
 bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
-    VZ_ZONE_SCOPED;
     const QueueFamilyIndices indices = findQueueFamilies(device);
 
     const bool extensionsSupported = checkDeviceExtensionSupport(device);
@@ -424,7 +413,6 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
 }
 
 void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
-    VZ_ZONE_SCOPED;
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = static_cast<VkDebugUtilsMessageSeverityFlagsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
@@ -438,7 +426,6 @@ void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT
 }
 
 void Device::setupDebugMessenger() {
-    VZ_ZONE_SCOPED;
     if(!enableValidationLayers) { return; }
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
@@ -447,7 +434,6 @@ void Device::setupDebugMessenger() {
 }
 
 bool Device::checkValidationLayerSupport() {
-    VZ_ZONE_SCOPED;
     uint32_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -466,7 +452,6 @@ bool Device::checkValidationLayerSupport() {
 
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 std::vector<const char *> Device::getRequiredExtensions() const {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"get Required Extensions"};
 #endif
@@ -482,7 +467,6 @@ std::vector<const char *> Device::getRequiredExtensions() const {
 }
 
 void Device::hasGflwRequiredInstanceExtensions() {
-    VZ_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer time{"has Gflw Required Instance Extensions"};
 #endif
@@ -517,7 +501,6 @@ void Device::hasGflwRequiredInstanceExtensions() {
 }
 
 bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
-    VZ_ZONE_SCOPED;
     uint32_t extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -535,7 +518,6 @@ bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 }
 
 QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice phdevice) const {
-    VZ_ZONE_SCOPED;
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -561,7 +543,6 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice phdevice) const {
 }
 
 SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device) const {
-    VZ_ZONE_SCOPED;
     SwapChainSupportDetails details;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities);
 
@@ -584,7 +565,6 @@ SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device) c
 }
 
 VkFormat Device::findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
-    VZ_ZONE_SCOPED;
     for(const VkFormat format : candidates) {
         VkFormatProperties props;
         vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
@@ -603,7 +583,6 @@ VkFormat Device::findSupportedFormat(std::span<const VkFormat> candidates, VkIma
 }
 
 uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const {
-    VZ_ZONE_SCOPED;
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
     const std::bitset<32> typeBits(typeFilter);
@@ -616,7 +595,6 @@ uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 
 void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
                           VmaAllocation &allocation) {
-    VZ_ZONE_SCOPED;
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
@@ -634,7 +612,6 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryP
 }
 
 VkCommandBuffer Device::beginSingleTimeCommands() {
-    VZ_ZONE_SCOPED;
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -655,7 +632,6 @@ VkCommandBuffer Device::beginSingleTimeCommands() {
 }
 
 void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
-    VZ_ZONE_SCOPED;
     pcmdEndLabel(commandBuffer);
 
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to end single-time command buffer!");
@@ -678,9 +654,7 @@ void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 }
 
 void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
-    VZ_ZONE_SCOPED;
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-    VZ_GPU_ZONE(getProfiler().getContext(), commandBuffer, "Device::copyBuffer");
 
     VkBufferCopy copyRegion{};
     copyRegion.srcOffset = 0;  // Optional
@@ -694,10 +668,7 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 }
 
 void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
-    VZ_ZONE_SCOPED;
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
-    VZ_GPU_ZONE(getProfiler().getContext(), commandBuffer, "Device::copyBufferToImage");
-
     pcmdBeginLabel(commandBuffer, "Copy Buffer To Image", DebugColors::Yellow);
 
     VkBufferImageCopy region{};
@@ -720,7 +691,6 @@ void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, u
 
 void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags propertiesp, VkImage &image,
                                  VmaAllocation &allocation) {
-    VZ_ZONE_SCOPED;
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
     allocInfo.requiredFlags = propertiesp;
@@ -729,27 +699,6 @@ void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPro
     }
 
     VK_CHECK(vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr), "failed to create image!");
-}
-
-void Device::updateMemoryStats() {
-#ifdef VANTABLADE_PROFILING
-    std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets{};
-    vmaGetHeapBudgets(allocator, budgets.data());
-
-    VmaTotalStatistics stats = {};
-    vmaCalculateStatistics(allocator, &stats);
-
-    VkDeviceSize totalBudget = 0;
-    for(const auto &budget : budgets) { totalBudget += budget.budget; }
-
-    const float usagePercent = totalBudget == 0
-                                   ? 0.0f
-                                   : (static_cast<float>(stats.total.statistics.allocationBytes) / static_cast<float>(totalBudget)) *
-                                         100.0f;
-    VZ_PLOT_FLOAT("VMA Total Memory (MB)", static_cast<float>(stats.total.statistics.allocationBytes / 1024 / 1024));
-    VZ_PLOT_FLOAT("VMA Memory Usage %", usagePercent);
-    VZ_PLOT_INT("VMA Allocation Count", static_cast<int32_t>(stats.total.statistics.allocationCount));
-#endif
 }
 
 // clang-format off

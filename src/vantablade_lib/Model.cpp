@@ -92,21 +92,17 @@ void Model::Builder::loadModel(const std::string &filepath) {
 DISABLE_WARNINGS_POP()
 
 Model::Model(Device &device, const Model::Builder &builder) : device_m{device} {
-    VZ_ZONE_SCOPED;
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 }
 
 Model::~Model() {
-    VZ_ZONE_SCOPED;
     vmaDestroyBuffer(device_m.getAllocator(), vertexBuffer, vertexBufferAllocation);
     if(hasIndexBuffer) { vmaDestroyBuffer(device_m.getAllocator(), indexBuffer, indexBufferAllocation); }
 }
 
 void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
-    VZ_ZONE_SCOPED;
     vertexCount = C_UI32T(vertices.size());
-    VZ_PLOT_INT("Total Vertex Count", vertexCount);
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
     const VkDeviceSize bufferSize = sizeof(vertices[0]) * vertexCount;
@@ -131,7 +127,6 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 }
 
 void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
-    VZ_ZONE_SCOPED;
     indexCount = C_UI32T(indices.size());
     hasIndexBuffer = indexCount > 0;
 
@@ -165,8 +160,6 @@ std::unique_ptr<Model> Model::createModelFromFile(Device &device, const std::str
 }
 
 void Model::draw(VkCommandBuffer commandBuffer) const {
-    VZ_ZONE_SCOPED;
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Model::draw");
     if(hasIndexBuffer) {
         vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
     } else {
@@ -175,8 +168,6 @@ void Model::draw(VkCommandBuffer commandBuffer) const {
 }
 
 void Model::bind(VkCommandBuffer commandBuffer) const {
-    VZ_ZONE_SCOPED;
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Model::bind");
     const std::array<VkBuffer, 1> buffers{vertexBuffer};
     const std::array<VkDeviceSize, 1> offsets{0};
     vkCmdBindVertexBuffers(commandBuffer, 0, C_UI32T(buffers.size()), buffers.data(), offsets.data());
@@ -185,7 +176,6 @@ void Model::bind(VkCommandBuffer commandBuffer) const {
 }
 
 std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptions() {
-    VZ_ZONE_SCOPED;
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
     bindingDescriptions[0].binding = 0;
     bindingDescriptions[0].stride = sizeof(Vertex);
@@ -194,7 +184,6 @@ std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptio
 }
 
 std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescriptions() {
-    VZ_ZONE_SCOPED;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
     attributeDescriptions.push_back({0, 0, VK_FORMAT_R32G32B32_SFLOAT, offsetof(Vertex, position)});

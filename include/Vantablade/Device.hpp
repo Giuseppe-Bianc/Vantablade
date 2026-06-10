@@ -63,7 +63,6 @@ struct DeviceFeatureChain {
     VkPhysicalDeviceFeatures2 f2{};
 
     DeviceFeatureChain() noexcept {
-        VZ_ZONE_SCOPED;
         f14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
         f14.pNext = nullptr;
 
@@ -114,7 +113,6 @@ public:
     [[nodiscard]] VkInstance getInstance() const noexcept { return instance; }
     [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const noexcept { return physicalDevice; }
 
-    Vantablade::VulkanProfiler &getProfiler() noexcept { return profiler; }
     void updateMemoryStats();
 
     // CONST: query methods do not modify *this.
@@ -206,15 +204,12 @@ private:
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};
 
-    Vantablade::VulkanProfiler profiler;
-
     static inline constexpr std::array<const char *, 1> validationLayers{"VK_LAYER_KHRONOS_validation"};
     static inline constexpr std::array<const char *, 1> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
     static inline constexpr float queuePriority = 1.0f;
 };
 
 template <typename T> inline void Device::psetObjectName(T handle, const char *name) noexcept {
-    VZ_ZONE_SCOPED;
     if constexpr(!enableValidationLayers) { return; }
     if(debugFuncs.setObjectName == nullptr) { return; }
     // NOLINTNEXTLINE(*-pro-type-reinterpret-cast)

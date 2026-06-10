@@ -8,22 +8,14 @@
 #include "Vantablade/vulkanCheck.hpp"
 
 Renderer::Renderer(Window &window, Device &device) : window_m(window), device_m(device) {
-    VZ_ZONE_SCOPED;
     recreateSwapChain();
     createCommandBuffers();
 }
-Renderer::~Renderer() {
-    VZ_ZONE_SCOPED;
-    freeCommandBuffers();
-}
+Renderer::~Renderer() { freeCommandBuffers(); }
 
-uint32_t Renderer::getSwapChainImageCount() const {
-    VZ_ZONE_SCOPED;
-    return C_UI32T(swapChain_m->imageCount());
-}
+uint32_t Renderer::getSwapChainImageCount() const { return C_UI32T(swapChain_m->imageCount()); }
 
 void Renderer::recreateSwapChain() {
-    VZ_ZONE_SCOPED;
     auto extent = window_m.getExtent();
     while(extent.width == 0 || extent.height == 0) {
         extent = window_m.getExtent();
@@ -42,7 +34,6 @@ void Renderer::recreateSwapChain() {
 }
 
 void Renderer::createCommandBuffers() {
-    VZ_ZONE_SCOPED;
     commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -59,13 +50,11 @@ void Renderer::createCommandBuffers() {
 }
 
 void Renderer::freeCommandBuffers() {
-    VZ_ZONE_SCOPED;
     vkFreeCommandBuffers(device_m.device(), device_m.getCommandPool(), C_UI32T(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
 }
 
 VkCommandBuffer Renderer::beginFrame() {
-    VZ_ZONE_SCOPED;
     assert(!isFrameStarted && "Can't call beginFrame while already in progress");
 
     auto result = swapChain_m->acquireNextImage(&currentImageIndex);
@@ -83,12 +72,10 @@ VkCommandBuffer Renderer::beginFrame() {
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
     VK_CHECK(vkBeginCommandBuffer(commandBuffer, &beginInfo), "failed to begin recording command buffer!");
-    VZ_GPU_COLLECT(device_m.getProfiler().getContext(), commandBuffer);
     return commandBuffer;
 }
 
 void Renderer::endFrame() {
-    VZ_ZONE_SCOPED;
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
     auto *commandBuffer = getCurrentCommandBuffer();
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
@@ -103,13 +90,9 @@ void Renderer::endFrame() {
 
     isFrameStarted = false;
     currentFrameIndex = (currentFrameIndex + 1) % C_I(SwapChain::MAX_FRAMES_IN_FLIGHT);
-
-    device_m.updateMemoryStats();
 }
 
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
-    VZ_ZONE_SCOPED;
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Renderer::beginSwapChainRenderPass");
     assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
 
@@ -143,8 +126,6 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
 
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) const {
-    VZ_ZONE_SCOPED;
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "Renderer::endSwapChainRenderPass");
     assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
     vkCmdEndRenderPass(commandBuffer);
