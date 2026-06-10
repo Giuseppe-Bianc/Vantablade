@@ -148,24 +148,6 @@ Device::Device(Window &window) : window_m{window} {
     pickPhysicalDevice();
     createLogicalDevice();
     createCommandPool();
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = commandPool;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer cmdBuffer{};
-    vkAllocateCommandBuffers(device_, &allocInfo, &cmdBuffer);
-    // Give the profiler init command buffer a debug name so validation messages
-    // can identify it if something goes wrong during calibration.
-    setObjectName(cmdBuffer, "Profiler Init CommandBuffer");
-
-    profiler.init({.instance = instance,
-                   .physicalDevice = physicalDevice,
-                   .device = device_,
-                   .queue = graphicsQueue_,
-                   .cmdBuffer = cmdBuffer,
-                   .contextName = "GPU"});
     createAllocator();
 }
 
@@ -173,7 +155,6 @@ Device::~Device() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying Device");
 #endif
-    profiler.shutdown();
     vmaDestroyAllocator(allocator);
     vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);

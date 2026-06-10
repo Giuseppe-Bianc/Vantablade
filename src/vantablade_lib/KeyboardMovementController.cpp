@@ -6,7 +6,6 @@
 // NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-pro-type-union-access, *-avoid-magic-numbers,*-magic-numbers,*-make-member-function-const)
 // clang-format on
 #include "Vantablade/KeyboardMovementController.hpp"
-#include "Vantablade/Profiler.hpp"
 
 // NOLINTNEXTLINE(*-identifier-length)
 void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, GameObject &gameObject) {

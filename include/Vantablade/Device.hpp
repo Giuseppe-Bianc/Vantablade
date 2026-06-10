@@ -9,7 +9,6 @@
 #include "Window.hpp"
 #include "VkObjectTypeResolve.hpp"
 #include "vulkanToString.hpp"
-#include "Profiler.hpp"
 // clang-format on
 
 // Forward declaration for VMA

@@ -6,7 +6,6 @@
 // NOLINTBEGIN(*-include-cleaner, *-easily-swappable-parameters, *-uppercase-literal-suffix, *-pro-type-union-access,*-avoid-magic-numbers,*-magic-numbers, *-identifier-length)
 // clang-format on
 #include "Vantablade/Camera.hpp"
-#include "Vantablade/Profiler.hpp"
 void Camera::setOrthographicProjection(float left, float right, float top, float bottom, float near, float far) {
     // LH = Mano sinistra, ZO = Range profondità 0 a 1 (Vulkan)
     projectionMatrix = glm::orthoLH_ZO(left, right, bottom, top, near, far);

@@ -6,7 +6,6 @@
 #include "Vantablade/Window.hpp"
 
 #include "Vantablade/Monitor.hpp"
-#include "Vantablade/Profiler.hpp"
 #include "Vantablade/vulkanCheck.hpp"
 
 DISABLE_WARNINGS_PUSH(26432 26447)
