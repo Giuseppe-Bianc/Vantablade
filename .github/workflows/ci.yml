@@ -224,7 +224,7 @@ jobs:
       # out/cobertura.xml
       - name: Upload coverage to Codecov
         if: ${{ !(matrix.os == 'ubuntu-latest' && matrix.build_type == 'release') }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           fail_ci_if_error: true # we weren't posting previously
           flags: ${{ matrix.os }}-${{ matrix.build_type }}
