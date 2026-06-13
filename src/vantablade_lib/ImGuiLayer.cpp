@@ -107,7 +107,6 @@ void ImGuiLayer::begin() {
 // cppcheck-suppress functionStatic
 void ImGuiLayer::end(VkCommandBuffer commandBuffer) {
     ImGui::Render();
-    VZ_GPU_ZONE(device_m.getProfiler().getContext(), commandBuffer, "ImGui::Render");
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }
 

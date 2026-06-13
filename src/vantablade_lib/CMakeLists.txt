@@ -37,11 +37,10 @@ add_library(vantablade_lib
         ../../include/Vantablade/ImGuiLayer.hpp
         Camera.cpp
         ../../include/Vantablade/Camera.hpp
-        Profiler.cpp
-        ../../include/Vantablade/Profiler.hpp
         KeyboardMovementController.cpp
         ../../include/Vantablade/KeyboardMovementController.hpp
         ../../include/Vantablade/Utils.hpp
+        ../../include/Vantablade/ProfilingMacros.hpp
 )
 
 
