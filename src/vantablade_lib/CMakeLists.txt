@@ -40,6 +40,8 @@ add_library(vantablade_lib
         KeyboardMovementController.cpp
         ../../include/Vantablade/KeyboardMovementController.hpp
         ../../include/Vantablade/Utils.hpp
+        TracyContext.cpp
+        ../../include/Vantablade/TracyContext.hpp
 )
 
 
