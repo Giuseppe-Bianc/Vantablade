@@ -2,7 +2,7 @@
  * Created by gbian on 22/05/2026.
  * Copyright (c) 2026 All rights reserved.
  */
-
+// NOLINTBEGIN(*-include-cleaner,*-uppercase-literal-suffix, *-pro-type-union-access)
 #include "Vantablade/GameObject.hpp"
 
 glm::mat4 TransformComponent::mat4() const noexcept {
@@ -13,3 +13,5 @@ glm::mat4 TransformComponent::mat4() const noexcept {
 }
 
 glm::mat3 TransformComponent::normalMatrix() const noexcept { return glm::transpose(glm::inverse(glm::mat3(mat4()))); }
+
+// NOLINTEND(*-include-cleaner,*-uppercase-literal-suffix, *-pro-type-union-access)
