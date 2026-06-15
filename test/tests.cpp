@@ -1556,6 +1556,7 @@ TEST_CASE("Vulkan validation callback logging stays quiet for empty payloads", "
 }
 
 namespace {
+    // NOLINTNEXTLINE(*-easily-swappable-parameters)
     void requireMat4Approx(const glm::mat4 &actual, const glm::mat4 &expected, const float margin = 1e-5f) {
         for(std::size_t column = 0; column < 4; ++column) {
             // PERF: cache column access, avoids repeated operator[] chaining.
