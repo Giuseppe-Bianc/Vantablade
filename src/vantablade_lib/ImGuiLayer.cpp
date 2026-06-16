@@ -6,6 +6,7 @@
 // clang-format on
 #include "Vantablade/ImGuiLayer.hpp"
 #include "Vantablade/vulkanCheck.hpp"
+#include "Vantablade/Profiler.hpp"
 
 #include <vulkan/vk_enum_string_helper.h>
 
@@ -106,6 +107,7 @@ void ImGuiLayer::begin() {
 
 // cppcheck-suppress functionStatic
 void ImGuiLayer::end(VkCommandBuffer commandBuffer) {
+    VND_GPU_ZONE(device_m.getProfilerContext(), commandBuffer, "ImGui::Render");
     ImGui::Render();
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 }

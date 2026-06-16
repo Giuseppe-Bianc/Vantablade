@@ -4,10 +4,12 @@
  */
 // NOLINTBEGIN(*-include-cleaner, *-avoid-magic-numbers,*-magic-numbers, *-uppercase-literal-suffix, *-pro-type-union-access)
 #include "Vantablade/Renderer.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 
 #include "Vantablade/vulkanCheck.hpp"
 
 Renderer::Renderer(Window &window, Device &device) : window_m(window), device_m(device) {
+    VND_ZONE("Renderer::Constructor");
     recreateSwapChain();
     createCommandBuffers();
 }
@@ -16,6 +18,7 @@ Renderer::~Renderer() { freeCommandBuffers(); }
 uint32_t Renderer::getSwapChainImageCount() const { return C_UI32T(swapChain_m->imageCount()); }
 
 void Renderer::recreateSwapChain() {
+    VND_ZONE_SCOPED;
     auto extent = window_m.getExtent();
     while(extent.width == 0 || extent.height == 0) {
         extent = window_m.getExtent();
@@ -34,6 +37,7 @@ void Renderer::recreateSwapChain() {
 }
 
 void Renderer::createCommandBuffers() {
+    VND_ZONE_SCOPED;
     commandBuffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
 
     VkCommandBufferAllocateInfo allocInfo{};
@@ -50,11 +54,13 @@ void Renderer::createCommandBuffers() {
 }
 
 void Renderer::freeCommandBuffers() {
+    VND_ZONE_SCOPED;
     vkFreeCommandBuffers(device_m.device(), device_m.getCommandPool(), C_UI32T(commandBuffers.size()), commandBuffers.data());
     commandBuffers.clear();
 }
 
 VkCommandBuffer Renderer::beginFrame() {
+    VND_ZONE_SCOPED;
     assert(!isFrameStarted && "Can't call beginFrame while already in progress");
 
     auto result = swapChain_m->acquireNextImage(&currentImageIndex);
@@ -76,6 +82,7 @@ VkCommandBuffer Renderer::beginFrame() {
 }
 
 void Renderer::endFrame() {
+    VND_ZONE_SCOPED;
     assert(isFrameStarted && "Can't call endFrame while frame is not in progress");
     auto *commandBuffer = getCurrentCommandBuffer();
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to record command buffer!");
@@ -95,6 +102,8 @@ void Renderer::endFrame() {
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
     assert(isFrameStarted && "Can't call beginSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame");
+
+    VND_ZONE_SCOPED;
 
     VkRenderPassBeginInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -128,6 +137,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer commandBuffer) {
 void Renderer::endSwapChainRenderPass(VkCommandBuffer commandBuffer) const {
     assert(isFrameStarted && "Can't call endSwapChainRenderPass if frame is not in progress");
     assert(commandBuffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame");
+    VND_ZONE_SCOPED;
     vkCmdEndRenderPass(commandBuffer);
 }
 

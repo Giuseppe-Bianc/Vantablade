@@ -6,6 +6,7 @@
 // NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-signed-bitwise, *-avoid-magic-numbers, *-magic-numbers, *-pro-type-union-access)
 // clang-format on
 #include "Vantablade/SimpleRenderSystem.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 
 #include "Vantablade/vulkanCheck.hpp"
 
@@ -19,6 +20,7 @@ struct SimplePushConstantData {
 DISABLE_WARNINGS_POP()
 
 SimpleRenderSystem::SimpleRenderSystem(Device &device, VkRenderPass renderPass) : device_m{device} {
+    VND_ZONE("SimpleRenderSystem::Constructor");
     createPipelineLayout();
     createPipeline(renderPass);
 }
@@ -26,6 +28,7 @@ SimpleRenderSystem::SimpleRenderSystem(Device &device, VkRenderPass renderPass) 
 SimpleRenderSystem::~SimpleRenderSystem() { vkDestroyPipelineLayout(device_m.device(), pipelineLayout, nullptr); }
 
 void SimpleRenderSystem::createPipelineLayout() {
+    VND_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Creating pipeline layout"};
 #endif
@@ -47,6 +50,7 @@ void SimpleRenderSystem::createPipelineLayout() {
 }
 
 void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
+    VND_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"Creating pipeline"};
 #endif
@@ -64,11 +68,16 @@ void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
 
 void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, const std::vector<GameObject> &gameObjects,
                                            const Camera &camera) {
+    VND_ZONE_SCOPED;
+    const auto ctx = device_m.getProfilerContext();
+    VND_GPU_ZONE(ctx, commandBuffer, "SimpleRenderSystem::renderGameObjects");
+
     pipeline_m->bind(commandBuffer);
 
     const glm::mat4 &projectionView = camera.getProjection() * camera.getView();
 
     for(const auto &obj : gameObjects) {
+        VND_ZONE_SCOPED;
         SimplePushConstantData push{};
         auto modelMatrix = obj.transform.mat4();
         push.transform = projectionView * modelMatrix;

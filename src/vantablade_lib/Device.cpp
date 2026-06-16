@@ -142,6 +142,7 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instancein, VkDebugUtilsMessengerE
 
 // class member functions
 Device::Device(Window &window) : window_m{window} {
+    VND_ZONE_SCOPED;
     createInstance();
     setupDebugMessenger();
     createSurface();
@@ -149,12 +150,15 @@ Device::Device(Window &window) : window_m{window} {
     createLogicalDevice();
     createCommandPool();
     createAllocator();
+
+    initProfiler();
 }
 
 Device::~Device() {
 #ifndef NDEBUG
     const vnd::AutoTimer timer("Destroying Device");
 #endif
+    m_profiler.shutdown();
     vmaDestroyAllocator(allocator);
     vkDestroyCommandPool(device_, commandPool, nullptr);
     vkDestroyDevice(device_, nullptr);
@@ -165,7 +169,35 @@ Device::~Device() {
     vkDestroyInstance(instance, nullptr);
 }
 
+void Device::initProfiler() {
+    // Allocate a raw command buffer for Tracy to manage entirely.
+    // Tracy will call vkBeginCommandBuffer / vkEndCommandBuffer / vkQueueSubmit
+    // / vkQueueWaitIdle internally. Do NOT begin it ourselves.
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer tracyInitCmd{VK_NULL_HANDLE};
+    VK_CHECK(vkAllocateCommandBuffers(device_, &allocInfo, &tracyInitCmd), "failed to allocate Tracy init command buffer!");
+    // Name it for validation layer clarity, but do NOT call vkBeginCommandBuffer.
+    psetObjectName(tracyInitCmd, "Tracy Init Command Buffer");
+
+    m_profiler.init({.instance = instance,
+                     .physicalDevice = physicalDevice,
+                     .device = device_,
+                     .queue = graphicsQueue_,
+                     .cmdBuffer = tracyInitCmd,  // Tracy owns begin/end/submit/wait
+                     .contextName = "Device Graphics"});
+
+    // Tracy has already submitted and waited on the queue internally.
+    // We only need to free the command buffer.
+    vkFreeCommandBuffers(device_, commandPool, 1, &tracyInitCmd);
+}
+
 void Device::createInstance() {
+    VND_ZONE_SCOPED;
     if constexpr(enableValidationLayers) {
         if(!checkValidationLayerSupport()) { throw std::runtime_error("Validation layers requested but not available."); }
     }
@@ -228,6 +260,7 @@ void Device::createInstance() {
 }
 
 void Device::pickPhysicalDevice() {
+    VND_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer time{"pick Physical Device"};
 #endif
@@ -249,6 +282,7 @@ void Device::pickPhysicalDevice() {
 }
 
 void Device::createLogicalDevice() {
+    VND_ZONE_SCOPED;
     const QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     if(!indices.graphicsFamily.has_value() || !indices.presentFamily.has_value()) {
@@ -337,6 +371,7 @@ void Device::createLogicalDevice() {
 }
 
 void Device::createCommandPool() {
+    VND_ZONE_SCOPED;
     const QueueFamilyIndices queueFamilyIndices = findPhysicalQueueFamilies();
     if(!queueFamilyIndices.graphicsFamily.has_value()) { throw std::runtime_error("failed to find graphics queue family!"); }
 
@@ -350,6 +385,7 @@ void Device::createCommandPool() {
 }
 
 void Device::createAllocator() {
+    VND_ZONE_SCOPED;
     VmaVulkanFunctions vulkanFunctions{};
     vulkanFunctions.vkGetInstanceProcAddr = vkGetInstanceProcAddr;
     vulkanFunctions.vkGetDeviceProcAddr = vkGetDeviceProcAddr;
@@ -373,9 +409,13 @@ void Device::createAllocator() {
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
 
-void Device::createSurface() { window_m.createWindowSurface(instance, &surface_, nullptr); }
+void Device::createSurface() { 
+    VND_ZONE_SCOPED;
+    window_m.createWindowSurface(instance, &surface_, nullptr); 
+}
 
 bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
+    VND_ZONE_SCOPED;
     const QueueFamilyIndices indices = findQueueFamilies(device);
 
     const bool extensionsSupported = checkDeviceExtensionSupport(device);
@@ -394,6 +434,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device) const {
 }
 
 void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
+    VND_ZONE_SCOPED;
     createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
     createInfo.messageSeverity = static_cast<VkDebugUtilsMessageSeverityFlagsEXT>(VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
@@ -407,6 +448,7 @@ void Device::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT
 }
 
 void Device::setupDebugMessenger() {
+    VND_ZONE_SCOPED;
     if(!enableValidationLayers) { return; }
     VkDebugUtilsMessengerCreateInfoEXT createInfo{};
     populateDebugMessengerCreateInfo(createInfo);
@@ -415,6 +457,7 @@ void Device::setupDebugMessenger() {
 }
 
 bool Device::checkValidationLayerSupport() {
+    VND_ZONE_SCOPED;
     uint32_t layerCount = 0;
     vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
@@ -433,6 +476,7 @@ bool Device::checkValidationLayerSupport() {
 
 // NOLINTNEXTLINE(*-convert-member-functions-to-static)
 std::vector<const char *> Device::getRequiredExtensions() const {
+    VND_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer timer{"get Required Extensions"};
 #endif
@@ -448,6 +492,7 @@ std::vector<const char *> Device::getRequiredExtensions() const {
 }
 
 void Device::hasGflwRequiredInstanceExtensions() {
+    VND_ZONE_SCOPED;
 #ifndef NDEBUG
     const vnd::AutoTimer time{"has Gflw Required Instance Extensions"};
 #endif
@@ -482,6 +527,7 @@ void Device::hasGflwRequiredInstanceExtensions() {
 }
 
 bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
+    VND_ZONE_SCOPED;
     uint32_t extensionCount = 0;
     vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
@@ -499,6 +545,7 @@ bool Device::checkDeviceExtensionSupport(VkPhysicalDevice device) {
 }
 
 QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice phdevice) const {
+    VND_ZONE_SCOPED;
     QueueFamilyIndices indices;
 
     uint32_t queueFamilyCount = 0;
@@ -524,6 +571,7 @@ QueueFamilyIndices Device::findQueueFamilies(VkPhysicalDevice phdevice) const {
 }
 
 SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device) const {
+    VND_ZONE_SCOPED;
     SwapChainSupportDetails details;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface_, &details.capabilities);
 
@@ -546,6 +594,7 @@ SwapChainSupportDetails Device::querySwapChainSupport(VkPhysicalDevice device) c
 }
 
 VkFormat Device::findSupportedFormat(std::span<const VkFormat> candidates, VkImageTiling tiling, VkFormatFeatureFlags features) const {
+    VND_ZONE_SCOPED;
     for(const VkFormat format : candidates) {
         VkFormatProperties props;
         vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
@@ -564,6 +613,7 @@ VkFormat Device::findSupportedFormat(std::span<const VkFormat> candidates, VkIma
 }
 
 uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags propertiesp) const {
+    VND_ZONE_SCOPED;
     VkPhysicalDeviceMemoryProperties memProperties;
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
     const std::bitset<32> typeBits(typeFilter);
@@ -576,6 +626,7 @@ uint32_t Device::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags prope
 
 void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags propertiesp, VkBuffer &buffer,
                           VmaAllocation &allocation) {
+    VND_ZONE_SCOPED;
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = size;
@@ -593,6 +644,7 @@ void Device::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryP
 }
 
 VkCommandBuffer Device::beginSingleTimeCommands() {
+    VND_ZONE_SCOPED;
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -613,6 +665,7 @@ VkCommandBuffer Device::beginSingleTimeCommands() {
 }
 
 void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+    VND_ZONE_SCOPED;
     pcmdEndLabel(commandBuffer);
 
     VK_CHECK(vkEndCommandBuffer(commandBuffer), "failed to end single-time command buffer!");
@@ -635,6 +688,7 @@ void Device::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
 }
 
 void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+    VND_ZONE_SCOPED;
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     VkBufferCopy copyRegion{};
@@ -649,6 +703,7 @@ void Device::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize siz
 }
 
 void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layerCount) {
+    VND_ZONE_SCOPED;
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
     pcmdBeginLabel(commandBuffer, "Copy Buffer To Image", DebugColors::Yellow);
 
@@ -672,6 +727,7 @@ void Device::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, u
 
 void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPropertyFlags propertiesp, VkImage &image,
                                  VmaAllocation &allocation) {
+    VND_ZONE_SCOPED;
     VmaAllocationCreateInfo allocInfo = {};
     allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
     allocInfo.requiredFlags = propertiesp;

@@ -6,6 +6,7 @@
 #include "Vantablade/Model.hpp"
 #include "Vantablade/Utils.hpp"
 #include "Vantablade/vulkanCheck.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 #include <vk_mem_alloc.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1940
@@ -29,6 +30,7 @@ namespace {
 
 DISABLE_WARNINGS_PUSH(26432)
 void Model::Builder::loadModel(const std::string &filepath) {
+    VND_ZONE_SCOPED;
     const vnd::AutoTimer timer("loadModel");
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -92,6 +94,7 @@ void Model::Builder::loadModel(const std::string &filepath) {
 DISABLE_WARNINGS_POP()
 
 Model::Model(Device &device, const Model::Builder &builder) : device_m{device} {
+    VND_ZONE_SCOPED;
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
 }
@@ -102,6 +105,7 @@ Model::~Model() {
 }
 
 void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
+    VND_ZONE_SCOPED;
     vertexCount = C_UI32T(vertices.size());
     assert(vertexCount >= 3 && "Vertex count must be at least 3");
 
@@ -127,6 +131,7 @@ void Model::createVertexBuffers(const std::vector<Vertex> &vertices) {
 }
 
 void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
+    VND_ZONE_SCOPED;
     indexCount = C_UI32T(indices.size());
     hasIndexBuffer = indexCount > 0;
 
@@ -154,12 +159,14 @@ void Model::createIndexBuffers(const std::vector<uint32_t> &indices) {
 }
 
 std::unique_ptr<Model> Model::createModelFromFile(Device &device, const std::string &filepath) {
+    VND_ZONE_SCOPED;
     Builder builder{};
     builder.loadModel(filepath);
     return std::make_unique<Model>(device, builder);
 }
 
 void Model::draw(VkCommandBuffer commandBuffer) const {
+    VND_ZONE_SCOPED;
     if(hasIndexBuffer) {
         vkCmdDrawIndexed(commandBuffer, indexCount, 1, 0, 0, 0);
     } else {
@@ -168,6 +175,7 @@ void Model::draw(VkCommandBuffer commandBuffer) const {
 }
 
 void Model::bind(VkCommandBuffer commandBuffer) const {
+    VND_ZONE_SCOPED;
     const std::array<VkBuffer, 1> buffers{vertexBuffer};
     const std::array<VkDeviceSize, 1> offsets{0};
     vkCmdBindVertexBuffers(commandBuffer, 0, C_UI32T(buffers.size()), buffers.data(), offsets.data());
@@ -176,6 +184,7 @@ void Model::bind(VkCommandBuffer commandBuffer) const {
 }
 
 std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptions() {
+    VND_ZONE_SCOPED;
     std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
     bindingDescriptions[0].binding = 0;
     bindingDescriptions[0].stride = sizeof(Vertex);
@@ -184,6 +193,7 @@ std::vector<VkVertexInputBindingDescription> Model::Vertex::getBindingDescriptio
 }
 
 std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescriptions() {
+    VND_ZONE_SCOPED;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
     attributeDescriptions.push_back(

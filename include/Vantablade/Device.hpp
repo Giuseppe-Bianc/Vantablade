@@ -9,6 +9,8 @@
 #include "Window.hpp"
 #include "VkObjectTypeResolve.hpp"
 #include "vulkanToString.hpp"
+#include "Profiler.hpp"
+#include "ProfilingMacros.hpp"
 // clang-format on
 
 // Forward declaration for VMA
@@ -62,6 +64,7 @@ struct DeviceFeatureChain {
     VkPhysicalDeviceFeatures2 f2{};
 
     DeviceFeatureChain() noexcept {
+        VND_ZONE_SCOPED
         f14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
         f14.pNext = nullptr;
 
@@ -111,6 +114,7 @@ public:
     [[nodiscard]] VmaAllocator getAllocator() const noexcept { return allocator; }
     [[nodiscard]] VkInstance getInstance() const noexcept { return instance; }
     [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const noexcept { return physicalDevice; }
+    [[nodiscard]] TracyVkCtx getProfilerContext() const noexcept { return m_profiler.getContext(); }
 
     void updateMemoryStats();
 
@@ -189,6 +193,7 @@ private:
     void hasGflwRequiredInstanceExtensions();
     [[nodiscard]] static bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     [[nodiscard]] SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device) const;
+    void initProfiler();
 
     VkInstance instance{VK_NULL_HANDLE};
     VkDebugUtilsMessengerEXT debugMessenger{VK_NULL_HANDLE};
@@ -202,9 +207,11 @@ private:
     VkSurfaceKHR surface_{VK_NULL_HANDLE};
     VkQueue graphicsQueue_{VK_NULL_HANDLE};
     VkQueue presentQueue_{VK_NULL_HANDLE};
+    Vantablade::VulkanProfiler m_profiler;
 
     static inline constexpr std::array<const char *, 1> validationLayers{"VK_LAYER_KHRONOS_validation"};
-    static inline constexpr std::array<const char *, 1> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    static inline constexpr std::array<const char *, 2> deviceExtensions{VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                                                         VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME};
     static inline constexpr float queuePriority = 1.0f;
 };
 

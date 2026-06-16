@@ -10,6 +10,7 @@
 #include "Vantablade/KeyboardMovementController.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 
 #include <imgui.h>
 
@@ -178,6 +179,7 @@ void Application::loadGameObjects() {
 }
 
 void Application::mainLoop() {
+    VND_ZONE_SCOPED;
     SimpleRenderSystem simpleRenderSystem{device_m, renderer_m.getSwapChainRenderPass()};
     Camera camera{};
 
@@ -201,17 +203,24 @@ void Application::mainLoop() {
 
         // --- Vulkan render ----------------------------------------------
         if(auto commandBuffer = renderer_m.beginFrame()) {
-            // GPU frame scope: must end before vkEndCommandBuffer/collect
-            renderer_m.beginSwapChainRenderPass(commandBuffer);
-            simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+            const auto ctx = device_m.getProfilerContext();
 
-            imguiLayer_m->end(commandBuffer);
+            {  // ← explicit scope: GPU zone destructs here, before endFrame()
+                VND_GPU_ZONE(ctx, commandBuffer, "MainFrame");
 
-            renderer_m.endSwapChainRenderPass(commandBuffer);
-            renderer_m.endFrame();
+                renderer_m.beginSwapChainRenderPass(commandBuffer);
+                simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+                imguiLayer_m->end(commandBuffer);
+                renderer_m.endSwapChainRenderPass(commandBuffer);
+
+            }  // ← VND_GPU_ZONE destructs here: writes end timestamp while cmd is recording ✓
+
+            VND_GPU_COLLECT(ctx, commandBuffer);  // ← after all zones closed, before endFrame
+            renderer_m.endFrame();                // ← vkEndCommandBuffer
         }
 
         fps_m.tick();
+        VND_FRAME_MARK;
     }
 
     VK_CHECK(vkDeviceWaitIdle(device_m.device()), "failed to wait for device idle!");

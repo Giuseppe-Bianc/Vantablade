@@ -6,9 +6,11 @@
 // NOLINTBEGIN(*-include-cleaner, *-uppercase-literal-suffix, *-pro-type-union-access, *-avoid-magic-numbers,*-magic-numbers,*-make-member-function-const)
 // clang-format on
 #include "Vantablade/KeyboardMovementController.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 
 // NOLINTNEXTLINE(*-identifier-length)
 void KeyboardMovementController::moveInPlaneXZ(GLFWwindow *window, float dt, GameObject &gameObject) {
+    VND_ZONE_SCOPED;
     glm::vec3 rotate{0};
     if(glfwGetKey(window, keys.lookRight) == GLFW_PRESS) { rotate.y += 1.f; }
     if(glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) { rotate.y -= 1.f; }
