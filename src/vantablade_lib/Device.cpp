@@ -356,6 +356,7 @@ void Device::createLogicalDevice() {
     }*/
 
     VK_CHECK(vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_), "failed to create logical device!");
+    vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
 
     psetObjectName(instance, "Main Instance");
     psetObjectName(device_, "Main Device");
@@ -405,6 +406,12 @@ void Device::createAllocator() {
     allocatorCreateInfo.device = device_;
     allocatorCreateInfo.instance = instance;
     allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
+
+    // Enable budget tracking for memory plotting
+    if (properties.apiVersion >= VK_API_VERSION_1_0) {
+        // VMA uses this bit to enable internal budget tracking
+        allocatorCreateInfo.flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+    }
 
     VK_CHECK(vmaCreateAllocator(&allocatorCreateInfo, &allocator), "failed to create VMA allocator!");
 }
@@ -736,6 +743,33 @@ void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPro
     }
 
     VK_CHECK(vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr), "failed to create image!");
+
+}
+
+void Device::updateMemoryStats() {
+    VND_ZONE_SCOPED;
+
+    // 1. Heap Budgets
+    std::array<VmaBudget, VK_MAX_MEMORY_HEAPS> budgets{};
+    vmaGetHeapBudgets(allocator, budgets.data());
+
+    // 2. Global Statistics
+    VmaTotalStatistics stats{};
+    vmaCalculateStatistics(allocator, &stats);
+
+
+    VkDeviceSize totalBudget = 0;
+    for(uint32_t i = 0; i < memoryProperties.memoryHeapCount; ++i) { totalBudget += budgets[i].budget; }
+
+    const double usagePercent = (totalBudget == 0)
+                                ? 0.0
+                                : (static_cast<double>(stats.total.statistics.allocationBytes) / static_cast<double>(totalBudget)) * 100.0;
+    const double totalMB = static_cast<double>(stats.total.statistics.allocationBytes) / (1024.0 * 1024.0);
+
+    // Global Plots
+    VND_PLOT("VMA Global: Total Memory (MB)", totalMB);
+    VND_PLOT("VMA Global: Usage %", usagePercent);
+    VND_PLOT("VMA Global: Allocation Count", static_cast<double>(stats.total.statistics.allocationCount));
 }
 
 // clang-format off

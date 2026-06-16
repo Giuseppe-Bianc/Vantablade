@@ -141,6 +141,7 @@ public:
                              VmaAllocation &allocation);
 
     VkPhysicalDeviceProperties properties{};
+    VkPhysicalDeviceMemoryProperties memoryProperties{};
 
     template <typename T> void setObjectName(T handle, const char *name) noexcept { psetObjectName(handle, name); }
     // Command buffer labels

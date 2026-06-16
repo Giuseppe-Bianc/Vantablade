@@ -190,6 +190,7 @@ void Application::mainLoop() {
     KeyboardMovementController cameraController{};
 
     while(!window.shouldClose()) [[likely]] {
+        device_m.updateMemoryStats();
         glfwPollEvents();
         [[maybe_unused]] auto frameTime = C_F(fps_m.getFrameTime());
 
