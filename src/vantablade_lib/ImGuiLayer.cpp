@@ -5,8 +5,8 @@
 // NOLINTBEGIN(*-include-cleaner, *-signed-bitwise, *-uppercase-literal-suffix, *-avoid-magic-numbers, *-magic-numbers, *-pro-bounds-pointer-arithmetic, *-convert-member-functions-to-static)
 // clang-format on
 #include "Vantablade/ImGuiLayer.hpp"
-#include "Vantablade/vulkanCheck.hpp"
 #include "Vantablade/Profiler.hpp"
+#include "Vantablade/vulkanCheck.hpp"
 
 #include <vulkan/vk_enum_string_helper.h>
 

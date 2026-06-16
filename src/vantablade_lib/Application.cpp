@@ -8,9 +8,9 @@
 #include "Vantablade/Camera.hpp"
 #include "Vantablade/FPSCounter.hpp"
 #include "Vantablade/KeyboardMovementController.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 #include "Vantablade/SimpleRenderSystem.hpp"
 #include "Vantablade/vulkanCheck.hpp"
-#include "Vantablade/ProfilingMacros.hpp"
 
 #include <imgui.h>
 

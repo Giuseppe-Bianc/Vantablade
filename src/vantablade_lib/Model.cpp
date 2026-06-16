@@ -4,9 +4,9 @@
  */
 // NOLINTBEGIN(*-include-cleaner, *-signed-bitwise)
 #include "Vantablade/Model.hpp"
+#include "Vantablade/ProfilingMacros.hpp"
 #include "Vantablade/Utils.hpp"
 #include "Vantablade/vulkanCheck.hpp"
-#include "Vantablade/ProfilingMacros.hpp"
 #include <vk_mem_alloc.h>
 
 #if defined(_MSC_VER) && _MSC_VER < 1940
