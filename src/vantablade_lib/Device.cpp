@@ -408,7 +408,7 @@ void Device::createAllocator() {
     allocatorCreateInfo.pVulkanFunctions = &vulkanFunctions;
 
     // Enable budget tracking for memory plotting
-    if (properties.apiVersion >= VK_API_VERSION_1_0) {
+    if(properties.apiVersion >= VK_API_VERSION_1_0) {
         // VMA uses this bit to enable internal budget tracking
         allocatorCreateInfo.flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     }
@@ -743,7 +743,6 @@ void Device::createImageWithInfo(const VkImageCreateInfo &imageInfo, VkMemoryPro
     }
 
     VK_CHECK(vmaCreateImage(allocator, &imageInfo, &allocInfo, &image, &allocation, nullptr), "failed to create image!");
-
 }
 
 void Device::updateMemoryStats() {
@@ -757,13 +756,13 @@ void Device::updateMemoryStats() {
     VmaTotalStatistics stats{};
     vmaCalculateStatistics(allocator, &stats);
 
-
     VkDeviceSize totalBudget = 0;
     for(uint32_t i = 0; i < memoryProperties.memoryHeapCount; ++i) { totalBudget += budgets[i].budget; }
 
     const double usagePercent = (totalBudget == 0)
-                                ? 0.0
-                                : (static_cast<double>(stats.total.statistics.allocationBytes) / static_cast<double>(totalBudget)) * 100.0;
+                                    ? 0.0
+                                    : (static_cast<double>(stats.total.statistics.allocationBytes) / static_cast<double>(totalBudget)) *
+                                          100.0;
     const double totalMB = static_cast<double>(stats.total.statistics.allocationBytes) / (1024.0 * 1024.0);
 
     // Global Plots
